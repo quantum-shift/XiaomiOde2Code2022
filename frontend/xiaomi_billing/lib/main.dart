@@ -17,13 +17,35 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        title: 'Xiaomi POS',
-        theme: ThemeData(useMaterial3: true),
-        home: Scaffold(
-          appBar: AppBar(title: const Text('Xiaomi Hackathon!')),
-          body: context.watch<CredentialManager>().getToken() == ''
-              ? LoginPage()
-              : const HomePage(),
-        ));
+      title: 'Xiaomi POS',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+          useMaterial3: true,
+          visualDensity: VisualDensity.adaptivePlatformDensity,
+          colorScheme: ColorScheme.fromSwatch(
+            primarySwatch: miOrange,
+          )),
+      home: context.watch<CredentialManager>().getToken() == ''
+          ? LoginPage()
+          : const HomePage(),
+      routes: <String, WidgetBuilder>{
+        'Cart': (context) => const HomePage(),
+        'Hello' : (context) => const MyWidget(),
+      },
+    );
+  }
+}
+
+class MyWidget extends StatelessWidget {
+  const MyWidget({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Test'),
+      ),
+      body: Text('Hello World'),
+    );
   }
 }
