@@ -1,3 +1,4 @@
+from enum import unique
 from sqlalchemy import Boolean, Column, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
@@ -11,5 +12,21 @@ class User(Base):
     mi_id = Column(String, unique=True, index=True)
     hashed_password = Column(String)
 
-    
+class Customer(Base):
+    __tablename__ = "customer"
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String)
+    email = Column(String, unique=True, index=True)
+    orders = relationship("Order", back_populates="customer")
+
+class Product(Base):
+    __tablename__ = "product"
+    id = Column(Integer, primary_key=True, index=True)
+    category = Column(String)
+
+class Order(Base):
+    __tablename__ = "order"
+    id = Column(Integer, primary_key=True, index=True)
+    customer_id = Column(Integer, ForeignKey('customer.id'))
+    customer = relationship("Customer", back_populates="orders") 
 

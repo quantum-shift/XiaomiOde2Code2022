@@ -4,7 +4,7 @@ from typing import Union
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import JWTError, jwt
-from database.crud import get_user_by_mi_id
+from database.crud.user import get_user_by_mi_id
 from database.schemas import TokenData
 from database.database import get_db
 from sqlalchemy.orm import Session
