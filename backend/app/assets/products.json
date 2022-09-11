@@ -1,0 +1,32 @@
+[
+    {
+        "name": "P",
+        "id": "1",
+        "category": "Phones",
+        "price": 20000,
+        "img_url": "assets/product1.jpg",
+        "details": {
+            "color": "Red"
+        }
+    },
+    {
+        "name": "Q",
+        "id": "2",
+        "category": "TV",
+        "price": 5000,
+        "img_url": "assets/product2.jpg",
+        "details": {
+            "color": "Green"
+        }
+    },
+    {
+        "name": "R",
+        "id": "3",
+        "category": "Audio",
+        "price": 100000,
+        "img_url": "assets/product3.jpg",
+        "details": {
+            "color": "Orange"
+        }
+    }
+]
