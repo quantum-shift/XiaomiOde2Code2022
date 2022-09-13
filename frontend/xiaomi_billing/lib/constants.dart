@@ -43,6 +43,20 @@ var getButtonStyle = (context) => ButtonStyle(
 
 MaterialColor miOrange = createMaterialColor(const Color(0xffff6801));
 
+void showSnackBar(BuildContext context, String message) {
+  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(message),
+      duration: const Duration(milliseconds: 1500),
+      behavior: SnackBarBehavior.floating,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10.0),
+      ),
+      action: SnackBarAction(
+        label: 'Dismiss',
+        onPressed: () {},
+      )));
+}
+
 void setBaseUrl() {
   if (kIsWeb) {
     ;

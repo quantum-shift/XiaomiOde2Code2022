@@ -14,6 +14,49 @@ import 'package:hive_flutter/hive_flutter.dart';
 import '../../../states/products_model.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 
+void saveCartToFile(bool mounted, BuildContext context) async {
+  if (!mounted) return;
+  List<int> productIds = context.read<CartModel>().getProductIds();
+  List<String> serialNos = context.read<CartModel>().getSerialNos();
+  var box = await Hive.openBox('cart');
+  await box.clear();
+  box.put('id', productIds);
+  box.put('serial', serialNos);
+}
+
+Future<bool> isConnected(BuildContext context) async {
+  try {
+    Dio dio = await context.read<CredentialManager>().getAPIClient();
+    await dio.get('/');
+    return true;
+  } catch (error) {
+    return false;
+  }
+}
+
+void retrieveProductsFromFile(BuildContext context, bool mounted) async {
+  var box = await Hive.openBox('products');
+  if (box.isEmpty) return;
+  List<Product> productsInFile = [];
+  for (int i = 0; i < box.length; i++) {
+    productsInFile.add(box.getAt(i));
+  }
+  if (!mounted) return;
+  context.read<ProductModel>().updateProductList(productsInFile);
+}
+
+Future<void> retrieveProductsFromAPI(BuildContext context, bool mounted) async {
+  var dio = await context.read<CredentialManager>().getAPIClient();
+  Response<String> response = await dio.get('/products');
+  Iterable retrievedData = jsonDecode(response.data.toString());
+  List<Product> retrievedProducts = List<Product>.from(
+      retrievedData.map((e) => Product.fromJson(e)).toList());
+  if (!mounted) return;
+  context.read<ProductModel>().updateProductList(retrievedProducts);
+}
+
+// First time with no internet connection not handled yet
+
 class CartPage extends StatefulWidget {
   const CartPage({super.key});
 
@@ -22,47 +65,53 @@ class CartPage extends StatefulWidget {
 }
 
 class _CartPageState extends State<CartPage> {
-  Future<void> retrieveProductsFromAPI() async {
-    var dio = await Provider.of<CredentialManager>(context, listen: false)
-        .getAPIClient();
-    Response<String> response = await dio.get('/products');
-    Iterable retrievedData = jsonDecode(response.data.toString());
-    List<Product> retrievedProducts = List<Product>.from(
-        retrievedData.map((e) => Product.fromJson(e)).toList());
-    if (!mounted) return;
-    context.read<ProductModel>().updateProductList(retrievedProducts);
-    context.read<CartModel>().removeAll();
+  Future<void> clearFile() async {
+    var box = await Hive.openBox('products');
+    await box.clear();
   }
 
-  // void retrieveProductsFromFile() async {
-  //   var box = await Hive.openBox('cart');
-  //   for (int i = 0; i < box.length; i++) {
-  //     print(box.getAt(i));
-  //   }
-  // }
+  void writeProductsToFile() async {
+    await clearFile();
+    var box = await Hive.openBox('products');
+    if (!mounted) return;
+    for (Product product in context.read<ProductModel>().getProducts()) {
+      box.add(product);
+    }
+  }
 
-  // void clearFile() async {
-  //   var box = await Hive.openBox('cart');
-  //   await box.clear();
-  // }
-
-  // void writeProductsToFile() async {
-  //   var box = await Hive.openBox('cart');
-  //   for (Product product in context.read<CartModel>().getProducts()) {
-  //     box.add(product);
-  //   }
-  // }
+  Future<void> readCartFromFile() async {
+    var box = await Hive.openBox('cart');
+    if (box.isEmpty) return;
+    var productIds = box.get('id');
+    var serialNos = box.get('serial');
+    for (int i = 0; i < productIds.length; i++) {
+      context.read<CartModel>().addProduct(productIds[i], serialNos[i]);
+    }
+  }
 
   @override
   void initState() {
     super.initState();
-    retrieveProductsFromAPI();
-    // retrieveProductsFromFile();
+    handleMount();
   }
 
   @override
   void dispose() {
     super.dispose();
+  }
+
+  void handleMount() async {
+    if (!context.read<CartModel>().visited) {
+      try {
+        await retrieveProductsFromAPI(context, mounted);
+      } catch (error) {
+        retrieveProductsFromFile(context, mounted);
+      }
+      writeProductsToFile();
+      readCartFromFile();
+      if (!mounted) return;
+      context.read<CartModel>().visited = true;
+    }
   }
 
   @override
@@ -77,8 +126,20 @@ class _CartPageState extends State<CartPage> {
     }
     Size size = MediaQuery.of(context).size;
     return Scaffold(
-      body: RefreshIndicator(
-      onRefresh: retrieveProductsFromAPI,
+        body: RefreshIndicator(
+      onRefresh: () async {
+        try {
+          bool connected = await isConnected(context);
+          if (connected) {
+            await retrieveProductsFromAPI(context, mounted);
+            showSnackBar(context, "Products updated");
+          } else {
+            throw Exception();
+          }
+        } catch (error) {
+          showSnackBar(context, "Cannot connect to server");
+        }
+      },
       child: CustomScrollView(
         slivers: [
           SliverAppBar(
@@ -171,6 +232,7 @@ class _CartPageState extends State<CartPage> {
                                             context
                                                 .read<CartModel>()
                                                 .removeId(index);
+                                            saveCartToFile(mounted, context);
                                           },
                                           child: Icon(
                                             Icons.delete,

@@ -4,6 +4,7 @@ import 'package:xiaomi_billing/states/products_model.dart';
 class CartModel extends ChangeNotifier {
   final List<int> _productIds = [];
   final List<String> _serialNos = [];
+  bool visited = false;
 
   List<int> getProductIds() {
     return _productIds;
