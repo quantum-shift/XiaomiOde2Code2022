@@ -12,7 +12,13 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'constants.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
-final Product dummyProduct = Product(productName: 'a', productId: 1, productCategory: 'a', price: 1, productImageUrl: 'a', productDetails: Map <String, dynamic>());
+final Product dummyProduct = Product(
+    productName: 'a',
+    productId: 1,
+    productCategory: 'a',
+    price: 1,
+    productImageUrl: 'a',
+    productDetails: Map<String, dynamic>());
 
 void main() async {
   setBaseUrl();
@@ -24,7 +30,8 @@ void main() async {
     ChangeNotifierProvider(create: (context) => CartModel()),
     ChangeNotifierProvider(create: (context) => ProductModel())
   ], child: const MyApp()));
-  
+}
+
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -48,7 +55,10 @@ class MyApp extends StatelessWidget {
       routes: <String, WidgetBuilder>{
         'Home': (context) => const HomePage(),
         'Store': (context) => const StorePage(),
-        'ProductDetails': (context) => ProductDetails(product: dummyProduct, serialNo: '',), 
+        'ProductDetails': (context) => ProductDetails(
+              product: dummyProduct,
+              serialNo: '',
+            ),
       },
     );
   }
