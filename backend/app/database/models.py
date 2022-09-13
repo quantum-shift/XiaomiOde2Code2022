@@ -1,4 +1,3 @@
-from enum import unique
 from sqlalchemy import Boolean, Column, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
@@ -27,6 +26,12 @@ class Product(Base):
 class Order(Base):
     __tablename__ = "order"
     id = Column(Integer, primary_key=True, index=True)
+    order_id = Column(String, unique=True)
+    payment_id = Column(String, unique=True)
+    receipt_id = Column(String, unique=True)
+    amount = Column(Integer)
+    currency = Column(String)
+    payment_verified = Column(Boolean)
     customer_id = Column(Integer, ForeignKey('customer.id'))
     customer = relationship("Customer", back_populates="orders") 
 

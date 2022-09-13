@@ -1,5 +1,5 @@
 import json
-from typing import List, Union
+from typing import List, Optional, Union
 from pydantic import BaseModel
 
 
@@ -46,10 +46,23 @@ class Product(BaseModel):
     class Config:
         orm_mode = True
 
-class Order(BaseModel):
-    id: int
-    customer_id: int
-    customer: Customer
+class OrderNew(BaseModel):
+    amount: int
+    currency: str
+
+class OrderSuccess(BaseModel):
+    order_id: str
+    payment_id: str
+    signature: str
+
+class Order(OrderNew):
+    id: Optional[int]
+    receipt_id: str
+    payment_verified: bool
+    order_id: str
+    payment_id: str
+    # customer_id: int
+    # customer: Customer
     class Config:
         orm_mode = True
 
