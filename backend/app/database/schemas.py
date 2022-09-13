@@ -28,11 +28,21 @@ class Token(BaseModel):
 class TokenData(BaseModel):
     username: Union[str, None] = None
 
+class CustomerGet(BaseModel):
+    phone: str
+    class Config:
+        orm_mode = True
+
+class CustomerCreate(BaseModel):
+    phone: str
+    email: str
+    name: str
 
 class Customer(BaseModel):
     id: int
     name: str
     email: str
+    phone: str
     orders: "List[Order]" = []
     class Config:
         orm_mode = True
