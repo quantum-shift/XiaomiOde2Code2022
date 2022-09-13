@@ -1,10 +1,15 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from payments.order import init_client
 from log_util.log_util import get_logger
 from database import models
 from database.database import engine
 from fastapi.security import OAuth2PasswordBearer
 from routes import customer, order, product, user
+from dotenv import load_dotenv
+
+load_dotenv()
+init_client()
 
 logger = get_logger('main')
 
