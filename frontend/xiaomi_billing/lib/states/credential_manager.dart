@@ -36,7 +36,7 @@ class CredentialManager extends ChangeNotifier {
     _dio.interceptors.clear();
     if (_token != '') {
       _dio.interceptors.add(InterceptorsWrapper(onRequest: (options, handler) {
-        options.headers["Authorisation"] = "Bearer $_token";
+        options.headers["Authorization"] = "Bearer $_token";
         return handler.next(options);
       }));
     }

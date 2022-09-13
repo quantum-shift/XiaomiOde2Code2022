@@ -1,6 +1,6 @@
 [
     {
-        "name": "P",
+        "name": "Xiaomi Mi 7 Chad Edition",
         "id": "1",
         "category": "Phones",
         "price": 20000,
@@ -10,7 +10,7 @@
         }
     },
     {
-        "name": "Q",
+        "name": "Mi 8+ TV",
         "id": "2",
         "category": "TV",
         "price": 5000,
@@ -20,13 +20,23 @@
         }
     },
     {
-        "name": "R",
+        "name": "Xiomi Green headphones",
         "id": "3",
         "category": "Audio",
         "price": 100000,
         "img_url": "assets/product3.jpg",
         "details": {
             "color": "Orange"
+        }
+    },
+    {
+        "name": "Mi Note 10",
+        "id": "4",
+        "category": "Phones",
+        "price": 40000,
+        "img_url": "assets/product4.jpg",
+        "details": {
+            "color": "Pink"
         }
     }
 ]
