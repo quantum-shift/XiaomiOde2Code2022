@@ -46,12 +46,12 @@ class MyApp extends StatelessWidget {
           colorScheme: ColorScheme.fromSwatch(
             primarySwatch: miOrange,
           )),
-      // home: context.watch<CredentialManager>().getToken() == ''
-      //     ? LoginPage()
-      //     : const HomePage(),
       home: context.watch<CredentialManager>().getToken() == ''
           ? LoginPage()
-          : CheckoutPage(),
+          : const HomePage(),
+      // home: context.watch<CredentialManager>().getToken() == ''
+      //     ? LoginPage()
+      //     : CheckoutPage(),
       routes: <String, WidgetBuilder>{
         'Home': (context) => const HomePage(),
         'Store': (context) => const StorePage(),
