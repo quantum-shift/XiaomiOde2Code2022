@@ -52,7 +52,8 @@ void setBaseUrl() {
       baseUrl = 'http://10.0.2.2:8000';
     } else if (Platform.isMacOS) {
       print("Base url correctly set!");
-      baseUrl = 'http://10.0.2.2:8000';
+      baseUrl = 'http://pc01.local:8000';
+      // print(baseUrl);
     }
   }
 }
