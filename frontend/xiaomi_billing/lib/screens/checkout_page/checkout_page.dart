@@ -51,6 +51,7 @@ class CheckoutPageState extends State<CheckoutPage> {
           .post('/order/new', data: {'amount': amount, 'currency': 'INR'});
     } on DioError catch (e) {
       print("HANDLING LOL!");
+      print(e);
       if (!mounted) return;
       context.read<CredentialManager>().doLogout();
       return;
