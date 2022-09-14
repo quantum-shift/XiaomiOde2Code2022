@@ -10,7 +10,7 @@ from database.database import get_db
 router = APIRouter()
 
 @router.get('/customer/{phone}', response_model=schemas.Customer)
-def customer(phone: int, user: schemas.User = Depends(get_current_user), db: Session = Depends(get_db)):
+def customer(phone: str, user: schemas.User = Depends(get_current_user), db: Session = Depends(get_db)):
     
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"Not authorised to access products!")
