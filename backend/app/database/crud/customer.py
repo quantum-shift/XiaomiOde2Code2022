@@ -19,10 +19,11 @@ def create_customer(db: Session, customer: schemas.CustomerCreate):
     if not existing_customer:
         db_customer = models.Customer(email = customer.email, name = customer.name, phone=customer.phone)
     else:
-        db_customer = models.Customer(email = customer.email, name = customer.name, phone=customer.phone, id=existing_customer.id)
+        db_customer = existing_customer
+        db_customer.name = customer.name
+        db_customer.email = customer.email
 
     db.add(db_customer)
     db.commit()
     db.refresh(db_customer)
     return db_customer
-    
