@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import 'package:xiaomi_billing/constants.dart';
 import 'package:xiaomi_billing/states/credential_manager.dart';
 
+import '../../states/global_data.dart';
+
 class LoginPage extends StatelessWidget {
   LoginPage({super.key});
 
@@ -20,7 +22,7 @@ class LoginPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
-    
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("Xiaomi Billing"),
@@ -42,8 +44,8 @@ class LoginPage extends StatelessWidget {
               ),
             ),
             Padding(
-              padding:
-                  EdgeInsets.symmetric(vertical: 8.0, horizontal: size.width * 0.1),
+              padding: EdgeInsets.symmetric(
+                  vertical: 8.0, horizontal: size.width * 0.1),
               child: TextFormField(
                 controller: _usernameController,
                 autofocus: true,
@@ -57,8 +59,8 @@ class LoginPage extends StatelessWidget {
               ),
             ),
             Padding(
-              padding:
-                  EdgeInsets.symmetric(vertical: 8.0, horizontal: size.width * 0.1),
+              padding: EdgeInsets.symmetric(
+                  vertical: 8.0, horizontal: size.width * 0.1),
               child: TextFormField(
                 controller: _passwordController,
                 obscureText: true,
@@ -79,6 +81,10 @@ class LoginPage extends StatelessWidget {
                   child: ElevatedButton(
                     style: getButtonStyle(context),
                     onPressed: () {
+                      context
+                          .read<GlobalData>()
+                          .setOperatorId(_usernameController.text);
+                      saveDataToFile<String>('operatorId', _usernameController.text);
                       if (_formKey.currentState!.validate()) {
                         ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(content: Text('Logging in!')));
@@ -95,6 +101,10 @@ class LoginPage extends StatelessWidget {
                   child: ElevatedButton(
                     style: getButtonStyle(context),
                     onPressed: () {
+                      context
+                          .read<GlobalData>()
+                          .setOperatorId(_usernameController.text);
+                      saveDataToFile<String>('operatorId', _usernameController.text);
                       if (_formKey.currentState!.validate()) {
                         ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(content: Text('Logging in!')));
