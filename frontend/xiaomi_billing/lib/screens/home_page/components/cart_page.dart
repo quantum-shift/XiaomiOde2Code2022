@@ -5,12 +5,15 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:xiaomi_billing/constants.dart';
+import 'package:xiaomi_billing/screens/customer_info_page/customer_info.dart';
+import 'package:xiaomi_billing/screens/home_page/components/empty_cart_card.dart';
 import 'package:xiaomi_billing/screens/store_page/store_page.dart';
 import 'package:xiaomi_billing/states/cart_model.dart';
 import 'package:xiaomi_billing/states/credential_manager.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:xiaomi_billing/states/global_data.dart';
 import '../../../states/products_model.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 
@@ -101,7 +104,7 @@ class _CartPageState extends State<CartPage> {
   }
 
   void handleMount() async {
-    if (!context.read<CartModel>().visited) {
+    if (!context.read<GlobalData>().visitedCart) {
       try {
         await retrieveProductsFromAPI(context, mounted);
       } catch (error) {
@@ -110,7 +113,7 @@ class _CartPageState extends State<CartPage> {
       writeProductsToFile();
       readCartFromFile();
       if (!mounted) return;
-      context.read<CartModel>().visited = true;
+      context.read<GlobalData>().setVisitedCart(true);
     }
   }
 
@@ -182,7 +185,10 @@ class _CartPageState extends State<CartPage> {
                       style: getButtonStyle(context),
                     ),
                     ElevatedButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.of(context).push(MaterialPageRoute(
+                            builder: (context) => const CustomerInfo()));
+                      },
                       child: Text('Checkout'),
                       style: getButtonStyle(context),
                     ),
@@ -192,7 +198,14 @@ class _CartPageState extends State<CartPage> {
             ),
           ),
           cartItems.isEmpty
-              ? SliverToBoxAdapter(child: SizedBox())
+              ? SliverToBoxAdapter(
+                  child: Padding(
+                      padding: EdgeInsets.all(size.width * 0.05),
+                      child: EmptyCartCard(
+                          message:
+                              'Your cart is empty. Add new items to cart by visiting the store.',
+                          size: size)),
+                )
               : SliverGrid(
                   gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
                     maxCrossAxisExtent: 400.0,

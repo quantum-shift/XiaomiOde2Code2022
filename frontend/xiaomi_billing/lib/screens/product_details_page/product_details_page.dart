@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:provider/provider.dart';
+import 'package:xiaomi_billing/screens/home_page/components/cart_page.dart';
 import 'package:xiaomi_billing/states/cart_model.dart';
 import 'package:xiaomi_billing/states/products_model.dart';
 
@@ -114,10 +115,12 @@ class _ProductDetailsState extends State<ProductDetails> {
             if (_selected) {
               List<int> productList = context.read<CartModel>().getProductIds();
               context.read<CartModel>().removeId(productList.length - 1);
+              saveCartToFile(mounted, context);
             } else {
               context
                   .read<CartModel>()
                   .addProduct(product.productId, _serialNoController.text);
+              saveCartToFile(mounted, context);
             }
             _selected = !_selected;
           });
