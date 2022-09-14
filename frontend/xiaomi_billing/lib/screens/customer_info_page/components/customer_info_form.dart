@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
@@ -61,15 +64,43 @@ class _CustomerInfoFormState extends State<CustomerInfoForm> {
             padding: const EdgeInsets.symmetric(vertical: 20),
             child: TextFormField(
               autofocus: true,
-              keyboardType: TextInputType.phone,
+              keyboardType: const TextInputType.numberWithOptions(
+                  signed: true, decimal: true),
               decoration: const InputDecoration(
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                  ),
-                  suffixIcon: Icon(Icons.phone),
-                  labelText: 'Phone Number'),
-              validator: formFieldValidator,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                ),
+                suffixIcon: Icon(Icons.phone),
+                labelText: 'Phone Number',
+              ),
               controller: _phoneController,
+              validator: formFieldValidator,
+              textInputAction: TextInputAction.next,
+              onFieldSubmitted: (String? value) async {
+                Dio dio =
+                    await context.read<CredentialManager>().getAPIClient();
+                try {
+                  Response<String> response =
+                      await dio.get("/customer/${_phoneController.text}");
+                  final data = jsonDecode(response.data.toString());
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                      content: Text('AutoFill Information'),
+                      duration: const Duration(milliseconds: 3000),
+                      behavior: SnackBarBehavior.floating,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                      action: SnackBarAction(
+                        label: 'Yes',
+                        onPressed: () {
+                          _emailController.text = data['email'];
+                          _nameController.text = data['name'];
+                        },
+                      )));
+                } catch (error) {
+                  ;
+                }
+              },
             ),
           ),
           Padding(
@@ -84,6 +115,7 @@ class _CustomerInfoFormState extends State<CustomerInfoForm> {
                   labelText: 'Email'),
               validator: formFieldValidator,
               controller: _emailController,
+              textInputAction: TextInputAction.next,
             ),
           ),
           Padding(
@@ -98,6 +130,7 @@ class _CustomerInfoFormState extends State<CustomerInfoForm> {
                   labelText: 'Name'),
               validator: formFieldValidator,
               controller: _nameController,
+              textInputAction: TextInputAction.done,
             ),
           ),
           Padding(
@@ -160,9 +193,13 @@ class _CustomerInfoFormState extends State<CustomerInfoForm> {
                 ),
                 onPressed: () async {
                   if (_formKey.currentState!.validate()) {
-                    await submitCustomerInfo();
-                    Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) => CheckoutPage()));
+                    try {
+                      await submitCustomerInfo();
+                    } catch (error) {
+                    } finally {
+                      Navigator.of(context).push(MaterialPageRoute(
+                          builder: (context) => CheckoutPage()));
+                    }
                   }
                 },
               ))
