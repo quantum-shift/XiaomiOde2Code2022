@@ -67,7 +67,7 @@ class _CustomerInfoState extends State<CustomerInfo> {
           : SliverToBoxAdapter(
               child: Padding(
                 padding: EdgeInsets.symmetric(
-                    horizontal: size.width * 0.05, vertical: 0),
+                    horizontal: size.width * 0.05, vertical: 20),
                 child: Column(
                   children: [
                     Row(

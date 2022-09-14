@@ -1,8 +1,11 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
+import 'package:provider/provider.dart';
 import 'package:xiaomi_billing/constants.dart';
 import 'package:xiaomi_billing/screens/checkout_page/checkout_page.dart';
+import 'package:xiaomi_billing/states/credential_manager.dart';
 
 class CustomerInfoForm extends StatefulWidget {
   const CustomerInfoForm({super.key});
@@ -33,6 +36,16 @@ class _CustomerInfoFormState extends State<CustomerInfoForm> {
       return 'Fields cannot be empty';
     }
     return null;
+  }
+
+  Future<void> submitCustomerInfo() async {
+    Dio dio = await context.read<CredentialManager>().getAPIClient();
+    await dio.post('/customer', data: {
+      "phone": _phoneController.text,
+      "email": _emailController.text,
+      "name": _nameController.text
+    });
+    return;
   }
 
   @override
@@ -118,7 +131,9 @@ class _CustomerInfoFormState extends State<CustomerInfoForm> {
               ),
             ),
           ),
-          Padding(padding: const EdgeInsets.fromLTRB(0, 20, 0, 0), child: Divider(thickness: 3)),
+          Padding(
+              padding: const EdgeInsets.fromLTRB(0, 20, 0, 0),
+              child: Divider(thickness: 3)),
           Container(
               width: size.width * 0.9,
               padding: const EdgeInsets.symmetric(vertical: 20.0),
@@ -136,14 +151,16 @@ class _CustomerInfoFormState extends State<CustomerInfoForm> {
                       return miOrange; // Use the component's default.
                     },
                   ),
-                  foregroundColor: MaterialStateProperty.resolveWith<Color?>((states) => Colors.white),
+                  foregroundColor: MaterialStateProperty.resolveWith<Color?>(
+                      (states) => Colors.white),
                   shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                       RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(2.0),
                   )),
                 ),
-                onPressed: () {
+                onPressed: () async {
                   if (_formKey.currentState!.validate()) {
+                    await submitCustomerInfo();
                     Navigator.of(context).push(MaterialPageRoute(
                         builder: (context) => CheckoutPage()));
                   }
