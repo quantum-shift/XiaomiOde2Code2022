@@ -1,13 +1,32 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from fastapi.security import OAuth2PasswordRequestForm
 
 
-from auth.auth import authenticate_user
+from auth.auth import get_current_user
+import database.crud.customer as customer_crud
 from database import schemas
 from database.database import get_db
-from database.crud import user as user_crud
-from auth.auth import ACCESS_TOKEN_EXPIRE_MINUTES, authenticate_user, create_access_token
-from datetime import timedelta
 
 router = APIRouter()
+
+@router.get('/customer', response_model=schemas.Customer)
+def customer(customer_get: schemas.CustomerGet, user: schemas.User = Depends(get_current_user), db: Session = Depends(get_db)):
+    
+    if not user:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"Not authorised to access products!")
+    
+    phone = customer_get.phone
+    customer = customer_crud.get_customer_by_phone(phone=phone)
+
+    if not customer:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Cannot find customer with phone: {customer}")
+    
+    return customer
+
+@router.post('/customer', response_model=schemas.Customer)
+def create_customer(customer_create: schemas.CustomerCreate, user: schemas.User = Depends(get_current_user), db: Session = Depends(get_db)):
+    
+    if not user:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"Not authorised to access products!")
+    
+    return customer_crud.create_customer(db = db, customer = customer_create)
