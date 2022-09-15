@@ -15,13 +15,12 @@ class Product {
 
   factory Product.fromJson(dynamic json) {
     return Product(
-      productName: json['name'] as String,
-      productId: json['id'] as int,
-      productCategory: json['category'] as String,
-      price: json['price'] as int,
-      productImageUrl: json['img_url'] as String,
-      productDetails: json['details']
-    );
+        productName: json['name'] as String,
+        productId: json['id'] as int,
+        productCategory: json['category'] as String,
+        price: json['price'] as int,
+        productImageUrl: json['img_url'] as String,
+        productDetails: json['details']);
   }
 
   @HiveField(0)

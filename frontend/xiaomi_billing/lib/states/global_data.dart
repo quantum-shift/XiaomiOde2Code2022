@@ -27,7 +27,7 @@ void saveDataToFile<T>(String key, T value) async {
   box.put(key, value);
 }
 
-Future <T> readDataFromFile<T>(String key) async{
+Future<T> readDataFromFile<T>(String key) async {
   var box = await Hive.openBox('global');
   return box.get(key);
 }

@@ -118,7 +118,9 @@ class _CustomerInfoFormState extends State<CustomerInfoForm> {
               ),
             ),
           ),
-          Padding(padding: const EdgeInsets.fromLTRB(0, 20, 0, 0), child: Divider(thickness: 3)),
+          Padding(
+              padding: const EdgeInsets.fromLTRB(0, 20, 0, 0),
+              child: Divider(thickness: 3)),
           Container(
               width: size.width * 0.9,
               padding: const EdgeInsets.symmetric(vertical: 20.0),
@@ -136,7 +138,8 @@ class _CustomerInfoFormState extends State<CustomerInfoForm> {
                       return miOrange; // Use the component's default.
                     },
                   ),
-                  foregroundColor: MaterialStateProperty.resolveWith<Color?>((states) => Colors.white),
+                  foregroundColor: MaterialStateProperty.resolveWith<Color?>(
+                      (states) => Colors.white),
                   shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                       RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(2.0),

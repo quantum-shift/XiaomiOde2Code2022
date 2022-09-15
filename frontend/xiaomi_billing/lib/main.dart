@@ -1,6 +1,8 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:xiaomi_billing/screens/checkout_page/checkout_page.dart';
+import 'package:xiaomi_billing/screens/checkout_page/windows_checkout_page.dart';
 import 'package:xiaomi_billing/screens/customer_info_page/customer_info.dart';
 import 'package:xiaomi_billing/screens/home_page/home_page.dart';
 import 'package:xiaomi_billing/screens/login_page/login_page.dart';
@@ -54,7 +56,8 @@ class MyApp extends StatelessWidget {
           : const HomePage(),
       // home: context.watch<CredentialManager>().getToken() == ''
       //     ? LoginPage()
-      //     : CheckoutPage(),
+      //     : WindowsCheckoutPage(
+      //         name: "Arka", phone: "+911111122222", amount: 50000),
       routes: <String, WidgetBuilder>{
         'Home': (context) => const HomePage(),
         'Store': (context) => const StorePage(),
@@ -63,7 +66,7 @@ class MyApp extends StatelessWidget {
               serialNo: '',
             ),
         'CustomerInfo': (context) => const CustomerInfo(),
-        'Checkout' : (context) => CheckoutPage(),
+        'Checkout': (context) => CheckoutPage(),
       },
     );
   }
