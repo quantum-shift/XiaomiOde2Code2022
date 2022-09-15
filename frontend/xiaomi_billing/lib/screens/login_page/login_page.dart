@@ -84,7 +84,8 @@ class LoginPage extends StatelessWidget {
                       context
                           .read<GlobalData>()
                           .setOperatorId(_usernameController.text);
-                      saveDataToFile<String>('operatorId', _usernameController.text);
+                      saveDataToFile<String>(
+                          'operatorId', _usernameController.text);
                       if (_formKey.currentState!.validate()) {
                         ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(content: Text('Logging in!')));
@@ -104,7 +105,8 @@ class LoginPage extends StatelessWidget {
                       context
                           .read<GlobalData>()
                           .setOperatorId(_usernameController.text);
-                      saveDataToFile<String>('operatorId', _usernameController.text);
+                      saveDataToFile<String>(
+                          'operatorId', _usernameController.text);
                       if (_formKey.currentState!.validate()) {
                         ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(content: Text('Logging in!')));

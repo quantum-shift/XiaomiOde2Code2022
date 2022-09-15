@@ -19,7 +19,11 @@ class OrdersPage extends StatelessWidget {
         automaticallyImplyLeading: false,
         actions: [
           IconButton(
-            icon: const Icon(Icons.logout, color: Colors.white, semanticLabel: 'Logout',),
+            icon: const Icon(
+              Icons.logout,
+              color: Colors.white,
+              semanticLabel: 'Logout',
+            ),
             tooltip: 'Logout',
             onPressed: () {
               context.read<CredentialManager>().doLogout();
