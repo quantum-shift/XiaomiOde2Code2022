@@ -35,21 +35,21 @@ class _StorePageState extends State<StorePage> {
     Size size = MediaQuery.of(context).size;
     return Scaffold(
         body: RefreshIndicator(
-          onRefresh: () async{
-            try {
-              bool connected = await isConnected(context);
-              if (connected) {
-                await retrieveProductsFromAPI(context, mounted);
-                showSnackBar(context, "Products updated");
-              } else {
-                throw Exception();
-              }
-            } catch (error) {
-              showSnackBar(context, "Cannot connect to server");
-            }
-          },
-          child: CustomScrollView(slivers: [
-              SliverAppBar(
+      onRefresh: () async {
+        try {
+          bool connected = await isConnected(context);
+          if (connected) {
+            await retrieveProductsFromAPI(context, mounted);
+            showSnackBar(context, "Products updated");
+          } else {
+            throw Exception();
+          }
+        } catch (error) {
+          showSnackBar(context, "Cannot connect to server");
+        }
+      },
+      child: CustomScrollView(slivers: [
+        SliverAppBar(
           pinned: true,
           backgroundColor: miOrange,
           foregroundColor: Colors.white,
@@ -57,8 +57,8 @@ class _StorePageState extends State<StorePage> {
           flexibleSpace: FlexibleSpaceBar(
             title: const Text('Store'),
           ),
-              ),
-              SliverList(
+        ),
+        SliverList(
           delegate: SliverChildBuilderDelegate(
               (context, index) => Padding(
                     padding: const EdgeInsets.fromLTRB(0, 20, 0, 0),
@@ -75,8 +75,8 @@ class _StorePageState extends State<StorePage> {
                     ),
                   ),
               childCount: 1),
-              ),
-              SliverList(
+        ),
+        SliverList(
             delegate: SliverChildBuilderDelegate(
                 (context, index) => Card(
                       child: InkWell(
@@ -91,17 +91,20 @@ class _StorePageState extends State<StorePage> {
                           padding: const EdgeInsets.symmetric(
                               vertical: 10, horizontal: 5),
                           child: ListTile(
-                            leading: Hero(child: Image.asset('assets/mi.svg.png'), tag: currentProducts[index].productId,),
+                            leading: Hero(
+                              child: Image.asset('assets/mi.svg.png'),
+                              tag: currentProducts[index].productId,
+                            ),
                             title: Text(currentProducts[index].productName),
-                            subtitle:
-                                Text("\u{20B9} ${currentProducts[index].price}"),
+                            subtitle: Text(
+                                "\u{20B9} ${currentProducts[index].price}"),
                           ),
                         ),
                       ),
                     ),
                 childCount: currentProducts.length))
-            ]),
-        ));
+      ]),
+    ));
   }
 }
 

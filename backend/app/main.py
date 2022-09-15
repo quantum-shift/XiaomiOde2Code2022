@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from payments.order import init_client
 from log_util.log_util import get_logger
@@ -24,8 +25,9 @@ app.include_router(order.router)
 app.include_router(product.router)
 app.include_router(user.router)
 origins = [
-    "http://localhost:3000",
-    "http://localhost:8000"
+    # "http://localhost:3000",
+    # "http://localhost:8000",
+    "*"
 ]
 app.add_middleware(
     CORSMiddleware,
@@ -34,6 +36,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app.mount('/static', StaticFiles(directory="static"), name="static")
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
