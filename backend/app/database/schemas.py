@@ -76,4 +76,10 @@ class Order(OrderNew):
     class Config:
         orm_mode = True
 
+class OrderForToken(BaseModel):
+    amount: int
+    name: str
+    phone: str
+    order_id: str
+
 Customer.update_forward_refs()

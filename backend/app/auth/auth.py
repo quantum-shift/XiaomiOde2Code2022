@@ -33,6 +33,7 @@ def authenticate_user(db, mi_id: str, password: str):
 
 
 def create_access_token(data: dict, expires_delta: Union[timedelta, None] = None):
+    print("Create access token called with data: ", data)
     to_encode = data.copy()
     if expires_delta:
         expire = datetime.utcnow() + expires_delta
@@ -42,6 +43,9 @@ def create_access_token(data: dict, expires_delta: Union[timedelta, None] = None
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
+def get_decoded_object(token):
+    payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+    return payload
 
 async def get_current_user(db: Session = Depends(get_db), token: str = Depends(oauth2_scheme)):
     print("GET CURRENT USER CALLED WITH TOKEN: ", token)
