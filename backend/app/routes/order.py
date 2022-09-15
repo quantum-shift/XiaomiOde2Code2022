@@ -1,26 +1,48 @@
+from datetime import timedelta
+import os
 from typing import List
-from urllib import response
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
+from fastapi.responses import HTMLResponse
 from sqlalchemy.orm import Session
 from uuid import uuid4
 
-from auth.auth import get_current_user
+from auth.auth import create_access_token, get_current_user, get_decoded_object
 from database.database import get_db
 from database.crud import order as order_crud
+from database.crud import customer as customer_crud
 from database import schemas
 from log_util.log_util import get_logger
 import payments.order
+
+ORDER_TOKEN_EXPIRE_MINUTES = 5
 
 
 logger = get_logger('order')
 
 router = APIRouter()
+templates = Jinja2Templates(directory="templates")
+# print(templates.)
 
+@router.post('/order/token')
+async def get_order_token(order_for_token: schemas.OrderForToken, user: schemas.User = Depends(get_current_user)):
+    if not user:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"Not authorised to create a new order!")
+    token: str = create_access_token(order_for_token.dict(), expires_delta=timedelta(minutes=ORDER_TOKEN_EXPIRE_MINUTES))
+    return token
+
+@router.get('/order/windows/{token}', response_class=HTMLResponse)
+async def read_html(request: Request, token: str, db = Depends(get_db)):
+    payload = get_decoded_object(token=token)
+    customer = customer_crud.get_customer_by_phone(db=db, phone=payload.get('phone'))
+    payload['email'] = customer.email
+    return templates.TemplateResponse("index.html", {"request": request, "payload": payload, "API_KEY_ID": os.environ.get('API_KEY_ID')})
 
 @router.post('/order/new')
 def new_order(order_new: schemas.OrderNew, user: schemas.User = Depends(get_current_user)):
     if not user:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"Not authorised to access products!")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"Not authorised to create a new order!")
     
     receipt_id = str(uuid4())
     order_id = payments.order.create_order(amount=order_new.amount, receipt=receipt_id, currency=order_new.currency)
@@ -29,7 +51,7 @@ def new_order(order_new: schemas.OrderNew, user: schemas.User = Depends(get_curr
 @router.post('/order/success')
 async def order_success(order_success: schemas.OrderSuccess, user: schemas.User = Depends(get_current_user), db: Session = Depends(get_db)):
     if not user:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"Not authorised to access products!")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"Not authorised to update order status!")
     
     order_id = order_success.order_id
     payment_id = order_success.payment_id
@@ -59,7 +81,7 @@ async def order_success(order_success: schemas.OrderSuccess, user: schemas.User 
 def order(id: int, user: schemas.User = Depends(get_current_user), db: Session = Depends(get_db)):
     
     if not user:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"Not authorised to access products!")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"Not authorised to access orders!")
 
     db_order = order_crud.get_order(db, id)
 
@@ -72,7 +94,7 @@ def order(id: int, user: schemas.User = Depends(get_current_user), db: Session =
 def orders(user: schemas.User = Depends(get_current_user), db: Session = Depends(get_db)):
 
     if not user:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"Not authorised to access products!")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"Not authorised to access orders!")
     
     db_order = order_crud.get_orders()
 
