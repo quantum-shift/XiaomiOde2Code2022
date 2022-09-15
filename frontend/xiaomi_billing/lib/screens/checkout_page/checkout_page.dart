@@ -1,10 +1,12 @@
 import 'dart:ui';
+import 'dart:io' show Platform;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:provider/provider.dart';
 import 'package:xiaomi_billing/screens/checkout_page/components/razorpay_checkout.dart';
+import 'package:xiaomi_billing/screens/checkout_page/components/windows_checkout_page.dart';
 import 'package:xiaomi_billing/screens/success_page/success_page.dart';
 import 'package:xiaomi_billing/states/cart_model.dart';
 
@@ -206,9 +208,16 @@ class _CheckoutState extends State<CheckoutPage> {
                           textInputAction: TextInputAction.done,
                         ),
                       ))
-                  : Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [RazorpayCheckout()])),
+                  : Row(mainAxisAlignment: MainAxisAlignment.start, children: [
+                      (Platform.isWindows ||
+                              Platform.isMacOS ||
+                              Platform.isLinux)
+                          ? WindowsCheckoutPage(
+                              name: 'Arka',
+                              phone: '+911111122222',
+                              amount: 50000)
+                          : RazorpayCheckout()
+                    ])),
         ],
       )),
     ]));

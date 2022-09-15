@@ -30,9 +30,7 @@ class WindowsCheckoutPageState extends State<WindowsCheckoutPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(title: const Text("my lovely ass")),
-        body: ElevatedButton(onPressed: onPayClick, child: const Text("Pay")));
+    return TextButton(onPressed: onPayClick, child: const Text('Click here to complete online payment'));
   }
 
   void onPayClick() async {
