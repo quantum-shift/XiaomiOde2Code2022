@@ -58,7 +58,7 @@ Future<void> retrieveProductsFromAPI(BuildContext context, bool mounted) async {
   context.read<ProductModel>().updateProductList(retrievedProducts);
 }
 
-// First time with no internet connection not handled yet
+// Use future builder for loading spinner
 
 class CartPage extends StatefulWidget {
   const CartPage({super.key});

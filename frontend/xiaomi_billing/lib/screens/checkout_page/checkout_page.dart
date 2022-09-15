@@ -1,107 +1,216 @@
-import 'package:dio/dio.dart';
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:razorpay_flutter/razorpay_flutter.dart';
-import 'package:xiaomi_billing/states/credential_manager.dart';
+import 'package:flutter/src/widgets/container.dart';
+import 'package:flutter/src/widgets/framework.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:xiaomi_billing/screens/checkout_page/components/razorpay_checkout.dart';
+import 'package:xiaomi_billing/screens/success_page/success_page.dart';
+import 'package:xiaomi_billing/states/cart_model.dart';
+
+import '../../constants.dart';
+import '../../states/products_model.dart';
 
 class CheckoutPage extends StatefulWidget {
+  const CheckoutPage({super.key});
+
   @override
-  CheckoutPageState createState() => CheckoutPageState();
+  State<CheckoutPage> createState() => _CheckoutState();
 }
 
-class CheckoutPageState extends State<CheckoutPage> {
-  late Razorpay _razorpay;
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(title: const Text('Razorpay Checkout')),
-        body: Center(
-            child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            ElevatedButton(onPressed: openCheckout, child: const Text('Open'))
-          ],
-        )));
-  }
+class _CheckoutState extends State<CheckoutPage> {
+  int _index = 0;
+  int amount = 0;
+  List<String> paymentOptions = ['Offline', 'Razorpay'];
+  late String? chosenPaymentOption;
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  late TextEditingController paymentController;
 
   @override
   void initState() {
     super.initState();
-    _razorpay = Razorpay();
-    _razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccess);
-    _razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentError);
-    _razorpay.on(Razorpay.EVENT_EXTERNAL_WALLET, _handleExternalWallet);
+    for (int id in context.read<CartModel>().getProductIds()) {
+      for (Product product in context.read<ProductModel>().getProducts()) {
+        if (id == product.productId) {
+          amount += product.price;
+        }
+      }
+    }
+    chosenPaymentOption = paymentOptions[0];
+    paymentController = TextEditingController();
   }
 
   @override
-  void dispose() {
-    super.dispose();
-    _razorpay.clear();
-  }
-
-  void openCheckout() async {
-    Dio dio = await context.read<CredentialManager>().getAPIClient();
-    int amount = 1000;
-    late final Response response;
-    try {
-      response = await dio
-          .post('/order/new', data: {'amount': amount, 'currency': 'INR'});
-    } on DioError catch (e) {
-      print("HANDLING LOL!");
-      print(e);
-      if (!mounted) return;
-      context.read<CredentialManager>().doLogout();
-      return;
-    }
-    final String receiptId = response.data['receipt_id'],
-        orderId = response.data['order_id'];
-    final String? API_KEY_ID = dotenv.env['API_KEY_ID'];
-    var options = {
-      'key': API_KEY_ID,
-      'amount': amount,
-      'name': 'Acme Corp.',
-      'order_id': orderId,
-      'description': 'Fine T-Shirt',
-      'retry': {'enabled': true, 'max_count': 1},
-      'send_sms_hash': true,
-      'prefill': {'contact': '1111111111', 'email': 'test@razorpay.com'},
-    };
-
-    try {
-      _razorpay.open(options);
-    } catch (e) {
-      debugPrint('Error: e');
-    }
-  }
-
-  void _handlePaymentSuccess(PaymentSuccessResponse response) async {
-    print('Success Response: $response');
-    if (!mounted) return;
-    Dio dio = await context.read<CredentialManager>().getAPIClient();
-    await dio.post('/order/success', data: {
-      'order_id': response.orderId,
-      'payment_id': response.paymentId,
-      'signature': response.signature
-    });
-    /*Fluttertoast.showToast(
-        msg: "SUCCESS: " + response.paymentId!,
-        toastLength: Toast.LENGTH_SHORT); */
-  }
-
-  void _handlePaymentError(PaymentFailureResponse response) {
-    print('Error Response: $response');
-    /* Fluttertoast.showToast(
-        msg: "ERROR: " + response.code.toString() + " - " + response.message!,
-        toastLength: Toast.LENGTH_SHORT); */
-  }
-
-  void _handleExternalWallet(ExternalWalletResponse response) {
-    print('External SDK Response: $response');
-    /* Fluttertoast.showToast(
-        msg: "EXTERNAL_WALLET: " + response.walletName!,
-        toastLength: Toast.LENGTH_SHORT); */
+  Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
+    return Scaffold(
+        body: CustomScrollView(slivers: [
+      SliverAppBar(
+        pinned: true,
+        backgroundColor: miOrange,
+        foregroundColor: Colors.white,
+        expandedHeight: size.height * 0.1,
+        flexibleSpace: const FlexibleSpaceBar(
+          title: Text('Checkout'),
+        ),
+      ),
+      SliverToBoxAdapter(
+          child: Stepper(
+        currentStep: _index,
+        onStepCancel: () {
+          if (_index > 0) {
+            setState(() {
+              _index -= 1;
+            });
+          }
+        },
+        onStepContinue: () async {
+          if (_index <= 1) {
+            setState(() {
+              _index += 1;
+            });
+          } else if (_index == 2 && chosenPaymentOption == paymentOptions[0]) {
+            if (_formKey.currentState!.validate()) {
+              return showDialog<void>(
+                context: context,
+                barrierDismissible: false,
+                builder: (context) => AlertDialog(
+                  title: const Text("Payment Confirmation"),
+                  content: const Text(
+                      "Are you sure you want to complete the transaction ?"),
+                  actions: [
+                    TextButton(
+                        onPressed: () {
+                          Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) => const SuccesPage()));
+                        },
+                        child: Text('Yes')),
+                    TextButton(
+                        onPressed: () => Navigator.pop(context, 'No'),
+                        child: const Text('No'))
+                  ],
+                ),
+              );
+            }
+          }
+        },
+        onStepTapped: (int index) {
+          setState(() {
+            _index = index;
+          });
+        },
+        steps: [
+          Step(
+              title: const Text('Payable Amount'),
+              content: Container(
+                  width: size.width,
+                  child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Container(
+                                width: 100,
+                                child: Text("Amount :",
+                                    style: TextStyle(fontSize: 16))),
+                            Container(
+                              width: 100,
+                              child: Text("\u{20B9}${amount * 1.0}",
+                                  style: TextStyle(fontSize: 16)),
+                            ),
+                          ],
+                        ),
+                        Row(
+                          children: [
+                            Container(
+                                width: 100,
+                                child: Text("Tax :",
+                                    style: TextStyle(fontSize: 16))),
+                            Container(
+                              width: 100,
+                              child: Text("\u{20B9}${amount * 0.15}",
+                                  style: TextStyle(fontSize: 16)),
+                            ),
+                          ],
+                        ),
+                        Row(
+                          children: [
+                            Container(
+                                width: 100,
+                                child: Text("Total :",
+                                    style: TextStyle(fontSize: 16))),
+                            Container(
+                              width: 100,
+                              child: Text("\u{20B9}${amount * 1.15}",
+                                  style: TextStyle(fontSize: 16)),
+                            ),
+                          ],
+                        )
+                      ]))),
+          Step(
+              title: const Text('Payment Method'),
+              content: Column(
+                children: <Widget>[
+                  ListTile(
+                    title: Text(paymentOptions[0]),
+                    leading: Radio<String>(
+                      activeColor: miOrange,
+                      value: paymentOptions[0],
+                      groupValue: chosenPaymentOption,
+                      onChanged: (String? value) {
+                        setState(() {
+                          chosenPaymentOption = value;
+                        });
+                      },
+                    ),
+                  ),
+                  ListTile(
+                    title: Text(paymentOptions[1]),
+                    leading: Radio<String>(
+                      activeColor: miOrange,
+                      value: paymentOptions[1],
+                      groupValue: chosenPaymentOption,
+                      onChanged: (String? value) {
+                        setState(() {
+                          chosenPaymentOption = value;
+                        });
+                      },
+                    ),
+                  ),
+                ],
+              )),
+          Step(
+              title: const Text('Payment Completion'),
+              content: chosenPaymentOption == paymentOptions[0]
+                  ? Container(
+                      padding: EdgeInsets.all(8.0),
+                      child: Form(
+                        key: _formKey,
+                        child: TextFormField(
+                          keyboardType: const TextInputType.numberWithOptions(
+                              signed: true, decimal: true),
+                          decoration: const InputDecoration(
+                              border: OutlineInputBorder(
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(8.0)),
+                              ),
+                              suffixIcon: Icon(Icons.currency_rupee),
+                              labelText: "Amount Payed"),
+                          controller: paymentController,
+                          validator: (String? value) {
+                            if (value == null || value.isEmpty) {
+                              return "Field cannot be empty";
+                            }
+                            return null;
+                          },
+                          textInputAction: TextInputAction.done,
+                        ),
+                      ))
+                  : Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [RazorpayCheckout()])),
+        ],
+      )),
+    ]));
   }
 }

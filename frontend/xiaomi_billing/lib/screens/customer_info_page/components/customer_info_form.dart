@@ -1,8 +1,14 @@
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
+import 'package:provider/provider.dart';
 import 'package:xiaomi_billing/constants.dart';
 import 'package:xiaomi_billing/screens/checkout_page/checkout_page.dart';
+import 'package:xiaomi_billing/states/credential_manager.dart';
 
 class CustomerInfoForm extends StatefulWidget {
   const CustomerInfoForm({super.key});
@@ -35,6 +41,16 @@ class _CustomerInfoFormState extends State<CustomerInfoForm> {
     return null;
   }
 
+  Future<void> submitCustomerInfo() async {
+    Dio dio = await context.read<CredentialManager>().getAPIClient();
+    await dio.post('/customer', data: {
+      "phone": _phoneController.text,
+      "email": _emailController.text,
+      "name": _nameController.text
+    });
+    return;
+  }
+
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
@@ -48,15 +64,43 @@ class _CustomerInfoFormState extends State<CustomerInfoForm> {
             padding: const EdgeInsets.symmetric(vertical: 20),
             child: TextFormField(
               autofocus: true,
-              keyboardType: TextInputType.phone,
+              keyboardType: const TextInputType.numberWithOptions(
+                  signed: true, decimal: true),
               decoration: const InputDecoration(
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                  ),
-                  suffixIcon: Icon(Icons.phone),
-                  labelText: 'Phone Number'),
-              validator: formFieldValidator,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                ),
+                suffixIcon: Icon(Icons.phone),
+                labelText: 'Phone Number',
+              ),
               controller: _phoneController,
+              validator: formFieldValidator,
+              textInputAction: TextInputAction.next,
+              onFieldSubmitted: (String? value) async {
+                Dio dio =
+                    await context.read<CredentialManager>().getAPIClient();
+                try {
+                  Response<String> response =
+                      await dio.get("/customer/${_phoneController.text}");
+                  final data = jsonDecode(response.data.toString());
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                      content: Text('AutoFill Information'),
+                      duration: const Duration(milliseconds: 3000),
+                      behavior: SnackBarBehavior.floating,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                      action: SnackBarAction(
+                        label: 'Yes',
+                        onPressed: () {
+                          _emailController.text = data['email'];
+                          _nameController.text = data['name'];
+                        },
+                      )));
+                } catch (error) {
+                  ;
+                }
+              },
             ),
           ),
           Padding(
@@ -71,6 +115,7 @@ class _CustomerInfoFormState extends State<CustomerInfoForm> {
                   labelText: 'Email'),
               validator: formFieldValidator,
               controller: _emailController,
+              textInputAction: TextInputAction.next,
             ),
           ),
           Padding(
@@ -85,6 +130,7 @@ class _CustomerInfoFormState extends State<CustomerInfoForm> {
                   labelText: 'Name'),
               validator: formFieldValidator,
               controller: _nameController,
+              textInputAction: TextInputAction.done,
             ),
           ),
           Padding(
@@ -145,10 +191,15 @@ class _CustomerInfoFormState extends State<CustomerInfoForm> {
                     borderRadius: BorderRadius.circular(2.0),
                   )),
                 ),
-                onPressed: () {
+                onPressed: () async {
                   if (_formKey.currentState!.validate()) {
-                    Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) => CheckoutPage()));
+                    try {
+                      await submitCustomerInfo();
+                    } catch (error) {
+                    } finally {
+                      Navigator.of(context).push(MaterialPageRoute(
+                          builder: (context) => CheckoutPage()));
+                    }
                   }
                 },
               ))

@@ -8,6 +8,7 @@ import 'package:xiaomi_billing/screens/home_page/home_page.dart';
 import 'package:xiaomi_billing/screens/login_page/login_page.dart';
 import 'package:xiaomi_billing/screens/product_details_page/product_details_page.dart';
 import 'package:xiaomi_billing/screens/store_page/store_page.dart';
+import 'package:xiaomi_billing/screens/success_page/success_page.dart';
 import 'package:xiaomi_billing/states/cart_model.dart';
 import 'package:xiaomi_billing/states/credential_manager.dart';
 import 'package:xiaomi_billing/states/global_data.dart';
@@ -15,6 +16,8 @@ import 'package:xiaomi_billing/states/products_model.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'constants.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+
+import 'screens/checkout_page/checkout_page.dart';
 
 final Product dummyProduct = Product(
     productName: 'a',
@@ -66,7 +69,8 @@ class MyApp extends StatelessWidget {
               serialNo: '',
             ),
         'CustomerInfo': (context) => const CustomerInfo(),
-        'Checkout': (context) => CheckoutPage(),
+        'Checkout' : (context) => const CheckoutPage(),
+        'Success' : (context) => const SuccesPage(),
       },
     );
   }
