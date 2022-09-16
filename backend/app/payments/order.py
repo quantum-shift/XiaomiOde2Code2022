@@ -30,6 +30,10 @@ def verify_order_signature(order_id: str, payment_id: str, signature: str):
     }
     return client.utility.verify_payment_signature(DATA)
 
+def verify_webhook_signature(request_body: str, request_signature: str):
+    WEBHOOK_SECRET = os.environ.get('WEBHOOK_SECRET')
+    return client.utility.verify_webhook_signature(request_body, request_signature, WEBHOOK_SECRET)
+
 def get_payment_details(payment_id: str):
     payment = client.payment.fetch(payment_id)
     return payment

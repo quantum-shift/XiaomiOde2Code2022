@@ -77,13 +77,13 @@ class RazorpayCheckoutState extends State<RazorpayCheckout> {
 
   void _handlePaymentSuccess(PaymentSuccessResponse response) async {
     print('Success Response: $response');
-    if (!mounted) return;
-    Dio dio = await context.read<CredentialManager>().getAPIClient();
-    await dio.post('/order/success', data: {
-      'order_id': response.orderId,
-      'payment_id': response.paymentId,
-      'signature': response.signature
-    });
+    // if (!mounted) return;
+    // Dio dio = await context.read<CredentialManager>().getAPIClient();
+    // await dio.post('/order/success', data: {
+    //   'order_id': response.orderId,
+    //   'payment_id': response.paymentId,
+    //   'signature': response.signature
+    // });
     if (!mounted) return;
     Navigator.of(context)
         .push(MaterialPageRoute(builder: (context) => const SuccessPage()));

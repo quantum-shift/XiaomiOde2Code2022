@@ -9,14 +9,16 @@ def get_order(db: Session, order_id: int):
 def get_orders(db: Session, offset: int = 0, limit: int = 100):
     return db.query(models.Order).offset(offset).limit(limit).all()
 
-def create_order(db: Session, order: schemas.Order):
+def create_order(db: Session, order: schemas.OrderCreate):
     db_order = models.Order(
         order_id=order.order_id, 
         payment_id=order.payment_id, 
         receipt_id=order.receipt_id, 
         amount=order.amount, 
         currency=order.currency, 
-        payment_verified=order.payment_verified
+        payment_verified=order.payment_verified,
+        customer_id=order.customer_id,
+        items=order.items
     )
     db.add(db_order)
     db.commit()

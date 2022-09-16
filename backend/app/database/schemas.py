@@ -37,7 +37,8 @@ class CustomerCreate(BaseModel):
     phone: str
     email: str
     name: str
-
+    class Config:
+        orm_mode = True
 class Customer(BaseModel):
     id: int
     name: str
@@ -53,8 +54,10 @@ class Product(BaseModel):
     price: int
     img_url: str
     details: object
-    class Config:
-        orm_mode = True
+
+class SoldProduct(BaseModel):
+    product_id: int
+    serial: int
 
 class OrderNew(BaseModel):
     amount: int
@@ -65,14 +68,20 @@ class OrderSuccess(BaseModel):
     payment_id: str
     signature: str
 
-class Order(OrderNew):
+class OrderCreate(OrderNew):
     id: Optional[int]
     receipt_id: str
     payment_verified: bool
     order_id: str
     payment_id: str
-    # customer_id: int
-    # customer: Customer
+    customer_id: int
+    items: Optional[List[SoldProduct]]
+    class Config:
+        orm_mode = True
+
+
+class Order(OrderCreate):
+    customer: Customer
     class Config:
         orm_mode = True
 
