@@ -70,7 +70,7 @@ class MyApp extends StatelessWidget {
             ),
         'CustomerInfo': (context) => const CustomerInfo(),
         'Checkout' : (context) => const CheckoutPage(),
-        'Success' : (context) => const SuccesPage(),
+        'Success' : (context) => const SuccessPage(),
       },
     );
   }

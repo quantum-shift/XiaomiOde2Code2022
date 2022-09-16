@@ -1,6 +1,6 @@
 import 'dart:ui';
 import 'dart:io' show Platform;
-
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
@@ -46,13 +46,14 @@ class _CheckoutState extends State<CheckoutPage> {
   @override
   Widget build(BuildContext context) {
     int totalPrice = 0;
-    for (int id in context.read<CartModel>().getProductIds()) {
-      for (Product product in context.read<ProductModel>().getProducts()) {
+    for (int id in context.watch<CartModel>().getProductIds()) {
+      for (Product product in context.watch<ProductModel>().getProducts()) {
         if (product.productId == id) {
           totalPrice += product.price;
         }
       }
     }
+    totalPrice = totalPrice * 115;  // to convert to paise
     Size size = MediaQuery.of(context).size;
     return Scaffold(
         body: CustomScrollView(slivers: [
@@ -93,7 +94,7 @@ class _CheckoutState extends State<CheckoutPage> {
                     TextButton(
                         onPressed: () {
                           Navigator.of(context).push(MaterialPageRoute(
-                              builder: (context) => const SuccesPage()));
+                              builder: (context) => const SuccessPage()));
                         },
                         child: Text('Yes')),
                     TextButton(
@@ -126,7 +127,8 @@ class _CheckoutState extends State<CheckoutPage> {
                                     style: TextStyle(fontSize: 16))),
                             Container(
                               width: 100,
-                              child: Text("\u{20B9}${amount * 1.0}",
+                              child: Text(
+                                  "\u{20B9}${(amount * 1.0).toStringAsFixed(2)}",
                                   style: TextStyle(fontSize: 16)),
                             ),
                           ],
@@ -139,7 +141,8 @@ class _CheckoutState extends State<CheckoutPage> {
                                     style: TextStyle(fontSize: 16))),
                             Container(
                               width: 100,
-                              child: Text("\u{20B9}${amount * 0.15}",
+                              child: Text(
+                                  "\u{20B9}${(amount * 0.15).toStringAsFixed(2)}",
                                   style: TextStyle(fontSize: 16)),
                             ),
                           ],
@@ -152,7 +155,8 @@ class _CheckoutState extends State<CheckoutPage> {
                                     style: TextStyle(fontSize: 16))),
                             Container(
                               width: 100,
-                              child: Text("\u{20B9}${amount * 1.15}",
+                              child: Text(
+                                  "\u{20B9}${(amount * 1.15).toStringAsFixed(2)}",
                                   style: TextStyle(fontSize: 16)),
                             ),
                           ],
@@ -218,14 +222,14 @@ class _CheckoutState extends State<CheckoutPage> {
                         ),
                       ))
                   : Row(mainAxisAlignment: MainAxisAlignment.start, children: [
-                      (Platform.isWindows ||
+                      (kIsWeb || Platform.isWindows ||
                               Platform.isMacOS ||
                               Platform.isLinux)
                           ? WindowsCheckoutPage(
                               name: context.read<GlobalData>().customerName,
                               phone: context.read<GlobalData>().customerPhone,
                               amount: totalPrice)
-                          : RazorpayCheckout()
+                          : RazorpayCheckout(amount: totalPrice)
                     ])),
         ],
       )),

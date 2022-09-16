@@ -48,10 +48,7 @@ class WindowsCheckoutPageState extends State<WindowsCheckoutPage> {
       });
       launchUrl(Uri.parse('$baseUrl/order/windows/$token'));
     } on DioError catch (e) {
-      print("HANDLING LOL!");
-      print(e);
-      if (!mounted) return;
-      context.read<CredentialManager>().doLogout();
+      showSnackBar(context, "Payment failed. Something went wrong");
       return;
     }
   }
