@@ -1,4 +1,4 @@
-from sqlalchemy import Boolean, Column, ForeignKey, Integer, String
+from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, PickleType
 from sqlalchemy.orm import relationship
 
 from .database import Base
@@ -33,6 +33,7 @@ class Order(Base):
     amount = Column(Integer)
     currency = Column(String)
     payment_verified = Column(Boolean)
+    items = Column(PickleType)
     customer_id = Column(Integer, ForeignKey('customer.id'))
     customer = relationship("Customer", back_populates="orders") 
 

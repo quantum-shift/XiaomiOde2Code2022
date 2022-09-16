@@ -68,7 +68,7 @@ async def order_success(order_success: schemas.OrderSuccess, user: schemas.User 
     
     payment_details = payments.order.get_payment_details(payment_id)
     order_details = payments.order.get_order_details(order_id)
-    order: schemas.Order = schemas.Order(
+    order: schemas.OrderCreate = schemas.OrderCreate(
         order_id=order_id, 
         payment_id=payment_id, 
         receipt_id=order_details['receipt'], 
@@ -116,8 +116,10 @@ async def order_paid(request: Request, db: Session = Depends(get_db)):
     decoded_order = decoded_body['payload']['order']['entity']
     decoded_payment = decoded_body['payload']['payment']['entity']
 
-    order_id = decoded_order['order_id']
-    receipt_id = decoded_order['receipt_id']
+    print("Decoded order: ", decoded_order)
+    print("Decoded payment: ", decoded_payment)
+    order_id = decoded_order['id']
+    receipt_id = decoded_order['receipt']
 
     amount = decoded_payment['amount']
     currency = decoded_payment['currency']
@@ -127,14 +129,14 @@ async def order_paid(request: Request, db: Session = Depends(get_db)):
     items = []
 
     phone = decoded_payment['contact']
-    customer: schemas.Customer = customer_crud.get_customer_by_phone(phone=phone)
+    customer: schemas.Customer = customer_crud.get_customer_by_phone(db=db, phone=phone)
 
     if customer is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Customer not found!")
 
     customer_id = customer.id
 
-    order: schemas.Order = schemas.Order(
+    order: schemas.OrderCreate = schemas.OrderCreate(
         order_id=order_id, 
         payment_id=payment_id, 
         receipt_id=receipt_id, 
