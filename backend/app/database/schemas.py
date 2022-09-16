@@ -53,8 +53,10 @@ class Product(BaseModel):
     price: int
     img_url: str
     details: object
-    class Config:
-        orm_mode = True
+
+class SoldProduct(BaseModel):
+    product_id: int
+    serial: int
 
 class OrderNew(BaseModel):
     amount: int
@@ -71,8 +73,9 @@ class Order(OrderNew):
     payment_verified: bool
     order_id: str
     payment_id: str
-    # customer_id: int
-    # customer: Customer
+    customer_id: int
+    customer: Customer
+    items: Optional[List[SoldProduct]]
     class Config:
         orm_mode = True
 

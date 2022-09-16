@@ -1,4 +1,6 @@
+from base64 import decode
 from datetime import timedelta
+import json
 import os
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status, Request
@@ -98,3 +100,52 @@ def orders(user: schemas.User = Depends(get_current_user), db: Session = Depends
     
     db_order = order_crud.get_orders()
 
+@router.post('/order/paid')
+async def order_paid(request: Request, db: Session = Depends(get_db)):
+    body = await request.body()
+    body = body.decode('utf-8')
+    signature = request.headers.get('x-razorpay-signature')
+    if payments.order.verify_webhook_signature(request_signature=signature, request_body=body):
+        print("Webhook verified successfully!")
+    else:
+        print("Could not verify webhook!")
+        return
+    decoded_body = await request.json()
+    # print(decoded_body)
+    # print(decoded_body['order_id'])
+    decoded_order = decoded_body['payload']['order']['entity']
+    decoded_payment = decoded_body['payload']['payment']['entity']
+
+    order_id = decoded_order['order_id']
+    receipt_id = decoded_order['receipt_id']
+
+    amount = decoded_payment['amount']
+    currency = decoded_payment['currency']
+    payment_id = decoded_payment['id']
+
+    payment_verified = True
+    items = []
+
+    phone = decoded_payment['contact']
+    customer: schemas.Customer = customer_crud.get_customer_by_phone(phone=phone)
+
+    if customer is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Customer not found!")
+
+    customer_id = customer.id
+
+    order: schemas.Order = schemas.Order(
+        order_id=order_id, 
+        payment_id=payment_id, 
+        receipt_id=receipt_id, 
+        amount=amount, 
+        currency=currency, 
+        payment_verified=payment_verified,
+        customer_id=customer_id,
+        items=items
+    )
+
+    order_crud.create_order(db=db, order=order)
+
+    
+# @router.post()
