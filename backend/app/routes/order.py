@@ -91,7 +91,7 @@ def get_order_status(id: str, user: schemas.User = Depends(get_current_user), db
     else:
         return {"status": "unknown"}
 
-@router.post('/order/{id}/complete', schemas.Order)
+@router.post('/order/{id}/complete', response_model=schemas.Order)
 def update_order_to_completion(id: str, order_update: schemas.OrderUpdate, user: schemas.User = Depends(get_current_user), db: Session = Depends(get_db)):
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"Not authorised to access orders!")
