@@ -2,11 +2,16 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
+import 'package:xiaomi_billing/constants.dart';
+import 'package:xiaomi_billing/screens/success_page/success_page.dart';
 import 'package:xiaomi_billing/states/credential_manager.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:xiaomi_billing/states/global_data.dart';
 
 class RazorpayCheckout extends StatefulWidget {
+  const RazorpayCheckout({super.key, required this.amount});
+  final int amount;
   @override
   RazorpayCheckoutState createState() => RazorpayCheckoutState();
 }
@@ -16,7 +21,9 @@ class RazorpayCheckoutState extends State<RazorpayCheckout> {
 
   @override
   Widget build(BuildContext context) {
-    return TextButton(onPressed: openCheckout, child: const Text('Click here to complete online payment'));
+    return TextButton(
+        onPressed: openCheckout,
+        child: const Text('Click here to complete online payment'));
   }
 
   @override
@@ -36,16 +43,13 @@ class RazorpayCheckoutState extends State<RazorpayCheckout> {
 
   void openCheckout() async {
     Dio dio = await context.read<CredentialManager>().getAPIClient();
-    int amount = 1000;
+    int amount = widget.amount;
     late final Response response;
     try {
       response = await dio
           .post('/order/new', data: {'amount': amount, 'currency': 'INR'});
     } on DioError catch (e) {
-      print("HANDLING LOL!");
-      print(e);
-      if (!mounted) return;
-      context.read<CredentialManager>().doLogout();
+      showSnackBar(context, "Please check your internet connection.");
       return;
     }
     final String receiptId = response.data['receipt_id'],
@@ -54,12 +58,14 @@ class RazorpayCheckoutState extends State<RazorpayCheckout> {
     var options = {
       'key': API_KEY_ID,
       'amount': amount,
-      'name': 'Acme Corp.',
+      'name': 'Xiaomi',
       'order_id': orderId,
-      'description': 'Fine T-Shirt',
       'retry': {'enabled': true, 'max_count': 1},
       'send_sms_hash': true,
-      'prefill': {'contact': '1111111111', 'email': 'test@razorpay.com'},
+      'prefill': {
+        'contact': context.read<GlobalData>().customerPhone,
+        'email': context.read<GlobalData>().customerEmail
+      },
     };
 
     try {
@@ -78,6 +84,9 @@ class RazorpayCheckoutState extends State<RazorpayCheckout> {
       'payment_id': response.paymentId,
       'signature': response.signature
     });
+    if (!mounted) return;
+    Navigator.of(context)
+        .push(MaterialPageRoute(builder: (context) => const SuccessPage()));
     /*Fluttertoast.showToast(
         msg: "SUCCESS: " + response.paymentId!,
         toastLength: Toast.LENGTH_SHORT); */
@@ -85,6 +94,7 @@ class RazorpayCheckoutState extends State<RazorpayCheckout> {
 
   void _handlePaymentError(PaymentFailureResponse response) {
     print('Error Response: $response');
+    showSnackBar(context, "Payment failed. Something went wrong");
     /* Fluttertoast.showToast(
         msg: "ERROR: " + response.code.toString() + " - " + response.message!,
         toastLength: Toast.LENGTH_SHORT); */
