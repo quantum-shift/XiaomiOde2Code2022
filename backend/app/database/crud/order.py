@@ -1,10 +1,11 @@
+from typing import List
 from sqlalchemy.orm import Session
 
 from .. import schemas, models
 
 
 def get_order(db: Session, order_id: int):
-    return db.query(models.Order).filter(models.Order.id == order_id).first()
+    return db.query(models.Order).filter(models.Order.order_id == order_id).first()
 
 def get_orders(db: Session, offset: int = 0, limit: int = 100):
     return db.query(models.Order).offset(offset).limit(limit).all()
@@ -24,3 +25,18 @@ def create_order(db: Session, order: schemas.OrderCreate):
     db.commit()
     db.refresh(db_order)
     return db_order
+
+def update_order_cart(db: Session, order_id: str, items: List[schemas.SoldProduct]):
+    existing_order: schemas.Order = get_order(db = db, order_id = order_id)
+
+    if existing_order is None:
+        return False
+    
+    existing_order.items = items
+
+    db.add(existing_order)
+    db.commit()
+    db.refresh(existing_order)
+    
+    return True
+

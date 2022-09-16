@@ -68,6 +68,9 @@ class OrderSuccess(BaseModel):
     payment_id: str
     signature: str
 
+class OrderUpdate(BaseModel):
+    items: List[SoldProduct]
+
 class OrderCreate(OrderNew):
     id: Optional[int]
     receipt_id: str
