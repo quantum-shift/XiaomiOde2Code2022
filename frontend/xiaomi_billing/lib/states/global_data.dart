@@ -5,6 +5,9 @@ class GlobalData extends ChangeNotifier {
   bool visitedCart = false;
   String operatorId = '';
   String storeType = 'Mobile Store';
+  String customerName = '';
+  String customerEmail = '';
+  String customerPhone = '';
 
   void setVisitedCart(bool visitedCart) {
     this.visitedCart = visitedCart;
@@ -18,6 +21,21 @@ class GlobalData extends ChangeNotifier {
 
   void setStoreType(String storeType) {
     this.storeType = storeType;
+    notifyListeners();
+  }
+
+  void setCustomerName(String customerName) {
+    this.customerName = customerName;
+    notifyListeners();
+  }
+
+  void setCustomerEmail(String customerEmail) {
+    this.customerEmail = customerEmail;
+    notifyListeners();
+  }
+
+  void setCustomerPhone(String customerPhone) {
+    this.customerPhone = customerPhone;
     notifyListeners();
   }
 }

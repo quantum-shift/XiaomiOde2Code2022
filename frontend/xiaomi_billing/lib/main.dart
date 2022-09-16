@@ -2,7 +2,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:xiaomi_billing/screens/checkout_page/checkout_page.dart';
-import 'package:xiaomi_billing/screens/checkout_page/windows_checkout_page.dart';
+import 'package:xiaomi_billing/screens/checkout_page/components/windows_checkout_page.dart';
 import 'package:xiaomi_billing/screens/customer_info_page/customer_info.dart';
 import 'package:xiaomi_billing/screens/home_page/home_page.dart';
 import 'package:xiaomi_billing/screens/login_page/login_page.dart';

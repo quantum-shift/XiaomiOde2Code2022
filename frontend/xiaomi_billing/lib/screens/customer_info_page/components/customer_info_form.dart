@@ -9,6 +9,7 @@ import 'package:provider/provider.dart';
 import 'package:xiaomi_billing/constants.dart';
 import 'package:xiaomi_billing/screens/checkout_page/checkout_page.dart';
 import 'package:xiaomi_billing/states/credential_manager.dart';
+import 'package:xiaomi_billing/states/global_data.dart';
 
 class CustomerInfoForm extends StatefulWidget {
   const CustomerInfoForm({super.key});
@@ -197,6 +198,15 @@ class _CustomerInfoFormState extends State<CustomerInfoForm> {
                       await submitCustomerInfo();
                     } catch (error) {
                     } finally {
+                      context
+                          .read<GlobalData>()
+                          .setCustomerName(_nameController.text);
+                      context
+                          .read<GlobalData>()
+                          .setCustomerEmail(_emailController.text);
+                      context
+                          .read<GlobalData>()
+                          .setCustomerPhone(_phoneController.text);
                       Navigator.of(context).push(MaterialPageRoute(
                           builder: (context) => CheckoutPage()));
                     }

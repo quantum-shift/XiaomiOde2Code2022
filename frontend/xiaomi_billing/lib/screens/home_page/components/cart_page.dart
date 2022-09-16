@@ -211,11 +211,11 @@ class _CartPageState extends State<CartPage> {
                     maxCrossAxisExtent: 400.0,
                     mainAxisSpacing: 0.0,
                     crossAxisSpacing: 0.0,
-                    childAspectRatio: 1.60,
+                    mainAxisExtent: 250
                   ),
                   delegate: SliverChildBuilderDelegate(
                     (BuildContext context, int index) {
-                      return Padding(
+                      return Container(
                           padding: const EdgeInsets.symmetric(
                               vertical: 10.0, horizontal: 5.0),
                           child: Card(
@@ -247,11 +247,11 @@ class _CartPageState extends State<CartPage> {
                                                 .removeId(index);
                                             saveCartToFile(mounted, context);
                                           },
-                                          child: Icon(
+                                          style: getButtonStyle(context),
+                                          child: const Icon(
                                             Icons.delete,
                                             color: Colors.redAccent,
-                                          ),
-                                          style: getButtonStyle(context)),
+                                          )),
                                     ],
                                   )
                                 ],

@@ -1,12 +1,15 @@
 import 'dart:ui';
+import 'dart:io' show Platform;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:provider/provider.dart';
 import 'package:xiaomi_billing/screens/checkout_page/components/razorpay_checkout.dart';
+import 'package:xiaomi_billing/screens/checkout_page/components/windows_checkout_page.dart';
 import 'package:xiaomi_billing/screens/success_page/success_page.dart';
 import 'package:xiaomi_billing/states/cart_model.dart';
+import 'package:xiaomi_billing/states/global_data.dart';
 
 import '../../constants.dart';
 import '../../states/products_model.dart';
@@ -42,6 +45,14 @@ class _CheckoutState extends State<CheckoutPage> {
 
   @override
   Widget build(BuildContext context) {
+    int totalPrice = 0;
+    for (int id in context.read<CartModel>().getProductIds()) {
+      for (Product product in context.read<ProductModel>().getProducts()) {
+        if (product.productId == id) {
+          totalPrice += product.price;
+        }
+      }
+    }
     Size size = MediaQuery.of(context).size;
     return Scaffold(
         body: CustomScrollView(slivers: [
@@ -206,9 +217,16 @@ class _CheckoutState extends State<CheckoutPage> {
                           textInputAction: TextInputAction.done,
                         ),
                       ))
-                  : Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [RazorpayCheckout()])),
+                  : Row(mainAxisAlignment: MainAxisAlignment.start, children: [
+                      (Platform.isWindows ||
+                              Platform.isMacOS ||
+                              Platform.isLinux)
+                          ? WindowsCheckoutPage(
+                              name: context.read<GlobalData>().customerName,
+                              phone: context.read<GlobalData>().customerPhone,
+                              amount: totalPrice)
+                          : RazorpayCheckout()
+                    ])),
         ],
       )),
     ]));
