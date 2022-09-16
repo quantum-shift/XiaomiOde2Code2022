@@ -14,12 +14,18 @@ final navigatorKey = GlobalKey<NavigatorState>();
 class WindowsCheckoutPage extends StatefulWidget {
   late final String name, phone;
   late final int amount;
+  late final bool pressed;
+  Function() parentAction;
+  Function(String) parentOrderAction;
 
   WindowsCheckoutPage(
       {super.key,
       required this.name,
       required this.phone,
-      required this.amount});
+      required this.amount,
+      required this.pressed,
+      required this.parentAction,
+      required this.parentOrderAction});
 
   @override
   WindowsCheckoutPageState createState() => WindowsCheckoutPageState();
@@ -30,25 +36,34 @@ class WindowsCheckoutPageState extends State<WindowsCheckoutPage> {
 
   @override
   Widget build(BuildContext context) {
-    return TextButton(onPressed: onPayClick, child: const Text('Click here to complete online payment'));
+    return TextButton(
+        onPressed: onPayClick,
+        child: Text('Click here to complete online payment',
+            style: TextStyle(color: widget.pressed ? Colors.grey : miOrange)));
   }
 
   void onPayClick() async {
-    Dio dio = await context.read<CredentialManager>().getAPIClient();
-    late final Response response;
-    try {
-      response = await dio.post('/order/new',
-          data: {'amount': widget.amount, 'currency': 'INR'});
-      final String orderId = response.data['order_id'];
-      final token = await dio.post('/order/token', data: {
-        'order_id': orderId,
-        'amount': widget.amount,
-        'name': widget.name,
-        'phone': widget.phone
-      });
-      launchUrl(Uri.parse('$baseUrl/order/windows/$token'));
-    } on DioError catch (e) {
-      showSnackBar(context, "Payment failed. Something went wrong");
+    if (!widget.pressed) {
+      Dio dio = await context.read<CredentialManager>().getAPIClient();
+      late final Response response;
+      try {
+        response = await dio.post('/order/new',
+            data: {'amount': widget.amount, 'currency': 'INR'});
+        final String orderId = response.data['order_id'];
+        widget.parentOrderAction(orderId);
+        final token = await dio.post('/order/token', data: {
+          'order_id': orderId,
+          'amount': widget.amount,
+          'name': widget.name,
+          'phone': widget.phone
+        });
+        launchUrl(Uri.parse('$baseUrl/order/windows/$token'));
+        widget.parentAction();
+      } on DioError catch (e) {
+        showSnackBar(context, "Payment failed. Something went wrong");
+        return;
+      }
+    } else {
       return;
     }
   }

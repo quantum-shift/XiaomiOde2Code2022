@@ -89,6 +89,7 @@ def orders(user: schemas.User = Depends(get_current_user), db: Session = Depends
 
 @router.post('/order/paid')
 async def order_paid(request: Request, db: Session = Depends(get_db)):
+    print("Called order/paid.....")
     body = await request.body()
     body = body.decode('utf-8')
     signature = request.headers.get('x-razorpay-signature')

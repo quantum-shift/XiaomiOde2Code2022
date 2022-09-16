@@ -68,6 +68,8 @@ class CartPage extends StatefulWidget {
 }
 
 class _CartPageState extends State<CartPage> {
+  bool _loading = true;
+
   Future<void> clearFile() async {
     var box = await Hive.openBox('products');
     await box.clear();
@@ -112,9 +114,11 @@ class _CartPageState extends State<CartPage> {
       }
       writeProductsToFile();
       readCartFromFile();
-      if (!mounted) return;
       context.read<GlobalData>().setVisitedCart(true);
     }
+    setState(() {
+      _loading = false;      
+    });
   }
 
   @override
@@ -197,7 +201,17 @@ class _CartPageState extends State<CartPage> {
               ),
             ),
           ),
-          cartItems.isEmpty
+          _loading ?
+            SliverToBoxAdapter(child: Padding(
+              padding: const EdgeInsets.symmetric(vertical : 40),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(child: const CircularProgressIndicator.adaptive()),
+                ],
+              ),
+            ))
+          : cartItems.isEmpty
               ? SliverToBoxAdapter(
                   child: Padding(
                       padding: EdgeInsets.all(size.width * 0.05),
@@ -208,11 +222,10 @@ class _CartPageState extends State<CartPage> {
                 )
               : SliverGrid(
                   gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                    maxCrossAxisExtent: 400.0,
-                    mainAxisSpacing: 0.0,
-                    crossAxisSpacing: 0.0,
-                    mainAxisExtent: 250
-                  ),
+                      maxCrossAxisExtent: 400.0,
+                      mainAxisSpacing: 0.0,
+                      crossAxisSpacing: 0.0,
+                      mainAxisExtent: 250),
                   delegate: SliverChildBuilderDelegate(
                     (BuildContext context, int index) {
                       return Container(
