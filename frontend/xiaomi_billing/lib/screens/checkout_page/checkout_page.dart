@@ -9,6 +9,7 @@ import 'package:xiaomi_billing/screens/checkout_page/components/razorpay_checkou
 import 'package:xiaomi_billing/screens/checkout_page/components/windows_checkout_page.dart';
 import 'package:xiaomi_billing/screens/success_page/success_page.dart';
 import 'package:xiaomi_billing/states/cart_model.dart';
+import 'package:xiaomi_billing/states/global_data.dart';
 
 import '../../constants.dart';
 import '../../states/products_model.dart';
@@ -44,6 +45,14 @@ class _CheckoutState extends State<CheckoutPage> {
 
   @override
   Widget build(BuildContext context) {
+    int totalPrice = 0;
+    for (int id in context.read<CartModel>().getProductIds()) {
+      for (Product product in context.read<ProductModel>().getProducts()) {
+        if (product.productId == id) {
+          totalPrice += product.price;
+        }
+      }
+    }
     Size size = MediaQuery.of(context).size;
     return Scaffold(
         body: CustomScrollView(slivers: [
@@ -213,9 +222,9 @@ class _CheckoutState extends State<CheckoutPage> {
                               Platform.isMacOS ||
                               Platform.isLinux)
                           ? WindowsCheckoutPage(
-                              name: 'Arka',
-                              phone: '+911111122222',
-                              amount: 50000)
+                              name: context.read<GlobalData>().customerName,
+                              phone: context.read<GlobalData>().customerPhone,
+                              amount: totalPrice)
                           : RazorpayCheckout()
                     ])),
         ],
