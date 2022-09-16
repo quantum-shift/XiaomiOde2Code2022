@@ -79,13 +79,35 @@ async def order_success(order_success: schemas.OrderSuccess, user: schemas.User 
     order_crud.create_order(db=db, order=order)
 
 
+@router.post('/order/{id}/status')
+def get_order_status(id: str, user: schemas.User = Depends(get_current_user), db: Session = Depends(get_db)):
+    if not user:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"Not authorised to access orders!")
+    
+    order = order_crud.get_order(db=db, order_id=id)
+
+    if order is not None and order.payment_verified:
+        return {"status": "paid"}
+    else:
+        return {"status": "unknown"}
+
+@router.post('/order/{id}/complete', schemas.Order)
+def update_order_to_completion(id: str, order_update: schemas.OrderUpdate, user: schemas.User = Depends(get_current_user), db: Session = Depends(get_db)):
+    if not user:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"Not authorised to access orders!")
+    
+    if order_crud.update_order_cart(db=db, order_id=id, items=order_update.items):
+        return order_crud.get_order(db=db, order_id=id)
+    else:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Could not find order!")
+
 @router.get('/order/{id}', response_model=schemas.Order)
-def order(id: int, user: schemas.User = Depends(get_current_user), db: Session = Depends(get_db)):
+def order(id: str, user: schemas.User = Depends(get_current_user), db: Session = Depends(get_db)):
     
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"Not authorised to access orders!")
 
-    db_order = order_crud.get_order(db, id)
+    db_order = order_crud.get_order(db=db, order_id=id)
 
     if not db_order:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Cannot find order with id: {id}")
@@ -150,4 +172,4 @@ async def order_paid(request: Request, db: Session = Depends(get_db)):
     order_crud.create_order(db=db, order=order)
 
     
-# @router.post()
+

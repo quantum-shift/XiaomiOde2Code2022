@@ -14,10 +14,8 @@ def customer(phone: str, user: schemas.User = Depends(get_current_user), db: Ses
     
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"Not authorised to access products!")
-    try:
-        customer = customer_crud.get_customer_by_phone(db=db, phone=phone)
-    except Exception as e:
-        print("LOL")
+    
+    customer = customer_crud.get_customer_by_phone(db=db, phone=phone)
 
     if not customer:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Cannot find customer with phone: {customer}")
