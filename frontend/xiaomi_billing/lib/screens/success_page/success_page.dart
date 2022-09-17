@@ -3,7 +3,9 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
+import 'package:provider/provider.dart';
 import 'package:xiaomi_billing/screens/home_page/home_page.dart';
+import 'package:xiaomi_billing/states/cart_model.dart';
 
 import '../../constants.dart';
 
@@ -18,14 +20,14 @@ class _SuccessPageState extends State<SuccessPage> {
   double _imageHeight = 400;
 
   void onMount() {
-    Timer(Duration(seconds: 0), () {
+    context.read<CartModel>().removeAll();
+    Timer(const Duration(seconds: 0), () {
       setState(() {
         _imageHeight = 550;
       });
     });
   }
 
-  // refresh cart on mount
   @override
   void initState() {
     super.initState();

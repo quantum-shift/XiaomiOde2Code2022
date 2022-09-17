@@ -17,8 +17,6 @@ import 'package:xiaomi_billing/states/global_data.dart';
 import '../../constants.dart';
 import '../../states/products_model.dart';
 
-// Test functionality and circular progress icon on windows
-
 class CheckoutPage extends StatefulWidget {
   const CheckoutPage({super.key});
 

@@ -113,7 +113,7 @@ class _CartPageState extends State<CartPage> {
         retrieveProductsFromFile(context, mounted);
       }
       writeProductsToFile();
-      readCartFromFile();
+      await readCartFromFile();
       context.read<GlobalData>().setVisitedCart(true);
     }
     setState(() {
