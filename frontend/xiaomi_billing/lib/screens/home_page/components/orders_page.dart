@@ -156,15 +156,15 @@ class _OrdersPageState extends State<OrdersPage> {
                                       child: Column(
                                         children: [
                                           Text(orderItem.value.customerName,
-                                              style: TextStyle(fontSize: 17)),
+                                              style: TextStyle(fontSize: 15)),
                                           Text(orderItem.value.customerPhone,
                                               style: TextStyle(
                                                   color: Color.fromARGB(
-                                                      255, 127, 127, 127))),
+                                                      255, 127, 127, 127), fontSize: 13)),
                                           Text(orderItem.value.customerEmail,
                                               style: TextStyle(
                                                   color: Color.fromARGB(
-                                                      255, 127, 127, 127)))
+                                                      255, 127, 127, 127), fontSize: 13))
                                         ],
                                       ),
                                     )
