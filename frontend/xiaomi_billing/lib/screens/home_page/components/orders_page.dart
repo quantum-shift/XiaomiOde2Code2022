@@ -152,7 +152,7 @@ class _OrdersPageState extends State<OrdersPage> {
                                     ),
                                     Container(
                                       padding: EdgeInsets.fromLTRB(
-                                          size.width * 0.04, 10, 0, 10),
+                                          size.width * 0.025, 10, 0, 10),
                                       child: Column(
                                         children: [
                                           Text(orderItem.value.customerName,

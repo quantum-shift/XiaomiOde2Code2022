@@ -9,6 +9,8 @@ import 'package:xiaomi_billing/constants.dart';
 import 'package:xiaomi_billing/states/credential_manager.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../../states/global_data.dart';
+
 final navigatorKey = GlobalKey<NavigatorState>();
 
 class WindowsCheckoutPage extends StatefulWidget {
@@ -50,6 +52,7 @@ class WindowsCheckoutPageState extends State<WindowsCheckoutPage> {
         response = await dio.post('/order/new',
             data: {'amount': widget.amount, 'currency': 'INR'});
         final String orderId = response.data['order_id'];
+        context.read<GlobalData>().setOrderId(orderId);
         widget.parentOrderAction(orderId);
         final token = await dio.post('/order/token', data: {
           'order_id': orderId,

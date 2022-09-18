@@ -175,6 +175,9 @@ class _CustomerInfoFormState extends State<CustomerInfoForm> {
                     focusColor: miOrange,
                     value: communicationPreference,
                     onChanged: (String? value) {
+                      context
+                          .read<GlobalData>()
+                          .setPreferredCommunication(value!);
                       setState(() {
                         communicationPreference = value!;
                       });

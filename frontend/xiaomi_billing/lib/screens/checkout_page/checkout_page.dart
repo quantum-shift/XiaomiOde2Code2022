@@ -65,7 +65,7 @@ class _CheckoutState extends State<CheckoutPage> {
       }
       if (success) {
         Navigator.of(context)
-            .push(MaterialPageRoute(builder: (context) => const SuccessPage()));
+            .push(MaterialPageRoute(builder: (context) => const SuccessPage(offlineOrder: false)));
       } else {
         setState(() {
           print("Unset");
@@ -166,7 +166,7 @@ class _CheckoutState extends State<CheckoutPage> {
                       TextButton(
                           onPressed: () {
                             Navigator.of(context).push(MaterialPageRoute(
-                                builder: (context) => const SuccessPage()));
+                                builder: (context) => const SuccessPage(offlineOrder: true)));
                           },
                           child: Text('Yes')),
                       TextButton(

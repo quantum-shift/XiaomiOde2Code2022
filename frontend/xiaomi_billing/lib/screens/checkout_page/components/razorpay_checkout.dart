@@ -54,6 +54,7 @@ class RazorpayCheckoutState extends State<RazorpayCheckout> {
     }
     final String receiptId = response.data['receipt_id'],
         orderId = response.data['order_id'];
+    context.read<GlobalData>().setOrderId(orderId);
     final String? API_KEY_ID = dotenv.env['API_KEY_ID'];
     var options = {
       'key': API_KEY_ID,
@@ -86,7 +87,7 @@ class RazorpayCheckoutState extends State<RazorpayCheckout> {
     // });
     if (!mounted) return;
     Navigator.of(context)
-        .push(MaterialPageRoute(builder: (context) => const SuccessPage()));
+        .push(MaterialPageRoute(builder: (context) => const SuccessPage(offlineOrder: false)));
     /*Fluttertoast.showToast(
         msg: "SUCCESS: " + response.paymentId!,
         toastLength: Toast.LENGTH_SHORT); */
