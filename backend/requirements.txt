@@ -40,3 +40,4 @@ uvloop==0.16.0
 watchgod==0.8.2
 websockets==10.3
 razorpay==1.3.0
+borb==2.1.3
