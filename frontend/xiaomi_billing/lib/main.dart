@@ -12,6 +12,7 @@ import 'package:xiaomi_billing/screens/success_page/success_page.dart';
 import 'package:xiaomi_billing/states/cart_model.dart';
 import 'package:xiaomi_billing/states/credential_manager.dart';
 import 'package:xiaomi_billing/states/global_data.dart';
+import 'package:xiaomi_billing/states/order_model.dart';
 import 'package:xiaomi_billing/states/products_model.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'constants.dart';
@@ -31,6 +32,7 @@ void main() async {
   setBaseUrl();
   await Hive.initFlutter();
   Hive.registerAdapter(ProductAdapter());
+  Hive.registerAdapter(OrderAdapter());
   await dotenv.load(fileName: ".env");
   runApp(MultiProvider(providers: [
     ChangeNotifierProvider(create: (context) => CredentialManager()),
@@ -69,8 +71,8 @@ class MyApp extends StatelessWidget {
               serialNo: '',
             ),
         'CustomerInfo': (context) => const CustomerInfo(),
-        'Checkout' : (context) => const CheckoutPage(),
-        'Success' : (context) => const SuccessPage(),
+        'Checkout': (context) => const CheckoutPage(),
+        'Success': (context) => const SuccessPage(),
       },
     );
   }

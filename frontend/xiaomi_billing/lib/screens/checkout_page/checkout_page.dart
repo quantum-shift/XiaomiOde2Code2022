@@ -325,8 +325,8 @@ class _CheckoutState extends State<CheckoutPage> {
                                 : RazorpayCheckout(amount: totalPrice),
                             _loading
                                 ? Container(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 8),
+                                    padding:
+                                        const EdgeInsets.fromLTRB(6, 0, 0, 0),
                                     child: const CircularProgressIndicator
                                         .adaptive(),
                                   )

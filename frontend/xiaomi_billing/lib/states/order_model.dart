@@ -9,9 +9,9 @@ class Order {
       required this.customerName,
       required this.customerEmail,
       required this.customerPhone,
-      required this.amountPaid,
       required this.productIds,
-      required this.serialNos});
+      required this.serialNos,
+      required this.operatorId});
 
   @HiveField(0)
   final DateTime orderDate;
@@ -22,14 +22,14 @@ class Order {
   @HiveField(3)
   final String customerPhone;
   @HiveField(4)
-  final int amountPaid;
-  @HiveField(5)
   final List<int> productIds;
-  @HiveField(6)
+  @HiveField(5)
   final List<String> serialNos;
+  @HiveField(6)
+  final String operatorId;
 
   @override
   String toString() {
-    return "{ orderDate: $orderDate , customerName: $customerName , customerEmail: $customerEmail , customerPhone: $customerPhone , amountPaid: $amountPaid , productIds: $productIds , serialNos: $serialNos }";
+    return "{ orderDate: $orderDate , customerName: $customerName , customerEmail: $customerEmail , customerPhone: $customerPhone , productIds: $productIds , serialNos: $serialNos , operatorId: $operatorId }";
   }
 }

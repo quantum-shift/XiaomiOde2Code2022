@@ -58,8 +58,6 @@ Future<void> retrieveProductsFromAPI(BuildContext context, bool mounted) async {
   context.read<ProductModel>().updateProductList(retrievedProducts);
 }
 
-// Use future builder for loading spinner
-
 class CartPage extends StatefulWidget {
   const CartPage({super.key});
 

@@ -21,9 +21,9 @@ class OrderAdapter extends TypeAdapter<Order> {
       customerName: fields[1] as String,
       customerEmail: fields[2] as String,
       customerPhone: fields[3] as String,
-      amountPaid: fields[4] as int,
-      productIds: (fields[5] as List).cast<int>(),
-      serialNos: (fields[6] as List).cast<String>(),
+      productIds: (fields[4] as List).cast<int>(),
+      serialNos: (fields[5] as List).cast<String>(),
+      operatorId: fields[6] as String,
     );
   }
 
@@ -40,11 +40,11 @@ class OrderAdapter extends TypeAdapter<Order> {
       ..writeByte(3)
       ..write(obj.customerPhone)
       ..writeByte(4)
-      ..write(obj.amountPaid)
-      ..writeByte(5)
       ..write(obj.productIds)
+      ..writeByte(5)
+      ..write(obj.serialNos)
       ..writeByte(6)
-      ..write(obj.serialNos);
+      ..write(obj.operatorId);
   }
 
   @override

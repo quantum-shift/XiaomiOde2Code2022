@@ -3,9 +3,13 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:xiaomi_billing/screens/home_page/home_page.dart';
 import 'package:xiaomi_billing/states/cart_model.dart';
+import 'package:xiaomi_billing/states/global_data.dart';
+import 'package:xiaomi_billing/states/order_model.dart';
+import 'package:xiaomi_billing/states/products_model.dart';
 
 import '../../constants.dart';
 
@@ -18,9 +22,29 @@ class SuccessPage extends StatefulWidget {
 
 class _SuccessPageState extends State<SuccessPage> {
   double _imageHeight = 400;
+  bool _loading = true;
 
-  void onMount() {
-    context.read<CartModel>().removeAll();
+  Future<void> clearCartFile() async {
+    var box = await Hive.openBox('cart');
+    await box.clear();
+  }
+
+  void onMount(List<int> productIds, List<String> serialNos) async {
+    var box = await Hive.openBox('on-device-orders');
+    // Remove later
+    // await box.clear();
+    box.add(Order(
+        orderDate: DateTime.now(),
+        customerName: context.read<GlobalData>().customerName,
+        customerEmail: context.read<GlobalData>().customerEmail,
+        customerPhone: context.read<GlobalData>().customerPhone,
+        productIds: productIds,
+        serialNos: serialNos,
+        operatorId: await readDataFromFile<String>('operatorId')));
+    await clearCartFile();
+    setState(() {
+      _loading = false;
+    });
     Timer(const Duration(seconds: 0), () {
       setState(() {
         _imageHeight = 550;
@@ -30,8 +54,10 @@ class _SuccessPageState extends State<SuccessPage> {
 
   @override
   void initState() {
+    List<int> productIds = (context.read<CartModel>().getProductIds());
+    List<String> serialNos = (context.read<CartModel>().getSerialNos());
     super.initState();
-    onMount();
+    onMount(List <int>.from(productIds), List<String>.from(serialNos));
   }
 
   @override
@@ -56,9 +82,12 @@ class _SuccessPageState extends State<SuccessPage> {
                         child: TextButton(
                           child: Text('Back to Home',
                               style: TextStyle(fontSize: 18.5)),
-                          onPressed: () {
-                            Navigator.of(context).push(MaterialPageRoute(
-                                builder: (context) => const HomePage()));
+                          onPressed: () async {
+                            if (!_loading) {
+                              context.read<CartModel>().removeAll();
+                              Navigator.of(context).push(MaterialPageRoute(
+                                  builder: (context) => const HomePage()));
+                            }
                           },
                         ),
                       )
