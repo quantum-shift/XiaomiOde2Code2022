@@ -33,6 +33,7 @@ class _CustomerInfoFormState extends State<CustomerInfoForm> {
     _phoneController = TextEditingController();
     _emailController = TextEditingController();
     _nameController = TextEditingController();
+    _phoneController.text = "+91";
   }
 
   String? formFieldValidator(String? value) {
@@ -75,7 +76,23 @@ class _CustomerInfoFormState extends State<CustomerInfoForm> {
                 labelText: 'Phone Number',
               ),
               controller: _phoneController,
-              validator: formFieldValidator,
+              validator: (String? value) {
+                if (value == null ||
+                    value.length < 3 ||
+                    value.substring(0, 3) != "+91") {
+                  return "Must start with +91";
+                } else {
+                  if (value.length == 13) {
+                    if (int.tryParse(value.substring(3, 13)) == null) {
+                      return "Phone number should only contain digits";
+                    } else {
+                      return null;
+                    }
+                  } else {
+                    return "Phone number must be of 10 digits";
+                  }
+                }
+              },
               textInputAction: TextInputAction.next,
               onFieldSubmitted: (String? value) async {
                 Dio dio =
@@ -114,7 +131,16 @@ class _CustomerInfoFormState extends State<CustomerInfoForm> {
                   ),
                   suffixIcon: Icon(Icons.email),
                   labelText: 'Email'),
-              validator: formFieldValidator,
+              validator: (String? value) {
+                if (value == null || value.isEmpty) {
+                  return "Fields cannot be empty";
+                } else {
+                  bool emailValid = RegExp(
+                          r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
+                      .hasMatch(value);
+                  return emailValid ? null : "Please enter a proper email";
+                }
+              },
               controller: _emailController,
               textInputAction: TextInputAction.next,
             ),
@@ -149,6 +175,9 @@ class _CustomerInfoFormState extends State<CustomerInfoForm> {
                     focusColor: miOrange,
                     value: communicationPreference,
                     onChanged: (String? value) {
+                      context
+                          .read<GlobalData>()
+                          .setPreferredCommunication(value!);
                       setState(() {
                         communicationPreference = value!;
                       });

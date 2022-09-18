@@ -8,6 +8,8 @@ class GlobalData extends ChangeNotifier {
   String customerName = '';
   String customerEmail = '';
   String customerPhone = '';
+  String orderId = '';
+  String preferredCommunication = '';
 
   void setVisitedCart(bool visitedCart) {
     this.visitedCart = visitedCart;
@@ -36,6 +38,16 @@ class GlobalData extends ChangeNotifier {
 
   void setCustomerPhone(String customerPhone) {
     this.customerPhone = customerPhone;
+    notifyListeners();
+  }
+
+  void setOrderId(String orderId) {
+    this.orderId = orderId;
+    notifyListeners();
+  }
+
+  void setPreferredCommunication(String preferredCommunication) {
+    this.preferredCommunication = preferredCommunication;
     notifyListeners();
   }
 }

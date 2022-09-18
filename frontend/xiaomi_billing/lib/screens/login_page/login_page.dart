@@ -56,6 +56,7 @@ class LoginPage extends StatelessWidget {
                     ),
                     labelText: 'MI ID'),
                 validator: formFieldValidator,
+                textInputAction: TextInputAction.next,
               ),
             ),
             Padding(
@@ -70,6 +71,7 @@ class LoginPage extends StatelessWidget {
                     ),
                     labelText: 'Password'),
                 validator: formFieldValidator,
+                textInputAction: TextInputAction.done,
               ),
             ),
             Row(

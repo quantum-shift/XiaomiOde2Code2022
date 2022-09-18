@@ -84,7 +84,7 @@ class OrderCreate(OrderNew):
 
 
 class Order(OrderCreate):
-    customer: Customer
+    # customer: Customer
     class Config:
         orm_mode = True
 

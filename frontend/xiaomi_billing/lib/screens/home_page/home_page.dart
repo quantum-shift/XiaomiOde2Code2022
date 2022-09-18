@@ -18,25 +18,28 @@ class _HomePageState extends State<HomePage>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      bottomNavigationBar: Material(
-        color: Theme.of(context).colorScheme.primary.withOpacity(0.8),
-        child: TabBar(
-          indicatorColor: Colors.white,
-          tabs: const <Tab>[
-            Tab(
-              icon: Icon(Icons.shopping_cart),
-            ),
-            Tab(
-              icon: Icon(Icons.airplanemode_on),
-            ),
-          ],
-          controller: controller,
+    return WillPopScope(
+      onWillPop: () async => false,
+      child: Scaffold(
+        bottomNavigationBar: Material(
+          color: Theme.of(context).colorScheme.primary.withOpacity(0.8),
+          child: TabBar(
+            indicatorColor: Colors.white,
+            tabs: const <Tab>[
+              Tab(
+                icon: Icon(Icons.shopping_cart),
+              ),
+              Tab(
+                icon: Icon(Icons.airplanemode_on),
+              ),
+            ],
+            controller: controller,
+          ),
         ),
-      ),
-      body: TabBarView(
-        controller: controller,
-        children: const <Widget>[CartPage(), OrdersPage()],
+        body: TabBarView(
+          controller: controller,
+          children: const <Widget>[CartPage(), OrdersPage()],
+        ),
       ),
     );
   }
