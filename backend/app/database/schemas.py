@@ -56,8 +56,8 @@ class Product(BaseModel):
     details: object
 
 class SoldProduct(BaseModel):
-    product_id: int
-    serial: int
+    product_id: str
+    serial: str
 
 class OrderNew(BaseModel):
     amount: int
@@ -82,9 +82,12 @@ class OrderCreate(OrderNew):
     class Config:
         orm_mode = True
 
+class OrderSend(OrderCreate):
+    class Config:
+        orm_mode = True
 
 class Order(OrderCreate):
-    # customer: Customer
+    customer: Customer
     class Config:
         orm_mode = True
 
