@@ -1,40 +1,40 @@
 [
     {
-        "name": "Xiaomi Mi 7 Chad Edition",
+        "name": "Xiaomi 12 Pro 5G",
         "id": "1",
         "category": "Phones",
-        "price": 20000,
-        "img_url": "assets/product1.jpg",
+        "price": 66999,
+        "img_url": "https://i01.appmifile.com/v1/MI_18455B3E4DA706226CF7535A58E875F0267/pms_1650980937.46582811.jpg",
         "details": {
             "color": "Red"
         }
     },
     {
-        "name": "Mi 8+ TV",
+        "name": "Mi TV 5X Series",
         "id": "2",
         "category": "TV",
-        "price": 5000,
-        "img_url": "assets/product2.jpg",
+        "price": 40999,
+        "img_url": "https://i01.appmifile.com/v1/MI_18455B3E4DA706226CF7535A58E875F0267/pms_1629896817.38484932.jpg",
         "details": {
             "color": "Green"
         }
     },
     {
-        "name": "Xiomi Green headphones",
+        "name": "Mi Earphones Basic",
         "id": "3",
         "category": "Audio",
-        "price": 100000,
-        "img_url": "assets/product3.jpg",
+        "price": 429,
+        "img_url": "https://i01.appmifile.com/v1/MI_18455B3E4DA706226CF7535A58E875F0267/pms_1579000327.41389918.png?width=420&height=420",
         "details": {
             "color": "Orange"
         }
     },
     {
-        "name": "Mi Note 10",
+        "name": "Xiaomi 11i 5G",
         "id": "4",
         "category": "Phones",
-        "price": 40000,
-        "img_url": "assets/product4.jpg",
+        "price": 24999,
+        "img_url": "https://i01.appmifile.com/v1/MI_18455B3E4DA706226CF7535A58E875F0267/pms_1641441345.76175946.png",
         "details": {
             "color": "Pink"
         }
