@@ -9,10 +9,11 @@ from database import schemas
 from receipt import receipt
 import os
 
-def send_email(order: schemas.Order, customer: schemas.Customer = None):
+def send_email(order: schemas.Order):
+    customer = order.customer
     print("ORDER SENT TO SEND_EMAIL: ", order.__str__())
     subject = f"Your order {order.order_id} at Xiaomi Store"
-    body = f"Dear {customer.name},\n Congratulations on your purchase at Xiaomi. Please find attached the receipt.\n"
+    body = f"Dear {customer.name},\n\nCongratulations on your purchase at Xiaomi. Please find attached the receipt.\n"
     
     sender_email = os.environ.get('EMAIL_ID')
     password = os.environ.get('EMAIL_PASSWORD')
