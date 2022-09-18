@@ -11,6 +11,7 @@ from sqlalchemy.orm import Session
 from uuid import uuid4
 
 from auth.auth import create_access_token, get_current_user, get_decoded_object
+from email_util.email_util import send_email
 from database.database import get_db
 from database.crud import order as order_crud
 from database.crud import customer as customer_crud
@@ -107,6 +108,10 @@ async def order_paid(request: Request, db: Session = Depends(get_db)):
     order_id = decoded_order['id']
     receipt_id = decoded_order['receipt']
 
+    existing_order: schemas.Order = order_crud.get_order(db=db, order_id=order_id)
+    if existing_order is not None and existing_order.payment_verified:
+        return
+
     amount = decoded_payment['amount']
     currency = decoded_payment['currency']
     payment_id = decoded_payment['id']
@@ -132,6 +137,8 @@ async def order_paid(request: Request, db: Session = Depends(get_db)):
         customer_id=customer_id,
         items=items
     )
+
+    send_email(order=order, customer=customer)
 
     order_crud.create_order(db=db, order=order)
 

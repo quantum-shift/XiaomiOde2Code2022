@@ -12,7 +12,14 @@ def get_customers(db: Session, offset: int = 0, limit: int = 100):
     return db.query(models.Customer).offset(offset).limit(limit).all()
 
 def get_customer_by_phone(db: Session, phone: str):
-    return db.query(models.Customer).filter(models.Customer.phone == phone).first()
+    # Try by whole phone number
+    customer = db.query(models.Customer).filter(models.Customer.phone == phone).first()
+    if customer is not None:
+        return customer
+    
+    # Try with last 10 digits (in case of added country code)
+    phone_without_country_code = phone[len(phone) - 10: ]
+    return db.query(models.Customer).filter(models.Customer.phone == phone_without_country_code).first()
 
 def create_customer(db: Session, customer: schemas.CustomerCreate):
     existing_customer: schemas.Customer = get_customer_by_phone(db = db, phone = customer.phone)

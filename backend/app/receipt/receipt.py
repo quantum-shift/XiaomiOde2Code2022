@@ -12,9 +12,10 @@ from borb.pdf import FixedColumnWidthTable as Table
 from borb.pdf import Alignment
 from borb.pdf import TableCell
 from borb.pdf import HexColor, X11Color
-from borb.pdf.canvas.font.simple_font.true_type_font import TrueTypeFont
-import requests
-def _build_invoice_information(order_id = 0):
+
+from database import schemas
+
+def _build_invoice_information(order: schemas.Order):
 
     table_001 = Table(number_of_rows=5, number_of_columns=3)
 	
@@ -84,7 +85,7 @@ def _build_itemized_description_table():
     table_001.no_borders()  
     return table_001
 
-def generate_receipt(order_id: str):
+def generate_receipt(order: schemas.Order):
     # Create document
     pdf: Document = Document()
 
@@ -98,12 +99,12 @@ def generate_receipt(order_id: str):
 
     page_layout.add(    
         Image(        
-        Path("file:///../../assets/mi.svg.png"),        
+        Path("file:///../assets/mi.svg.png"),        
         width=Decimal(64),        
         height=Decimal(64),    
     ))
 
-    page_layout.add(_build_invoice_information())
+    page_layout.add(_build_invoice_information(order=order))
     
     page_layout.add(Paragraph(" "))
 
@@ -111,8 +112,13 @@ def generate_receipt(order_id: str):
     
     page_layout.add(Paragraph(" "))
     
-    with open(Path("output.pdf"), "wb") as pdf_file_handle:
+    with open(Path(f"receipt_{order.order_id}.pdf"), "wb") as pdf_file_handle:
         PDF.dumps(pdf_file_handle, pdf)
 
+def main():
+    order = schemas.Order.construct()
+    order.id = '12345'
+    generate_receipt(order = order)
+
 if __name__ == '__main__':
-    generate_receipt(order_id='1')
+    main()
