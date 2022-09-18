@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
@@ -92,8 +93,10 @@ class _StorePageState extends State<StorePage> {
                               vertical: 10, horizontal: 5),
                           child: ListTile(
                             leading: Hero(
-                              child: Image.asset('assets/mi.svg.png'),
                               tag: currentProducts[index].productId,
+                              child: Image(
+                                  image: CachedNetworkImageProvider(
+                                      currentProducts[index].productImageUrl)),
                             ),
                             title: Text(currentProducts[index].productName),
                             subtitle: Text(

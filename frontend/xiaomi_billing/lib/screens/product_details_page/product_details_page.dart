@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
@@ -78,11 +79,9 @@ class _ProductDetailsState extends State<ProductDetails> {
           child: Padding(
             padding: const EdgeInsets.all(20.0),
             child: Hero(
-              child: Image.asset(
-                'assets/mi.svg.png',
-                height: 150,
-              ),
               tag: product.productId,
+              child: Image(
+                  image: CachedNetworkImageProvider(product.productImageUrl)),
             ),
           ),
         ),
