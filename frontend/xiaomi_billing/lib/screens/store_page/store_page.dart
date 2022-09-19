@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:xiaomi_billing/screens/home_page/components/cart.dart';
@@ -61,23 +64,28 @@ class _StorePageState extends State<StorePage> {
                 title: Text('Store'),
               ),
             ),
-            SliverList(
-              delegate: SliverChildBuilderDelegate(
-                  (context, index) => Padding(
-                        padding: const EdgeInsets.fromLTRB(0, 20, 0, 0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            getButtonwithCategory(
-                                'Phones', _selectedType, context, setType),
-                            getButtonwithCategory(
-                                'TV', _selectedType, context, setType),
-                            getButtonwithCategory(
-                                'Audio', _selectedType, context, setType),
-                          ],
-                        ),
-                      ),
-                  childCount: 1),
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(0, 20, 0, 0),
+                child: Container(
+                  height: 60.0,
+                  child: Scrollbar(
+                    child: ListView(
+                      scrollDirection: Axis.horizontal,
+                      padding: const EdgeInsets.fromLTRB(0, 0, 0, 20),
+                      children: context
+                          .watch<ProductModel>()
+                          .getCategories()
+                          .map((e) => Padding(
+                                padding: const EdgeInsets.fromLTRB(0, 0, 5, 0),
+                                child: getButtonwithCategory(
+                                    e, _selectedType, context, setType),
+                              ))
+                          .toList(),
+                    ),
+                  ),
+                ),
+              ),
             ),
             SliverList(
                 delegate: SliverChildBuilderDelegate(

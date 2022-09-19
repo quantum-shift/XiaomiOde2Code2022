@@ -49,6 +49,18 @@ class ProductModel extends ChangeNotifier {
     return _products;
   }
 
+  List<String> getCategories() {
+    final List<String> categories = [];
+    final Set<String> distinctCategories = {};
+    for (final product in _products) {
+      if (distinctCategories.contains(product.productCategory) == false) {
+        categories.add(product.productCategory);
+        distinctCategories.add(product.productCategory);
+      }
+    }
+    return categories;
+  }
+
   void updateProductList(List<Product> newProductList) {
     _products = newProductList;
     notifyListeners();

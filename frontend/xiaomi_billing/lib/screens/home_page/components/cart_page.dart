@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -244,14 +245,17 @@ class _CartPageState extends State<CartPage> {
                                       child: Column(
                                         children: [
                                           ListTile(
-                                            leading: Image.asset(
-                                                'assets/mi.svg.png'),
+                                            leading: Image(
+                                                image:
+                                                    CachedNetworkImageProvider(
+                                                        cartItems[index]
+                                                            .productImageUrl)),
                                             title: Text(
                                                 cartItems[index].productName),
                                             subtitle: Text(cartItems[index]
                                                 .productCategory),
-                                            visualDensity:
-                                                const VisualDensity(vertical: 4),
+                                            visualDensity: const VisualDensity(
+                                                vertical: 4),
                                           ),
                                           ListTile(
                                             title: Text(
