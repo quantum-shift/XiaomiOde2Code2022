@@ -9,6 +9,7 @@ class User(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     mi_id = Column(String, unique=True, index=True)
+    orders = relationship("Order", back_populates="user")
     hashed_password = Column(String)
 
 class Customer(Base):
@@ -17,7 +18,7 @@ class Customer(Base):
     phone = Column(String, unique=True, index=True)
     name = Column(String)
     email = Column(String)
-    orders = relationship("Order", back_populates="customer")
+    # orders = relationship("Order", back_populates="customer")
 
 # class Product(Base):
 #     __tablename__ = "product"
@@ -35,5 +36,7 @@ class Order(Base):
     payment_verified = Column(Boolean)
     items = Column(PickleType)
     customer_id = Column(Integer, ForeignKey('customer.id'))
-    customer = relationship("Customer", back_populates="orders") 
+    customer = relationship("Customer") 
+    user_id = Column(Integer, ForeignKey('user.id'))
+    user = relationship("User", back_populates="orders")
 

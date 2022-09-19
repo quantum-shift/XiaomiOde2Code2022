@@ -8,6 +8,9 @@ from .. import models, schemas
 def get_user(db: Session, user_id: int):
     return db.query(models.User).filter(models.User.id == user_id).first()
 
+def get_user_orders(db: Session, user_id: int):
+    return db.query(models.User).filter(models.User.id == user_id).first().orders
+
 def get_user_by_mi_id(db: Session, mi_id: str):
     return db.query(models.User).filter(models.User.mi_id == mi_id).first()
 

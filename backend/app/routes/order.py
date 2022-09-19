@@ -75,18 +75,19 @@ def new_offline_order(order_offline: schemas.OrderOffline, user: schemas.User = 
         currency=order_offline.currency, 
         payment_verified=True,
         items=order_offline.items,
-        customer_id=customer.id
+        customer_id=customer.id,
+        user_id=order_offline.user_id
     )
     order_crud.create_order(db=db, order=order)
     send_email(order=order_crud.get_order(db=db, order_id=order_id))
 
-@router.get('/orders', response_model=List[schemas.Product])
+@router.get('/orders', response_model=List[schemas.Order])
 def orders(user: schemas.User = Depends(get_current_user), db: Session = Depends(get_db)):
 
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"Not authorised to access orders!")
     
-    db_order = order_crud.get_orders()
+    return user.orders
 
 @router.post('/order/paid')
 async def order_paid(request: Request, db: Session = Depends(get_db)):
@@ -105,8 +106,6 @@ async def order_paid(request: Request, db: Session = Depends(get_db)):
     decoded_order = decoded_body['payload']['order']['entity']
     decoded_payment = decoded_body['payload']['payment']['entity']
 
-    print("Decoded order: ", decoded_order)
-    print("Decoded payment: ", decoded_payment)
     order_id = decoded_order['id']
     receipt_id = decoded_order['receipt']
 
@@ -141,8 +140,6 @@ async def order_paid(request: Request, db: Session = Depends(get_db)):
     )
 
     order_crud.create_order(db=db, order=order)
-
-    # send_email(order=order_crud.get_order(db=db, order_id=order_id))
 
 @router.post('/order/{id}/status')
 def get_order_status(id: str, user: schemas.User = Depends(get_current_user), db: Session = Depends(get_db)):
