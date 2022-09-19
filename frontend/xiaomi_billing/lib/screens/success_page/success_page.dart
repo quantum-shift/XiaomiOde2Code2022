@@ -11,6 +11,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:open_file/open_file.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:xiaomi_billing/main.dart';
 import 'package:xiaomi_billing/screens/home_page/home_page.dart';
 import 'package:xiaomi_billing/screens/product_details_page/product_details_page.dart';
 import 'package:xiaomi_billing/screens/success_page/components/pdf_viewer_page.dart';
@@ -31,7 +32,6 @@ class SuccessPage extends StatefulWidget {
 }
 
 class _SuccessPageState extends State<SuccessPage> {
-  double _imageHeight = 400;
   bool _loading = true;
 
   Future<void> clearCartFile() async {
@@ -78,18 +78,17 @@ class _SuccessPageState extends State<SuccessPage> {
     } else {
       var file = await Hive.openBox('offline-orders');
       file.add(order);
-      // remove later
-      await file.clear();
+      try {
+        if (!mounted) return;
+        context.read<CredentialManager>().syncAllOrders();
+      } catch (error) {
+        ;
+      }
     }
 
     await clearCartFile();
     setState(() {
       _loading = false;
-    });
-    Timer(const Duration(seconds: 0), () {
-      setState(() {
-        _imageHeight = 550;
-      });
     });
   }
 
@@ -111,54 +110,63 @@ class _SuccessPageState extends State<SuccessPage> {
             body: ListView(children: [
               Container(
                   padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
-                  child: Column(
-                    children: [
-                      AnimatedContainer(
-                          duration: const Duration(milliseconds: 200),
-                          height: _imageHeight,
-                          child: Image.asset('assets/success.jpg')),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          Container(
-                            margin: const EdgeInsetsDirectional.all(0),
-                            child: TextButton(
-                              child: const Text('Back to Home',
-                                  style: TextStyle(fontSize: 16)),
-                              onPressed: () async {
-                                if (!_loading) {
-                                  context.read<CartModel>().removeAll();
-                                  Navigator.of(context).push(MaterialPageRoute(
-                                      builder: (context) => const HomePage()));
-                                }
-                              },
-                            ),
-                          ),
-                          Container(
-                            margin: const EdgeInsetsDirectional.all(5),
-                            child: TextButton(
-                              child: const Text('Generate Invoice',
-                                  style: TextStyle(fontSize: 16)),
-                              onPressed: () async {
-                                if (!_loading) {
-                                  if (kIsWeb || Platform.isIOS) {
-                                    File file = await _createPDF(context);
-                                    if (!mounted) return;
-                                    Navigator.of(context).push(
-                                        MaterialPageRoute(
-                                            builder: (context) =>
-                                                PDFViewerPage(file: file)));
-                                  } else {
-                                    await _createNativePDF(context);
-                                  }
-                                }
-                              },
-                            ),
-                          ),
-                        ],
-                      )
-                    ],
-                  )),
+                  child: _loading
+                      ? Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: const [Padding(
+                            padding: EdgeInsets.all(20.0),
+                            child: CircularProgressIndicator(),
+                          )])
+                      : Column(
+                          children: [
+                            Container(
+                                height: 550,
+                                child: Image.asset('assets/success.jpg')),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                Container(
+                                  margin: const EdgeInsetsDirectional.all(0),
+                                  child: TextButton(
+                                    child: const Text('Back to Home',
+                                        style: TextStyle(fontSize: 16)),
+                                    onPressed: () async {
+                                      if (!_loading) {
+                                        context.read<CartModel>().removeAll();
+                                        Navigator.of(context).push(
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    const HomePage()));
+                                      }
+                                    },
+                                  ),
+                                ),
+                                Container(
+                                  margin: const EdgeInsetsDirectional.all(5),
+                                  child: TextButton(
+                                    child: const Text('Generate Invoice',
+                                        style: TextStyle(fontSize: 16)),
+                                    onPressed: () async {
+                                      if (!_loading) {
+                                        if (kIsWeb || Platform.isIOS) {
+                                          File file = await _createPDF(context);
+                                          if (!mounted) return;
+                                          Navigator.of(context).push(
+                                              MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      PDFViewerPage(
+                                                          file: file)));
+                                        } else {
+                                          await _createNativePDF(context);
+                                        }
+                                      }
+                                    },
+                                  ),
+                                ),
+                              ],
+                            )
+                          ],
+                        )),
             ])),
         onWillPop: () async {
           return false;

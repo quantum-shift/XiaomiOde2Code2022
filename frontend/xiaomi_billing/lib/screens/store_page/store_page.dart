@@ -1,7 +1,9 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:xiaomi_billing/screens/home_page/components/cart.dart';
@@ -67,21 +69,29 @@ class _StorePageState extends State<StorePage> {
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(0, 20, 0, 0),
-                child: Container(
-                  height: 60.0,
-                  child: Scrollbar(
-                    child: ListView(
-                      scrollDirection: Axis.horizontal,
-                      padding: const EdgeInsets.fromLTRB(0, 0, 0, 20),
-                      children: context
-                          .watch<ProductModel>()
-                          .getCategories()
-                          .map((e) => Padding(
-                                padding: const EdgeInsets.fromLTRB(0, 0, 5, 0),
-                                child: getButtonwithCategory(
-                                    e, _selectedType, context, setType),
-                              ))
-                          .toList(),
+                child: Center(
+                  child: Container(
+                    height: 60.0,
+                    child: MediaQuery(
+                      data: MediaQuery.of(context)
+                          .removePadding(removeBottom: true),
+                      child: Scrollbar(
+                        child: ListView(
+                          shrinkWrap: true,
+                          scrollDirection: Axis.horizontal,
+                          padding: const EdgeInsets.fromLTRB(0, 0, 0, 20),
+                          children: context
+                              .watch<ProductModel>()
+                              .getCategories()
+                              .map((e) => Padding(
+                                    padding:
+                                        const EdgeInsets.fromLTRB(0, 0, 5, 0),
+                                    child: getButtonwithCategory(
+                                        e, _selectedType, context, setType),
+                                  ))
+                              .toList(),
+                        ),
+                      ),
                     ),
                   ),
                 ),

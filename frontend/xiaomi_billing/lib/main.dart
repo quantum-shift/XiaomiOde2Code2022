@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:xiaomi_billing/screens/checkout_page/checkout_page.dart';
@@ -15,7 +18,6 @@ import 'package:xiaomi_billing/states/products_model.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'constants.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-
 
 const Product dummyProduct = Product(
     productName: 'a',
@@ -39,8 +41,21 @@ void main() async {
   ], child: const MyApp()));
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  @override
+  void initState() {
+    super.initState();
+    Timer.periodic(const Duration(minutes: 1), (timer) async {
+      await context.read<CredentialManager>().syncAllOrders();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {

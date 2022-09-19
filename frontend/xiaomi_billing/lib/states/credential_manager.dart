@@ -1,7 +1,11 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:xiaomi_billing/constants.dart';
+import 'package:xiaomi_billing/states/products_model.dart';
+
+import 'order_model.dart';
 
 class CredentialManager extends ChangeNotifier {
   String _token = '';
@@ -68,5 +72,57 @@ class CredentialManager extends ChangeNotifier {
   void doLogout() async {
     print("Logging out!");
     setToken('');
+  }
+
+  Future<void> syncAllOrders() async {
+    var box = await Hive.openBox('offline-orders');
+    if (box.isNotEmpty) {
+      List<Order> orderList = [];
+      for (int i = 0; i < box.length; i++) {
+        orderList.add(box.getAt(i));
+      }
+      List<Product> productList = [];
+      var productBox = await Hive.openBox('products');
+      if (productBox.isEmpty) return;
+      for (int i = 0; i < productBox.length; i++) {
+        productList.add(productBox.getAt(i));
+      }
+      await box.clear();
+      for (Order order in orderList) {
+        try {
+          Dio dio = await getAPIClient();
+          await dio.post("/customer", data: {
+            'phone': order.customerPhone,
+            'email': order.customerEmail,
+            'name': order.customerName
+          });
+          int total = 0;
+          List<Map<String, String>> l = [];
+          for (int i = 0; i < order.productIds.length; i++) {
+            int id = order.productIds[i];
+            String serial = order.serialNos[i];
+            for (Product product
+                in productList) {
+              if (product.productId == id) {
+                Map<String, String> m = {
+                  'product_id': id.toString(),
+                  'serial': serial
+                };
+                l.add(m);
+                total += product.price;
+              }
+            }
+          }
+          await dio.post("/order/offline", data: {
+            'amount': total,
+            'currency': 'INR',
+            'phone': order.customerPhone,
+            'items': l
+          });
+        } catch (error) {
+          box.add(order);
+        }
+      }
+    }
   }
 }
