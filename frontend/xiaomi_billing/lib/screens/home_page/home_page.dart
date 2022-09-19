@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:xiaomi_billing/constants.dart';
 import 'package:xiaomi_billing/screens/home_page/components/cart_page.dart';
 import 'package:xiaomi_billing/screens/home_page/components/orders_page.dart';
-import 'package:xiaomi_billing/states/credential_manager.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -15,7 +12,6 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage>
     with SingleTickerProviderStateMixin {
   late TabController controller = TabController(length: 2, vsync: this);
-
   @override
   Widget build(BuildContext context) {
     return WillPopScope(

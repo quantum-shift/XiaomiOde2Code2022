@@ -7,21 +7,16 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/container.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:intl/intl.dart';
 import 'package:open_file/open_file.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
-import 'package:syncfusion_flutter_pdf/pdf.dart';
 import 'package:xiaomi_billing/screens/home_page/home_page.dart';
-import 'package:xiaomi_billing/screens/success_page/components/PDFViewerPage.dart';
+import 'package:xiaomi_billing/screens/success_page/components/pdf_viewer_page.dart';
 import 'package:xiaomi_billing/states/cart_model.dart';
 import 'package:xiaomi_billing/states/credential_manager.dart';
 import 'package:xiaomi_billing/states/global_data.dart';
 import 'package:xiaomi_billing/states/order_model.dart';
-import 'package:xiaomi_billing/states/products_model.dart';
 
 import '../../constants.dart';
 
@@ -46,6 +41,7 @@ class _SuccessPageState extends State<SuccessPage> {
     var box = await Hive.openBox('on-device-orders');
     // Remove later
     // await box.clear();
+    if (!mounted) return;
     Order order = Order(
         orderDate: DateTime.now(),
         customerName: context.read<GlobalData>().customerName,
@@ -58,8 +54,10 @@ class _SuccessPageState extends State<SuccessPage> {
 
     if (!widget.offlineOrder) {
       try {
+        if (!mounted) return;
         Dio dio = await context.read<CredentialManager>().getAPIClient();
         List<Map<String, String>> l = [];
+        if (!mounted) return;
         for (int i = 0;
             i < context.read<CartModel>().getProductIds().length;
             i++) {
@@ -103,7 +101,6 @@ class _SuccessPageState extends State<SuccessPage> {
 
   @override
   Widget build(BuildContext context) {
-    Size size = MediaQuery.of(context).size;
     return WillPopScope(
         child: Scaffold(
             appBar: AppBar(
@@ -111,17 +108,17 @@ class _SuccessPageState extends State<SuccessPage> {
             backgroundColor: Colors.white,
             body: ListView(children: [
               Container(
-                  padding: EdgeInsets.fromLTRB(20, 0, 20, 0),
+                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
                   child: Column(
                     children: [
                       AnimatedContainer(
-                          duration: Duration(milliseconds: 200),
+                          duration: const Duration(milliseconds: 200),
                           height: _imageHeight,
                           child: Image.asset('assets/success.jpg')),
                       Container(
-                        margin: EdgeInsetsDirectional.all(0),
+                        margin: const EdgeInsetsDirectional.all(0),
                         child: TextButton(
-                          child: Text('Back to Home',
+                          child: const Text('Back to Home',
                               style: TextStyle(fontSize: 18.5)),
                           onPressed: () async {
                             if (!_loading) {
@@ -133,14 +130,15 @@ class _SuccessPageState extends State<SuccessPage> {
                         ),
                       ),
                       Container(
-                        margin: EdgeInsetsDirectional.all(10),
+                        margin: const EdgeInsetsDirectional.all(10),
                         child: TextButton(
-                          child: Text('Generate PDF',
+                          child: const Text('Generate PDF',
                               style: TextStyle(fontSize: 18.5)),
                           onPressed: () async {
                             if (!_loading) {
                               if (kIsWeb || Platform.isIOS) {
                                 File file = await _createPDF();
+                                if (!mounted) return;
                                 Navigator.of(context).push(MaterialPageRoute(
                                     builder: (context) =>
                                         PDFViewerPage(file: file)));

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:xiaomi_billing/states/products_model.dart';
 
 class CartModel extends ChangeNotifier {
   final List<int> _productIds = [];
@@ -11,6 +10,10 @@ class CartModel extends ChangeNotifier {
 
   List<String> getSerialNos() {
     return _serialNos;
+  }
+
+  int getCartItemCount() {
+    return _productIds.length;
   }
 
   void addProduct(int productId, String serialNo) {

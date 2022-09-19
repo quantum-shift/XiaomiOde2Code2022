@@ -1,10 +1,7 @@
-import 'dart:ui';
 import 'dart:io' show Platform;
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/container.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:provider/provider.dart';
 import 'package:xiaomi_billing/screens/checkout_page/components/razorpay_checkout.dart';
 import 'package:xiaomi_billing/screens/checkout_page/components/windows_checkout_page.dart';
@@ -55,7 +52,6 @@ class _CheckoutState extends State<CheckoutPage> {
       for (int i = 1; i <= retries; i++) {
         Dio dio = await context.read<CredentialManager>().getAPIClient();
         Response response = await dio.post("/order/$orderId/status");
-        print(response.data);
         if (response.data['status'] == 'paid') {
           success = true;
           break;
@@ -64,8 +60,9 @@ class _CheckoutState extends State<CheckoutPage> {
         }
       }
       if (success) {
-        Navigator.of(context)
-            .push(MaterialPageRoute(builder: (context) => const SuccessPage(offlineOrder: false)));
+        if (!mounted) return;
+        Navigator.of(context).push(MaterialPageRoute(
+            builder: (context) => const SuccessPage(offlineOrder: false)));
       } else {
         setState(() {
           print("Unset");
@@ -166,9 +163,10 @@ class _CheckoutState extends State<CheckoutPage> {
                       TextButton(
                           onPressed: () {
                             Navigator.of(context).push(MaterialPageRoute(
-                                builder: (context) => const SuccessPage(offlineOrder: true)));
+                                builder: (context) =>
+                                    const SuccessPage(offlineOrder: true)));
                           },
-                          child: Text('Yes')),
+                          child: const Text('Yes')),
                       TextButton(
                           onPressed: () => Navigator.pop(context, 'No'),
                           child: const Text('No'))
@@ -207,13 +205,13 @@ class _CheckoutState extends State<CheckoutPage> {
                             children: [
                               Container(
                                   width: 100,
-                                  child: Text("Amount :",
+                                  child: const Text("Amount :",
                                       style: TextStyle(fontSize: 16))),
                               Container(
                                 width: 100,
                                 child: Text(
                                     "\u{20B9}${(amount * 1.0).toStringAsFixed(2)}",
-                                    style: TextStyle(fontSize: 16)),
+                                    style: const TextStyle(fontSize: 16)),
                               ),
                             ],
                           ),
@@ -221,13 +219,13 @@ class _CheckoutState extends State<CheckoutPage> {
                             children: [
                               Container(
                                   width: 100,
-                                  child: Text("Tax :",
+                                  child: const Text("Tax :",
                                       style: TextStyle(fontSize: 16))),
                               Container(
                                 width: 100,
                                 child: Text(
                                     "\u{20B9}${(amount * 0.15).toStringAsFixed(2)}",
-                                    style: TextStyle(fontSize: 16)),
+                                    style: const TextStyle(fontSize: 16)),
                               ),
                             ],
                           ),
@@ -235,13 +233,13 @@ class _CheckoutState extends State<CheckoutPage> {
                             children: [
                               Container(
                                   width: 100,
-                                  child: Text("Total :",
+                                  child: const Text("Total :",
                                       style: TextStyle(fontSize: 16))),
                               Container(
                                 width: 100,
                                 child: Text(
                                     "\u{20B9}${(amount * 1.15).toStringAsFixed(2)}",
-                                    style: TextStyle(fontSize: 16)),
+                                    style: const TextStyle(fontSize: 16)),
                               ),
                             ],
                           )
@@ -282,7 +280,7 @@ class _CheckoutState extends State<CheckoutPage> {
                 title: const Text('Payment Completion'),
                 content: chosenPaymentOption == paymentOptions[0]
                     ? Container(
-                        padding: EdgeInsets.all(8.0),
+                        padding: const EdgeInsets.all(8.0),
                         child: Form(
                           key: _formKey,
                           child: TextFormField(

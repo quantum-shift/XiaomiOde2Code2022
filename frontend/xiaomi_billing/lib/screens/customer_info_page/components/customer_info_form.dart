@@ -1,10 +1,7 @@
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/container.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:provider/provider.dart';
 import 'package:xiaomi_billing/constants.dart';
 import 'package:xiaomi_billing/screens/checkout_page/checkout_page.dart';
@@ -101,8 +98,9 @@ class _CustomerInfoFormState extends State<CustomerInfoForm> {
                   Response<String> response =
                       await dio.get("/customer/${_phoneController.text}");
                   final data = jsonDecode(response.data.toString());
+                  if (!mounted) return;
                   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                      content: Text('AutoFill Information'),
+                      content: const Text('AutoFill Information'),
                       duration: const Duration(milliseconds: 3000),
                       behavior: SnackBarBehavior.floating,
                       shape: RoundedRectangleBorder(
@@ -179,7 +177,7 @@ class _CustomerInfoFormState extends State<CustomerInfoForm> {
                           .read<GlobalData>()
                           .setPreferredCommunication(value!);
                       setState(() {
-                        communicationPreference = value!;
+                        communicationPreference = value;
                       });
                     },
                     items: communicationOptions
@@ -194,14 +192,13 @@ class _CustomerInfoFormState extends State<CustomerInfoForm> {
               ),
             ),
           ),
-          Padding(
-              padding: const EdgeInsets.fromLTRB(0, 20, 0, 0),
+          const Padding(
+              padding: EdgeInsets.fromLTRB(0, 20, 0, 0),
               child: Divider(thickness: 3)),
           Container(
               width: size.width * 0.9,
               padding: const EdgeInsets.symmetric(vertical: 20.0),
               child: ElevatedButton(
-                child: Text('Proceed'),
                 style: ButtonStyle(
                   backgroundColor: MaterialStateProperty.resolveWith<Color?>(
                     (Set<MaterialState> states) {
@@ -237,10 +234,11 @@ class _CustomerInfoFormState extends State<CustomerInfoForm> {
                           .read<GlobalData>()
                           .setCustomerPhone(_phoneController.text);
                       Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => CheckoutPage()));
+                          builder: (context) => const CheckoutPage()));
                     }
                   }
                 },
+                child: const Text('Proceed'),
               ))
         ]),
       ),
