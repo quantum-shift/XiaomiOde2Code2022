@@ -12,11 +12,13 @@ import 'package:open_file/open_file.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:xiaomi_billing/screens/home_page/home_page.dart';
+import 'package:xiaomi_billing/screens/product_details_page/product_details_page.dart';
 import 'package:xiaomi_billing/screens/success_page/components/pdf_viewer_page.dart';
 import 'package:xiaomi_billing/states/cart_model.dart';
 import 'package:xiaomi_billing/states/credential_manager.dart';
 import 'package:xiaomi_billing/states/global_data.dart';
 import 'package:xiaomi_billing/states/order_model.dart';
+import 'package:xiaomi_billing/states/products_model.dart';
 
 import '../../constants.dart';
 
@@ -115,40 +117,46 @@ class _SuccessPageState extends State<SuccessPage> {
                           duration: const Duration(milliseconds: 200),
                           height: _imageHeight,
                           child: Image.asset('assets/success.jpg')),
-                      Container(
-                        margin: const EdgeInsetsDirectional.all(0),
-                        child: TextButton(
-                          child: const Text('Back to Home',
-                              style: TextStyle(fontSize: 18.5)),
-                          onPressed: () async {
-                            if (!_loading) {
-                              context.read<CartModel>().removeAll();
-                              Navigator.of(context).push(MaterialPageRoute(
-                                  builder: (context) => const HomePage()));
-                            }
-                          },
-                        ),
-                      ),
-                      Container(
-                        margin: const EdgeInsetsDirectional.all(10),
-                        child: TextButton(
-                          child: const Text('Generate PDF',
-                              style: TextStyle(fontSize: 18.5)),
-                          onPressed: () async {
-                            if (!_loading) {
-                              if (kIsWeb || Platform.isIOS) {
-                                File file = await _createPDF();
-                                if (!mounted) return;
-                                Navigator.of(context).push(MaterialPageRoute(
-                                    builder: (context) =>
-                                        PDFViewerPage(file: file)));
-                              } else {
-                                await _createNativePDF();
-                              }
-                            }
-                          },
-                        ),
-                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          Container(
+                            margin: const EdgeInsetsDirectional.all(0),
+                            child: TextButton(
+                              child: const Text('Back to Home',
+                                  style: TextStyle(fontSize: 16)),
+                              onPressed: () async {
+                                if (!_loading) {
+                                  context.read<CartModel>().removeAll();
+                                  Navigator.of(context).push(MaterialPageRoute(
+                                      builder: (context) => const HomePage()));
+                                }
+                              },
+                            ),
+                          ),
+                          Container(
+                            margin: const EdgeInsetsDirectional.all(5),
+                            child: TextButton(
+                              child: const Text('Generate Invoice',
+                                  style: TextStyle(fontSize: 16)),
+                              onPressed: () async {
+                                if (!_loading) {
+                                  if (kIsWeb || Platform.isIOS) {
+                                    File file = await _createPDF(context);
+                                    if (!mounted) return;
+                                    Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                PDFViewerPage(file: file)));
+                                  } else {
+                                    await _createNativePDF(context);
+                                  }
+                                }
+                              },
+                            ),
+                          ),
+                        ],
+                      )
                     ],
                   )),
             ])),
@@ -158,78 +166,38 @@ class _SuccessPageState extends State<SuccessPage> {
   }
 }
 
-Future<void> _createNativePDF() async {
-  await _createPDF();
+Future<void> _createNativePDF(BuildContext context) async {
+  await _createPDF(context);
   String? path;
   path = (await getExternalStorageDirectory())?.path;
   OpenFile.open('$path/Output.pdf');
 }
 
-Future<File> _createPDF() async {
+Future<File> _createPDF(BuildContext buildContext) async {
   final pdf = pw.Document();
 
   final iconImage =
       (await rootBundle.load('assets/mi.svg.png')).buffer.asUint8List();
 
-  final tableHeaders = [
-    'Description',
-    'Quantity',
-    'Unit Price',
-    'VAT',
-    'Total',
-  ];
+  final tableHeaders = ['Description', 'Serial No', 'Amount'];
 
-  final tableData = [
-    [
-      'Coffee',
-      '7',
-      '\$ 5',
-      '1 %',
-      '\$ 35',
-    ],
-    [
-      'Blue Berries',
-      '5',
-      '\$ 10',
-      '2 %',
-      '\$ 50',
-    ],
-    [
-      'Water',
-      '1',
-      '\$ 3',
-      '1.5 %',
-      '\$ 3',
-    ],
-    [
-      'Apple',
-      '6',
-      '\$ 8',
-      '2 %',
-      '\$ 48',
-    ],
-    [
-      'Lunch',
-      '3',
-      '\$ 90',
-      '12 %',
-      '\$ 270',
-    ],
-    [
-      'Drinks',
-      '2',
-      '\$ 15',
-      '0.5 %',
-      '\$ 30',
-    ],
-    [
-      'Lemon',
-      '4',
-      '\$ 7',
-      '0.5 %',
-      '\$ 28',
-    ],
-  ];
+  int total = 0;
+  final tableData = <List<dynamic>>[];
+  for (int i = 0;
+      i < buildContext.read<CartModel>().getProductIds().length;
+      i++) {
+    for (Product product in buildContext.read<ProductModel>().getProducts()) {
+      if (product.productId ==
+          buildContext.read<CartModel>().getProductIds()[i]) {
+        final itemInfo = [];
+        itemInfo.add(product.productName);
+        itemInfo.add(buildContext.read<CartModel>().getSerialNos()[i]);
+        itemInfo.add("INR ${product.price}");
+        total += product.price;
+        tableData.add(itemInfo);
+      }
+    }
+  }
 
   pdf.addPage(
     pw.MultiPage(
@@ -269,14 +237,14 @@ Future<File> _createPDF() async {
                 crossAxisAlignment: pw.CrossAxisAlignment.start,
                 children: [
                   pw.Text(
-                    'Customer Name',
+                    "${buildContext.read<GlobalData>().customerName}",
                     style: pw.TextStyle(
                       fontSize: 15.5,
                       fontWeight: pw.FontWeight.bold,
                     ),
                   ),
                   pw.Text(
-                    'john@gmail.com',
+                    "${buildContext.read<GlobalData>().customerEmail}",
                   ),
                   pw.Text(
                     DateTime.now().toString(),
@@ -289,7 +257,7 @@ Future<File> _createPDF() async {
           pw.Divider(),
           pw.SizedBox(height: 1 * PdfPageFormat.mm),
           pw.Text(
-            'Dear John,\nLorem ipsum dolor sit amet consectetur adipisicing elit. Maxime mollitia, molestiae quas vel sint commodi repudiandae consequuntur voluptatum laborum numquam blanditiis harum quisquam eius sed odit fugiat iusto fuga praesentium optio, eaque rerum! Provident similique accusantium nemo autem. Veritatis obcaecati tenetur iure eius earum ut molestias architecto voluptate aliquam nihil, eveniet aliquid culpa officia aut! Impedit sit sunt quaerat, odit, tenetur error',
+            'Dear ${buildContext.read<GlobalData>().customerName},\n Thank you for your purchase at Xiaomi. Please find the attached receipt.',
             textAlign: pw.TextAlign.justify,
           ),
           pw.SizedBox(height: 5 * PdfPageFormat.mm),
@@ -319,7 +287,7 @@ Future<File> _createPDF() async {
               children: [
                 pw.Spacer(flex: 6),
                 pw.Expanded(
-                  flex: 4,
+                  flex: 6,
                   child: pw.Column(
                     crossAxisAlignment: pw.CrossAxisAlignment.start,
                     children: [
@@ -334,7 +302,7 @@ Future<File> _createPDF() async {
                             ),
                           ),
                           pw.Text(
-                            '\$ 464',
+                            'INR ${total.toStringAsFixed(0)}',
                             style: pw.TextStyle(
                               fontWeight: pw.FontWeight.bold,
                             ),
@@ -345,14 +313,14 @@ Future<File> _createPDF() async {
                         children: [
                           pw.Expanded(
                             child: pw.Text(
-                              'Vat 19.5 %',
+                              'GST 15 %',
                               style: pw.TextStyle(
                                 fontWeight: pw.FontWeight.bold,
                               ),
                             ),
                           ),
                           pw.Text(
-                            '\$ 90.48',
+                            'INR ${(total * 0.15).toStringAsFixed(0)}',
                             style: pw.TextStyle(
                               fontWeight: pw.FontWeight.bold,
                             ),
@@ -372,7 +340,7 @@ Future<File> _createPDF() async {
                             ),
                           ),
                           pw.Text(
-                            '\$ 554.48',
+                            'INR ${(total * 1.15).toStringAsFixed(0)}',
                             style: pw.TextStyle(
                               fontWeight: pw.FontWeight.bold,
                             ),
@@ -398,7 +366,7 @@ Future<File> _createPDF() async {
             pw.Divider(),
             pw.SizedBox(height: 2 * PdfPageFormat.mm),
             pw.Text(
-              'Flutter Approach',
+              'Xiaomi',
               style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
             ),
             pw.SizedBox(height: 1 * PdfPageFormat.mm),
@@ -410,7 +378,7 @@ Future<File> _createPDF() async {
                   style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
                 ),
                 pw.Text(
-                  'Merul Badda, Anandanagor, Dhaka 1212',
+                  'Bangalore, Karnataka',
                 ),
               ],
             ),
@@ -423,7 +391,7 @@ Future<File> _createPDF() async {
                   style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
                 ),
                 pw.Text(
-                  'flutterapproach@gmail.com',
+                  'service.in@xiaomi.com',
                 ),
               ],
             ),

@@ -210,7 +210,7 @@ class _CheckoutState extends State<CheckoutPage> {
                               Container(
                                 width: 100,
                                 child: Text(
-                                    "\u{20B9}${(amount * 1.0).toStringAsFixed(2)}",
+                                    "\u{20B9}${(amount * 1.0).toStringAsFixed(0)}",
                                     style: const TextStyle(fontSize: 16)),
                               ),
                             ],
@@ -224,7 +224,7 @@ class _CheckoutState extends State<CheckoutPage> {
                               Container(
                                 width: 100,
                                 child: Text(
-                                    "\u{20B9}${(amount * 0.15).toStringAsFixed(2)}",
+                                    "\u{20B9}${(amount * 0.15).toStringAsFixed(0)}",
                                     style: const TextStyle(fontSize: 16)),
                               ),
                             ],
@@ -238,7 +238,7 @@ class _CheckoutState extends State<CheckoutPage> {
                               Container(
                                 width: 100,
                                 child: Text(
-                                    "\u{20B9}${(amount * 1.15).toStringAsFixed(2)}",
+                                    "\u{20B9}${(amount * 1.15).toStringAsFixed(0)}",
                                     style: const TextStyle(fontSize: 16)),
                               ),
                             ],
