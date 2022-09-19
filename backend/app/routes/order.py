@@ -51,31 +51,31 @@ def new_order(order_new: schemas.OrderNew, user: schemas.User = Depends(get_curr
     order_id = payments.order.create_order(amount=order_new.amount, receipt=receipt_id, currency=order_new.currency)
     return {"receipt_id": receipt_id, "order_id": order_id}
 
-@router.post('/order/success')
-async def order_success(order_success: schemas.OrderSuccess, user: schemas.User = Depends(get_current_user), db: Session = Depends(get_db)):
+@router.post('order/offline')
+def new_offline_order(order_offline: schemas.OrderOffline, user: schemas.User = Depends(get_current_user), db: Session = Depends(get_db)):
     if not user:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"Not authorised to update order status!")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"Not authorised to create a new order!")
     
-    order_id = order_success.order_id
-    payment_id = order_success.payment_id
-    signature = order_success.signature
-    payment_verified = False
+    phone = order_offline.phone
+    customer = customer_crud.get_customer_by_phone(db=db, phone=phone)
 
-    if payments.order.verify_order_signature(order_id, payment_id, signature):
-        logger.info("Payment verified successfully!")
-        payment_verified = True
-    else:
-        logger.error("Failed to verify payment!")
-    
-    payment_details = payments.order.get_payment_details(payment_id)
-    order_details = payments.order.get_order_details(order_id)
+    if customer is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Customer not found!")
+
+    receipt_id = str(uuid4())
+    order_id = payments.order.create_order(amount=order_offline.amount, receipt=receipt_id, currency=order_offline.currency)
+
+    payment_id = f'payment_offline_{order_id}'
+
     order: schemas.OrderCreate = schemas.OrderCreate(
         order_id=order_id, 
         payment_id=payment_id, 
-        receipt_id=order_details['receipt'], 
-        amount=payment_details['amount'], 
-        currency=payment_details['currency'], 
-        payment_verified=payment_verified
+        receipt_id=receipt_id, 
+        amount=order_offline.amount, 
+        currency=order_offline.currency, 
+        payment_verified=True,
+        items=order_offline.items,
+        customer_id=customer.id
     )
     order_crud.create_order(db=db, order=order)
 

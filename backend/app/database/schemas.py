@@ -71,6 +71,12 @@ class OrderSuccess(BaseModel):
 class OrderUpdate(BaseModel):
     items: List[SoldProduct]
 
+class OrderOffline(OrderNew):
+    phone: str
+    items: Optional[List[SoldProduct]]
+    class Config:
+        orm_mode = True
+
 class OrderCreate(OrderNew):
     id: Optional[int]
     receipt_id: str
