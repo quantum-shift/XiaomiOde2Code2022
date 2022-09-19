@@ -1,8 +1,6 @@
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:xiaomi_billing/screens/checkout_page/checkout_page.dart';
-import 'package:xiaomi_billing/screens/checkout_page/components/windows_checkout_page.dart';
 import 'package:xiaomi_billing/screens/customer_info_page/customer_info.dart';
 import 'package:xiaomi_billing/screens/home_page/home_page.dart';
 import 'package:xiaomi_billing/screens/login_page/login_page.dart';
@@ -18,15 +16,14 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'constants.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
-import 'screens/checkout_page/checkout_page.dart';
 
-final Product dummyProduct = Product(
+const Product dummyProduct = Product(
     productName: 'a',
     productId: 1,
     productCategory: 'a',
     price: 1,
     productImageUrl: 'a',
-    productDetails: Map<String, dynamic>());
+    productDetails: <String, dynamic>{});
 
 void main() async {
   setBaseUrl();
@@ -74,6 +71,15 @@ class MyApp extends StatelessWidget {
         'Checkout': (context) => const CheckoutPage(),
         'Success': (context) => const SuccessPage(offlineOrder: true),
       },
+      // builder: (context, child) {
+      //   return Stack(
+      //     children: [
+      //       child!,
+      //       Positioned(
+      //           bottom: kBottomNavigationBarHeight, right: 5, child: Cart())
+      //     ],
+      //   );
+      // },
     );
   }
 }

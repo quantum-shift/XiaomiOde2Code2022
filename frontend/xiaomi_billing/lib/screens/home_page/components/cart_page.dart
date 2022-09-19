@@ -1,21 +1,19 @@
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:xiaomi_billing/constants.dart';
 import 'package:xiaomi_billing/screens/customer_info_page/customer_info.dart';
+import 'package:xiaomi_billing/screens/home_page/components/cart.dart';
 import 'package:xiaomi_billing/screens/home_page/components/empty_cart_card.dart';
 import 'package:xiaomi_billing/screens/store_page/store_page.dart';
 import 'package:xiaomi_billing/states/cart_model.dart';
 import 'package:xiaomi_billing/states/credential_manager.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:xiaomi_billing/states/global_data.dart';
 import '../../../states/products_model.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
 
 void saveCartToFile(bool mounted, BuildContext context) async {
   if (!mounted) return;
@@ -88,6 +86,7 @@ class _CartPageState extends State<CartPage> {
     var productIds = box.get('id');
     var serialNos = box.get('serial');
     for (int i = 0; i < productIds.length; i++) {
+      if (!mounted) return;
       context.read<CartModel>().addProduct(productIds[i], serialNos[i]);
     }
   }
@@ -112,10 +111,11 @@ class _CartPageState extends State<CartPage> {
       }
       writeProductsToFile();
       await readCartFromFile();
+      if (!mounted) return;
       context.read<GlobalData>().setVisitedCart(true);
     }
     setState(() {
-      _loading = false;      
+      _loading = false;
     });
   }
 
@@ -130,151 +130,168 @@ class _CartPageState extends State<CartPage> {
       }
     }
     Size size = MediaQuery.of(context).size;
-    return Scaffold(
-        body: RefreshIndicator(
-      onRefresh: () async {
-        try {
-          bool connected = await isConnected(context);
-          if (connected) {
-            await retrieveProductsFromAPI(context, mounted);
-            showSnackBar(context, "Products updated");
-          } else {
-            throw Exception();
-          }
-        } catch (error) {
-          showSnackBar(context, "Cannot connect to server");
-        }
-      },
-      child: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            pinned: true,
-            backgroundColor: miOrange,
-            foregroundColor: Colors.white,
-            automaticallyImplyLeading: false,
-            actions: [
-              IconButton(
-                icon: const Icon(
-                  Icons.logout,
-                  color: Colors.white,
-                  semanticLabel: 'Logout',
-                ),
-                tooltip: 'Logout',
-                onPressed: () {
-                  context.read<CredentialManager>().doLogout();
-                },
-              ),
-            ],
-            expandedHeight: size.height * 0.1,
-            flexibleSpace: FlexibleSpaceBar(
-              title: const Text('Cart'),
-            ),
-          ),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(0, 20, 0, 0),
-              child: SizedBox(
-                height: 30,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.of(context).push(MaterialPageRoute(
-                            builder: (context) => const StorePage()));
-                      },
-                      child: Text('Go To Store'),
-                      style: getButtonStyle(context),
+    return Stack(
+      children: [
+        Scaffold(
+            body: RefreshIndicator(
+          onRefresh: () async {
+            try {
+              bool connected = await isConnected(context);
+              if (connected) {
+                if (!mounted) return;
+                await retrieveProductsFromAPI(context, mounted);
+                if (!mounted) return;
+                showSnackBar(context, "Products updated");
+              } else {
+                throw Exception();
+              }
+            } catch (error) {
+              showSnackBar(context, "Cannot connect to server");
+            }
+          },
+          child: CustomScrollView(
+            slivers: [
+              SliverAppBar(
+                pinned: true,
+                backgroundColor: miOrange,
+                foregroundColor: Colors.white,
+                automaticallyImplyLeading: false,
+                actions: [
+                  IconButton(
+                    icon: const Icon(
+                      Icons.logout,
+                      color: Colors.white,
+                      semanticLabel: 'Logout',
                     ),
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.of(context).push(MaterialPageRoute(
-                            builder: (context) => const CustomerInfo()));
-                      },
-                      child: Text('Checkout'),
-                      style: getButtonStyle(context),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          _loading ?
-            SliverToBoxAdapter(child: Padding(
-              padding: const EdgeInsets.symmetric(vertical : 40),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(child: const CircularProgressIndicator.adaptive()),
-                ],
-              ),
-            ))
-          : cartItems.isEmpty
-              ? SliverToBoxAdapter(
-                  child: Padding(
-                      padding: EdgeInsets.all(size.width * 0.05),
-                      child: EmptyCartCard(
-                          message:
-                              'Your cart is empty. Add new items to cart by visiting the store.',
-                          size: size)),
-                )
-              : SliverGrid(
-                  gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                      maxCrossAxisExtent: 400.0,
-                      mainAxisSpacing: 0.0,
-                      crossAxisSpacing: 0.0,
-                      mainAxisExtent: 250),
-                  delegate: SliverChildBuilderDelegate(
-                    (BuildContext context, int index) {
-                      return Container(
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 10.0, horizontal: 5.0),
-                          child: Card(
-                            child: InkWell(
-                              splashColor: miOrange,
-                              onTap: () {},
-                              child: Column(
-                                children: [
-                                  ListTile(
-                                    leading: Image.asset('assets/mi.svg.png'),
-                                    title: Text(cartItems[index].productName),
-                                    subtitle:
-                                        Text(cartItems[index].productCategory),
-                                    visualDensity: VisualDensity(vertical: 4),
-                                  ),
-                                  ListTile(
-                                    title: Text(
-                                        "\u{20B9} ${cartItems[index].price}"),
-                                    subtitle: Text(
-                                        "Serial: ${context.read<CartModel>().getSerialNos()[index]}"),
-                                  ),
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      ElevatedButton(
-                                          onPressed: () {
-                                            context
-                                                .read<CartModel>()
-                                                .removeId(index);
-                                            saveCartToFile(mounted, context);
-                                          },
-                                          style: getButtonStyle(context),
-                                          child: const Icon(
-                                            Icons.delete,
-                                            color: Colors.redAccent,
-                                          )),
-                                    ],
-                                  )
-                                ],
-                              ),
-                            ),
-                          ));
+                    tooltip: 'Logout',
+                    onPressed: () {
+                      context.read<CredentialManager>().doLogout();
                     },
-                    childCount: cartItems.length,
+                  ),
+                ],
+                expandedHeight: size.height * 0.1,
+                flexibleSpace: const FlexibleSpaceBar(
+                  title: Text('Cart'),
+                ),
+              ),
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(0, 20, 0, 0),
+                  child: SizedBox(
+                    height: 30,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        ElevatedButton(
+                          onPressed: () {
+                            Navigator.of(context).push(MaterialPageRoute(
+                                builder: (context) => const StorePage()));
+                          },
+                          style: getButtonStyle(context),
+                          child: const Text('Go To Store'),
+                        ),
+                        ElevatedButton(
+                          onPressed: () {
+                            Navigator.of(context).push(MaterialPageRoute(
+                                builder: (context) => const CustomerInfo()));
+                          },
+                          style: getButtonStyle(context),
+                          child: const Text('Checkout'),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-        ],
-      ),
-    ));
+              ),
+              _loading
+                  ? SliverToBoxAdapter(
+                      child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 40),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                              child:
+                                  const CircularProgressIndicator.adaptive()),
+                        ],
+                      ),
+                    ))
+                  : cartItems.isEmpty
+                      ? SliverToBoxAdapter(
+                          child: Padding(
+                              padding: EdgeInsets.all(size.width * 0.05),
+                              child: EmptyCartCard(
+                                  message:
+                                      'Your cart is empty. Add new items to cart by visiting the store.',
+                                  size: size)),
+                        )
+                      : SliverGrid(
+                          gridDelegate:
+                              const SliverGridDelegateWithMaxCrossAxisExtent(
+                                  maxCrossAxisExtent: 400.0,
+                                  mainAxisSpacing: 0.0,
+                                  crossAxisSpacing: 0.0,
+                                  mainAxisExtent: 250),
+                          delegate: SliverChildBuilderDelegate(
+                            (BuildContext context, int index) {
+                              return Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 10.0, horizontal: 5.0),
+                                  child: Card(
+                                    child: InkWell(
+                                      splashColor: miOrange,
+                                      onTap: () {},
+                                      child: Column(
+                                        children: [
+                                          ListTile(
+                                            leading: Image.asset(
+                                                'assets/mi.svg.png'),
+                                            title: Text(
+                                                cartItems[index].productName),
+                                            subtitle: Text(cartItems[index]
+                                                .productCategory),
+                                            visualDensity:
+                                                const VisualDensity(vertical: 4),
+                                          ),
+                                          ListTile(
+                                            title: Text(
+                                                "\u{20B9} ${cartItems[index].price}"),
+                                            subtitle: Text(
+                                                "Serial: ${context.read<CartModel>().getSerialNos()[index]}"),
+                                          ),
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              ElevatedButton(
+                                                  onPressed: () {
+                                                    context
+                                                        .read<CartModel>()
+                                                        .removeId(index);
+                                                    saveCartToFile(
+                                                        mounted, context);
+                                                  },
+                                                  style:
+                                                      getButtonStyle(context),
+                                                  child: const Icon(
+                                                    Icons.delete,
+                                                    color: Colors.redAccent,
+                                                  )),
+                                            ],
+                                          )
+                                        ],
+                                      ),
+                                    ),
+                                  ));
+                            },
+                            childCount: cartItems.length,
+                          ),
+                        ),
+            ],
+          ),
+        )),
+        const Positioned(bottom: 5, right: 5, child: Cart())
+      ],
+    );
   }
 }

@@ -1,16 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/container.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:hive/hive.dart';
 import 'package:provider/provider.dart';
 import 'package:xiaomi_billing/main.dart';
-import 'package:xiaomi_billing/states/cart_model.dart';
 import 'package:xiaomi_billing/states/order_model.dart';
 import 'package:intl/intl.dart';
 import 'package:xiaomi_billing/states/products_model.dart';
 
 import '../../../constants.dart';
-import '../../../states/credential_manager.dart';
 
 class OrdersPage extends StatefulWidget {
   const OrdersPage({super.key});
@@ -21,8 +17,8 @@ class OrdersPage extends StatefulWidget {
 
 class _OrdersPageState extends State<OrdersPage> {
   bool _loading = true;
-  List<Order> _orderList = [];
-  List<bool> _isOpen = [];
+  final List<Order> _orderList = [];
+  final List<bool> _isOpen = [];
 
   void onMount() async {
     var box = await Hive.openBox('on-device-orders');
@@ -32,12 +28,12 @@ class _OrdersPageState extends State<OrdersPage> {
         _isOpen.add(false);
       }
     }
-    print(_orderList);
     setState(() {
       _loading = false;
     });
   }
 
+  @override
   void initState() {
     super.initState();
     onMount();
@@ -85,7 +81,7 @@ class _OrdersPageState extends State<OrdersPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Container(
-                      padding: EdgeInsets.all(40),
+                      padding: const EdgeInsets.all(40),
                       child: const CircularProgressIndicator.adaptive()),
                 ],
               )
@@ -119,12 +115,12 @@ class _OrdersPageState extends State<OrdersPage> {
                                             crossAxisAlignment:
                                                 CrossAxisAlignment.center,
                                             children: [
-                                              Icon(Icons.date_range),
+                                              const Icon(Icons.date_range),
                                               Text(
                                                   DateFormat('d MMM kk:mm')
                                                       .format(orderItem
                                                           .value.orderDate),
-                                                  style: TextStyle(
+                                                  style: const TextStyle(
                                                       fontWeight:
                                                           FontWeight.bold)),
                                             ],
@@ -137,12 +133,12 @@ class _OrdersPageState extends State<OrdersPage> {
                                             crossAxisAlignment:
                                                 CrossAxisAlignment.center,
                                             children: [
-                                              Icon(Icons.currency_rupee),
+                                              const Icon(Icons.currency_rupee),
                                               Text(
                                                   cartAmount(orderItem
                                                           .value.productIds)
                                                       .toString(),
-                                                  style: TextStyle(
+                                                  style: const TextStyle(
                                                       fontWeight:
                                                           FontWeight.bold))
                                             ],
@@ -156,15 +152,18 @@ class _OrdersPageState extends State<OrdersPage> {
                                       child: Column(
                                         children: [
                                           Text(orderItem.value.customerName,
-                                              style: TextStyle(fontSize: 15)),
+                                              style: const TextStyle(
+                                                  fontSize: 15)),
                                           Text(orderItem.value.customerPhone,
-                                              style: TextStyle(
+                                              style: const TextStyle(
                                                   color: Color.fromARGB(
-                                                      255, 127, 127, 127), fontSize: 13)),
+                                                      255, 127, 127, 127),
+                                                  fontSize: 13)),
                                           Text(orderItem.value.customerEmail,
-                                              style: TextStyle(
+                                              style: const TextStyle(
                                                   color: Color.fromARGB(
-                                                      255, 127, 127, 127), fontSize: 13))
+                                                      255, 127, 127, 127),
+                                                  fontSize: 13))
                                         ],
                                       ),
                                     )
@@ -172,7 +171,7 @@ class _OrdersPageState extends State<OrdersPage> {
                                 ),
                               ),
                           body: Column(children: [
-                            Divider(thickness: 2),
+                            const Divider(thickness: 2),
                             Container(
                               width: size.width * 0.95,
                               child: DataTable(
@@ -196,7 +195,8 @@ class _OrdersPageState extends State<OrdersPage> {
                                     .map((productId) => DataRow(
                                             color: MaterialStateProperty
                                                 .resolveWith<Color?>(
-                                                    (Set<MaterialState> states) {
+                                                    (Set<MaterialState>
+                                                        states) {
                                               if (productId.key.isEven) {
                                                 return Colors.grey
                                                     .withOpacity(0.3);

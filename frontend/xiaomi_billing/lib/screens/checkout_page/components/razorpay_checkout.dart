@@ -1,6 +1,5 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 import 'package:xiaomi_billing/constants.dart';
 import 'package:xiaomi_billing/screens/success_page/success_page.dart';
@@ -49,15 +48,16 @@ class RazorpayCheckoutState extends State<RazorpayCheckout> {
       response = await dio
           .post('/order/new', data: {'amount': amount, 'currency': 'INR'});
     } on DioError catch (e) {
+      if (!mounted) return;
       showSnackBar(context, "Please check your internet connection.");
       return;
     }
-    final String receiptId = response.data['receipt_id'],
-        orderId = response.data['order_id'];
+    final String orderId = response.data['order_id'];
+    if (!mounted) return;
     context.read<GlobalData>().setOrderId(orderId);
-    final String? API_KEY_ID = dotenv.env['API_KEY_ID'];
+    final String? apiKeyId = dotenv.env['API_KEY_ID'];
     var options = {
-      'key': API_KEY_ID,
+      'key': apiKeyId,
       'amount': amount,
       'name': 'Xiaomi',
       'order_id': orderId,
@@ -86,8 +86,8 @@ class RazorpayCheckoutState extends State<RazorpayCheckout> {
     //   'signature': response.signature
     // });
     if (!mounted) return;
-    Navigator.of(context)
-        .push(MaterialPageRoute(builder: (context) => const SuccessPage(offlineOrder: false)));
+    Navigator.of(context).push(MaterialPageRoute(
+        builder: (context) => const SuccessPage(offlineOrder: false)));
     /*Fluttertoast.showToast(
         msg: "SUCCESS: " + response.paymentId!,
         toastLength: Toast.LENGTH_SHORT); */

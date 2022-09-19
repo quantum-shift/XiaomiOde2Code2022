@@ -1,13 +1,11 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/container.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:provider/provider.dart';
+import 'package:xiaomi_billing/screens/home_page/components/cart.dart';
 import 'package:xiaomi_billing/screens/product_details_page/product_details_page.dart';
 import 'package:xiaomi_billing/states/products_model.dart';
 
 import '../../constants.dart';
-import '../../states/credential_manager.dart';
 import '../home_page/components/cart_page.dart';
 
 class StorePage extends StatefulWidget {
@@ -34,87 +32,94 @@ class _StorePageState extends State<StorePage> {
         .where((element) => element.productCategory == _selectedType)
         .toList();
     Size size = MediaQuery.of(context).size;
-    return Scaffold(
-        body: RefreshIndicator(
-      onRefresh: () async {
-        try {
-          bool connected = await isConnected(context);
-          if (connected) {
-            await retrieveProductsFromAPI(context, mounted);
-            showSnackBar(context, "Products updated");
-          } else {
-            throw Exception();
-          }
-        } catch (error) {
-          showSnackBar(context, "Cannot connect to server");
-        }
-      },
-      child: CustomScrollView(slivers: [
-        SliverAppBar(
-          pinned: true,
-          backgroundColor: miOrange,
-          foregroundColor: Colors.white,
-          expandedHeight: size.height * 0.1,
-          flexibleSpace: FlexibleSpaceBar(
-            title: const Text('Store'),
-          ),
-        ),
-        SliverList(
-          delegate: SliverChildBuilderDelegate(
-              (context, index) => Padding(
-                    padding: const EdgeInsets.fromLTRB(0, 20, 0, 0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        getButtonwithCategory(
-                            'Phones', _selectedType, context, setType),
-                        getButtonwithCategory(
-                            'TV', _selectedType, context, setType),
-                        getButtonwithCategory(
-                            'Audio', _selectedType, context, setType),
-                      ],
-                    ),
-                  ),
-              childCount: 1),
-        ),
-        SliverList(
-            delegate: SliverChildBuilderDelegate(
-                (context, index) => Card(
-                      child: InkWell(
-                        splashColor: miOrange,
-                        onTap: () {
-                          Navigator.of(context).push(MaterialPageRoute(
-                              builder: (context) => ProductDetails(
-                                  product: currentProducts[index],
-                                  serialNo: '')));
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 10, horizontal: 5),
-                          child: ListTile(
-                            leading: Hero(
-                              tag: currentProducts[index].productId,
-                              child: Image(
-                                  image: CachedNetworkImageProvider(
-                                      currentProducts[index].productImageUrl)),
-                            ),
-                            title: Text(currentProducts[index].productName),
-                            subtitle: Text(
-                                "\u{20B9} ${currentProducts[index].price}"),
-                          ),
+    return Stack(
+      children: [
+        Scaffold(
+            body: RefreshIndicator(
+          onRefresh: () async {
+            try {
+              bool connected = await isConnected(context);
+              if (connected) {
+                if (!mounted) return;
+                await retrieveProductsFromAPI(context, mounted);
+                if (!mounted) return;
+                showSnackBar(context, "Products updated");
+              } else {
+                throw Exception();
+              }
+            } catch (error) {
+              showSnackBar(context, "Cannot connect to server");
+            }
+          },
+          child: CustomScrollView(slivers: [
+            SliverAppBar(
+              pinned: true,
+              backgroundColor: miOrange,
+              foregroundColor: Colors.white,
+              expandedHeight: size.height * 0.1,
+              flexibleSpace: const FlexibleSpaceBar(
+                title: Text('Store'),
+              ),
+            ),
+            SliverList(
+              delegate: SliverChildBuilderDelegate(
+                  (context, index) => Padding(
+                        padding: const EdgeInsets.fromLTRB(0, 20, 0, 0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            getButtonwithCategory(
+                                'Phones', _selectedType, context, setType),
+                            getButtonwithCategory(
+                                'TV', _selectedType, context, setType),
+                            getButtonwithCategory(
+                                'Audio', _selectedType, context, setType),
+                          ],
                         ),
                       ),
-                    ),
-                childCount: currentProducts.length))
-      ]),
-    ));
+                  childCount: 1),
+            ),
+            SliverList(
+                delegate: SliverChildBuilderDelegate(
+                    (context, index) => Card(
+                          child: InkWell(
+                            splashColor: miOrange,
+                            onTap: () {
+                              Navigator.of(context).push(MaterialPageRoute(
+                                  builder: (context) => ProductDetails(
+                                      product: currentProducts[index],
+                                      serialNo: '')));
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 10, horizontal: 5),
+                              child: ListTile(
+                                leading: Hero(
+                                  tag: currentProducts[index].productId,
+                                  child: Image(
+                                      image: CachedNetworkImageProvider(
+                                          currentProducts[index]
+                                              .productImageUrl)),
+                                ),
+                                title: Text(currentProducts[index].productName),
+                                subtitle: Text(
+                                    "\u{20B9} ${currentProducts[index].price}"),
+                              ),
+                            ),
+                          ),
+                        ),
+                    childCount: currentProducts.length))
+          ]),
+        )),
+        const Positioned(bottom: 5, right: 5, child: Cart())
+      ],
+    );
   }
 }
 
 Widget getButtonwithCategory(String type, String currentSelected,
     BuildContext context, Function(String) setType) {
   return (ElevatedButton(
-    child: Text(type),
     style: ButtonStyle(
       backgroundColor: MaterialStateProperty.resolveWith<Color?>(
         (Set<MaterialState> states) {
@@ -134,5 +139,6 @@ Widget getButtonwithCategory(String type, String currentSelected,
     onPressed: () {
       setType(type);
     },
+    child: Text(type),
   ));
 }

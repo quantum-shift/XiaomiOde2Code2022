@@ -1,9 +1,5 @@
-import 'dart:ui';
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/container.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:provider/provider.dart';
 import 'package:xiaomi_billing/screens/home_page/components/cart_page.dart';
 import 'package:xiaomi_billing/states/cart_model.dart';
@@ -12,10 +8,11 @@ import 'package:xiaomi_billing/states/products_model.dart';
 import '../../constants.dart';
 
 class ProductDetails extends StatefulWidget {
-  ProductDetails({super.key, required this.product, required this.serialNo});
+  const ProductDetails(
+      {super.key, required this.product, required this.serialNo});
 
-  Product product;
-  String serialNo;
+  final Product product;
+  final String serialNo;
 
   @override
   State<ProductDetails> createState() =>
@@ -85,7 +82,7 @@ class _ProductDetailsState extends State<ProductDetails> {
             ),
           ),
         ),
-        SliverToBoxAdapter(
+        const SliverToBoxAdapter(
           child: Divider(),
         ),
         SliverToBoxAdapter(
@@ -127,7 +124,7 @@ class _ProductDetailsState extends State<ProductDetails> {
         label: _selected
             ? const Text('Remove From Cart')
             : const Text('Add to Cart'),
-        icon: _selected ? Icon(Icons.remove) : Icon(Icons.add),
+        icon: _selected ? const Icon(Icons.remove) : const Icon(Icons.add),
       ),
     );
   }
@@ -144,7 +141,7 @@ Widget getFixedTextField(TextEditingController controller, String heading) {
           labelText: heading),
       enabled: false,
       controller: controller,
-      style: TextStyle(color: Colors.grey),
+      style: const TextStyle(color: Colors.grey),
     )),
   );
 }

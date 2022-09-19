@@ -1,8 +1,4 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/container.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:provider/provider.dart';
 import 'package:xiaomi_billing/screens/customer_info_page/components/customer_info_form.dart';
 import 'package:xiaomi_billing/screens/home_page/components/empty_cart_card.dart';
@@ -88,14 +84,14 @@ class _CustomerInfoState extends State<CustomerInfo> {
                         )
                       ],
                     ),
-                    Divider(thickness: 3),
+                    const Divider(thickness: 3),
                   ],
                 ),
               ),
             ),
       context.watch<CartModel>().getProductIds().isEmpty
           ? SliverToBoxAdapter(child: Container())
-          : SliverToBoxAdapter(
+          : const SliverToBoxAdapter(
               child: CustomerInfoForm(),
             )
     ]));
