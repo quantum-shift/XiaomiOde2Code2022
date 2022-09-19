@@ -38,5 +38,65 @@
         "details": {
             "color": "Pink"
         }
+    },
+    {
+        "name": "Mi NoteBook Ultra",
+        "id": "5",
+        "category": "Laptop",
+        "price": 59999,
+        "img_url": "https://i01.appmifile.com/v1/MI_18455B3E4DA706226CF7535A58E875F0267/pms_1648709651.04664750.jpg",
+        "details": {
+            "color": "Pink"
+        }
+    },
+    {
+        "name": "Mi NoteBook Pro",
+        "id": "6",
+        "category": "Laptop",
+        "price": 56999,
+        "img_url": "https://i01.appmifile.com/v1/MI_18455B3E4DA706226CF7535A58E875F0267/pms_1648710120.69731668.jpg",
+        "details": {
+            "color": "Pink"
+        }
+    },
+    {
+        "name": "Mi Air Purifier 3",
+        "id": "7",
+        "category": "Home",
+        "price": 10999,
+        "img_url": "https://i01.appmifile.com/v1/MI_18455B3E4DA706226CF7535A58E875F0267/pms_1640025191.09699695.jpg",
+        "details": {
+            "color": "Pink"
+        }
+    },
+    {
+        "name": "Mi 360 Home Security Camera 2K Pro",
+        "id": "8",
+        "category": "Home",
+        "price": 4499,
+        "img_url": "https://i01.appmifile.com/v1/MI_18455B3E4DA706226CF7535A58E875F0267/pms_1638345123.88957524.jpg",
+        "details": {
+            "color": "Pink"
+        }
+    },
+    {
+        "name": "Redmi Watch 2 Lite",
+        "id": "9",
+        "category": "Fitness",
+        "price": 4999,
+        "img_url": "https://i01.appmifile.com/v1/MI_18455B3E4DA706226CF7535A58E875F0267/pms_1646734861.98048877.jpg",
+        "details": {
+            "color": "Pink"
+        }
+    },
+    {
+        "name": "Redmi Smart Band Pro SportsWatch",
+        "id": "10",
+        "category": "Fitness",
+        "price": 2499,
+        "img_url": "https://i01.appmifile.com/v1/MI_18455B3E4DA706226CF7535A58E875F0267/pms_1644208569.07921361.png",
+        "details": {
+            "color": "Pink"
+        }
     }
 ]
