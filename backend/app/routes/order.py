@@ -51,7 +51,7 @@ def new_order(order_new: schemas.OrderNew, user: schemas.User = Depends(get_curr
     order_id = payments.order.create_order(amount=order_new.amount, receipt=receipt_id, currency=order_new.currency)
     return {"receipt_id": receipt_id, "order_id": order_id}
 
-@router.post('order/offline')
+@router.post('/order/offline')
 def new_offline_order(order_offline: schemas.OrderOffline, user: schemas.User = Depends(get_current_user), db: Session = Depends(get_db)):
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"Not authorised to create a new order!")
@@ -78,6 +78,7 @@ def new_offline_order(order_offline: schemas.OrderOffline, user: schemas.User = 
         customer_id=customer.id
     )
     order_crud.create_order(db=db, order=order)
+    send_email(order=order_crud.get_order(db=db, order_id=order_id))
 
 @router.get('/orders', response_model=List[schemas.Product])
 def orders(user: schemas.User = Depends(get_current_user), db: Session = Depends(get_db)):
