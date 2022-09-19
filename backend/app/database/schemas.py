@@ -14,7 +14,7 @@ class UserCreate(UserBase):
 
 class User(UserBase):
     id: int
-
+    orders: "Optional[List[Order]]" = []
     class Config:
         orm_mode = True
 
@@ -69,9 +69,11 @@ class OrderSuccess(BaseModel):
     signature: str
 
 class OrderUpdate(BaseModel):
+    user_id: str
     items: List[SoldProduct]
 
 class OrderOffline(OrderNew):
+    user_id: str
     phone: str
     items: Optional[List[SoldProduct]]
     class Config:
@@ -84,6 +86,7 @@ class OrderCreate(OrderNew):
     order_id: str
     payment_id: str
     customer_id: int
+    user_id: Optional[str]
     items: Optional[List[SoldProduct]]
     class Config:
         orm_mode = True
@@ -104,3 +107,4 @@ class OrderForToken(BaseModel):
     order_id: str
 
 Customer.update_forward_refs()
+User.update_forward_refs()

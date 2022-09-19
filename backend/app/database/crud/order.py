@@ -19,20 +19,22 @@ def create_order(db: Session, order: schemas.OrderCreate):
         currency=order.currency, 
         payment_verified=order.payment_verified,
         customer_id=order.customer_id,
-        items=order.items
+        items=order.items,
+        user_id=order.user_id
     )
     db.add(db_order)
     db.commit()
     db.refresh(db_order)
     return db_order
 
-def update_order_cart(db: Session, order_id: str, items: List[schemas.SoldProduct]):
+def update_order_cart(db: Session, order_id: str, items: List[schemas.SoldProduct], user_id: str):
     existing_order: schemas.Order = get_order(db = db, order_id = order_id)
 
     if existing_order is None:
         return False
     
     existing_order.items = items
+    existing_order.user_id = user_id
 
     db.add(existing_order)
     db.commit()
