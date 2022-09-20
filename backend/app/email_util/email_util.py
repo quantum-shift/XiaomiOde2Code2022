@@ -51,4 +51,4 @@ def send_email(order: schemas.Order):
         server.sendmail(sender_email, receiver_email, text)
         print(f"Email sent successfully to {receiver_email}!")
     
-    receipt.delete_receipt(order_id=order.id)
+    receipt.delete_receipt(order_id=order.order_id)
