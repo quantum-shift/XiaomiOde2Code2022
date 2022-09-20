@@ -89,10 +89,13 @@ class LoginPage extends StatelessWidget {
                       saveDataToFile<String>(
                           'operatorId', _usernameController.text);
                       if (_formKey.currentState!.validate()) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Logging in!')));
-                        context.read<CredentialManager>().doRegister(
-                            _usernameController.text, _passwordController.text);
+                        try {
+                          context.read<CredentialManager>().doRegister(
+                              _usernameController.text,
+                              _passwordController.text);
+                        } catch (error) {
+                          showSnackBar(context, "Username already exists");
+                        }
                       }
                     },
                     child: const Text('Register'),
@@ -103,17 +106,20 @@ class LoginPage extends StatelessWidget {
                       vertical: 16.0, horizontal: 8.0),
                   child: ElevatedButton(
                     style: getButtonStyle(context),
-                    onPressed: () {
+                    onPressed: () async {
                       context
                           .read<GlobalData>()
                           .setOperatorId(_usernameController.text);
                       saveDataToFile<String>(
                           'operatorId', _usernameController.text);
                       if (_formKey.currentState!.validate()) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Logging in!')));
-                        context.read<CredentialManager>().doLogin(
-                            _usernameController.text, _passwordController.text);
+                        try {
+                          await context.read<CredentialManager>().doLogin(
+                              _usernameController.text,
+                              _passwordController.text);
+                        } catch (error) {
+                          showSnackBar(context, "Improper usename or password");
+                        }
                       }
                     },
                     child: const Text('Login'),

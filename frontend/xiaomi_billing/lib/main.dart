@@ -27,12 +27,20 @@ const Product dummyProduct = Product(
     productImageUrl: 'a',
     productDetails: <String, dynamic>{});
 
+Future<void> clearFiles() async {
+  var box = await Hive.openBox('on-device-orders');
+  await box.clear();
+  box = await Hive.openBox('offline-orders');
+  await box.clear();
+}
+
 void main() async {
   // setBaseUrl();
   await Hive.initFlutter();
   Hive.registerAdapter(ProductAdapter());
   Hive.registerAdapter(OrderAdapter());
   await dotenv.load(fileName: ".env");
+  // await clearFiles();
   runApp(MultiProvider(providers: [
     ChangeNotifierProvider(create: (context) => CredentialManager()),
     ChangeNotifierProvider(create: (context) => CartModel()),
