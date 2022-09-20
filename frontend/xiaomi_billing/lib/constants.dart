@@ -3,8 +3,9 @@ import 'dart:io' show Platform;
 import 'package:flutter/material.dart';
 
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-String baseUrl = 'http://localhost:8000';
+final String? baseUrl = dotenv.env['BASE_URL'];
 
 MaterialColor createMaterialColor(Color color) {
   List strengths = <double>[.05];
@@ -57,13 +58,13 @@ void showSnackBar(BuildContext context, String message) {
       )));
 }
 
-void setBaseUrl() {
-  if (!kIsWeb) {
-    if (Platform.isAndroid) {
-      baseUrl = 'http://10.0.2.2:8000';
-    } else if (Platform.isMacOS) {
-      baseUrl = 'http://pc01.local:8000';
-      // print(baseUrl);
-    }
-  }
-}
+// void setBaseUrl() {
+//   if (!kIsWeb) {
+//     if (Platform.isAndroid) {
+//       baseUrl = 'http://10.0.2.2:8000';
+//     } else if (Platform.isMacOS) {
+//       baseUrl = 'http://pc01.local:8000';
+//       // print(baseUrl);
+//     }
+//   }
+// }
