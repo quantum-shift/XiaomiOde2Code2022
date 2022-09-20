@@ -76,6 +76,7 @@ class CredentialManager extends ChangeNotifier {
 
   Future<void> syncAllOrders() async {
     var box = await Hive.openBox('offline-orders');
+    var onDeviceBox = await Hive.openBox('on-device-orders');
     if (box.isNotEmpty) {
       List<Order> orderList = [];
       for (int i = 0; i < box.length; i++) {
@@ -120,6 +121,7 @@ class CredentialManager extends ChangeNotifier {
             'phone': order.customerPhone,
             'items': l
           });
+          onDeviceBox.add(order);
         } catch (error) {
           box.add(order);
         }
