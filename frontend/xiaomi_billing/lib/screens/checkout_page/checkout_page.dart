@@ -297,6 +297,13 @@ class _CheckoutState extends State<CheckoutPage> {
                             validator: (String? value) {
                               if (value == null || value.isEmpty) {
                                 return "Field cannot be empty";
+                              } else {
+                                int? payedAmount = int.tryParse(value);
+                                if (payedAmount == null) {
+                                  return 'Field must be a number';
+                                } else if (int.tryParse((amount * 1.15).toStringAsFixed(0)) != payedAmount) {
+                                  return 'Does not match billed amount';
+                                }
                               }
                               return null;
                             },

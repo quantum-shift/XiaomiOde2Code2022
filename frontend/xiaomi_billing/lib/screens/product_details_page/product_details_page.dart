@@ -24,6 +24,7 @@ class _ProductDetailsState extends State<ProductDetails> {
   Product product;
   String serialNo;
 
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   late TextEditingController _categoryController;
   late TextEditingController _priceController;
   late List<TextEditingController> _detailControllers = [];
@@ -91,15 +92,25 @@ class _ProductDetailsState extends State<ProductDetails> {
                 ..addAll([
                   Padding(
                     padding: const EdgeInsets.all(10.0),
-                    child: TextField(
-                      decoration: const InputDecoration(
-                        labelText: 'Serial No',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                    child: Form(
+                      key: _formKey,
+                      child: TextFormField(
+                        decoration: const InputDecoration(
+                          labelText: 'Serial No',
+                          border: OutlineInputBorder(
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(8.0)),
+                          ),
                         ),
+                        controller: _serialNoController,
+                        autofocus: _serialNoController.text.isEmpty,
+                        validator: (String? value) {
+                          if (value == null || value.isEmpty) {
+                            return "Field cannot be empty";
+                          }
+                          return null;
+                        },
                       ),
-                      controller: _serialNoController,
-                      autofocus: _serialNoController.text.isEmpty,
                     ),
                   )
                 ])),
@@ -107,19 +118,22 @@ class _ProductDetailsState extends State<ProductDetails> {
       ]),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
-          setState(() {
-            if (_selected) {
-              List<int> productList = context.read<CartModel>().getProductIds();
-              context.read<CartModel>().removeId(productList.length - 1);
-              saveCartToFile(mounted, context);
-            } else {
-              context
-                  .read<CartModel>()
-                  .addProduct(product.productId, _serialNoController.text);
-              saveCartToFile(mounted, context);
-            }
-            _selected = !_selected;
-          });
+          if (_formKey.currentState!.validate()) {
+            setState(() {
+              if (_selected) {
+                List<int> productList =
+                    context.read<CartModel>().getProductIds();
+                context.read<CartModel>().removeId(productList.length - 1);
+                saveCartToFile(mounted, context);
+              } else {
+                context
+                    .read<CartModel>()
+                    .addProduct(product.productId, _serialNoController.text);
+                saveCartToFile(mounted, context);
+              }
+              _selected = !_selected;
+            });
+          }
         },
         label: _selected
             ? const Text('Remove From Cart')

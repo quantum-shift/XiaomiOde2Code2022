@@ -158,7 +158,7 @@ def update_order_to_completion(id: str, order_update: schemas.OrderUpdate, user:
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"Not authorised to access orders!")
     
-    if order_crud.update_order_cart(db=db, order_id=id, items=order_update.items):
+    if order_crud.update_order_cart(db=db, order_id=id, items=order_update.items, user_id=order_update.user_id):
         order = order_crud.get_order(db=db, order_id=id)
         send_email(order=order)
         return order

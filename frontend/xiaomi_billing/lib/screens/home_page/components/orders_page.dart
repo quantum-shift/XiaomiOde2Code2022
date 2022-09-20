@@ -1,7 +1,10 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:provider/provider.dart';
 import 'package:xiaomi_billing/main.dart';
+import 'package:xiaomi_billing/states/credential_manager.dart';
+import 'package:xiaomi_billing/states/global_data.dart';
 import 'package:xiaomi_billing/states/order_model.dart';
 import 'package:intl/intl.dart';
 import 'package:xiaomi_billing/states/products_model.dart';
@@ -21,13 +24,55 @@ class _OrdersPageState extends State<OrdersPage> {
   final List<bool> _isOpen = [];
 
   void onMount() async {
-    var box = await Hive.openBox('on-device-orders');
+    var box = await Hive.openBox('offline-orders');
+    String operatorId = context.read<GlobalData>().operatorId;
     if (box.isNotEmpty) {
       for (int i = 0; i < box.length; i++) {
-        _orderList.add(box.getAt(i));
-        _isOpen.add(false);
+        Order order = box.getAt(i);
+        if (order.operatorId == operatorId) {
+          _orderList.add(order);
+          _isOpen.add(false);
+        }
       }
     }
+
+    try {
+      // query /orders
+      Dio dio = await context.read<CredentialManager>().getAPIClient();
+      Response response = await dio.get('/orders');
+      for (Map<String, dynamic> m in response.data) {
+        List<int> productIds = [];
+        List<String> serialNos = [];
+        for (Map<String, dynamic> itemMap in m['items']) {
+          productIds.add(int.tryParse(itemMap['product_id'])!);
+          serialNos.add(itemMap['serial'].toString());
+        }
+        _orderList.add(Order(
+            orderDate: DateTime.now(), // change later
+            customerName: m['customer']['name'].toString(),
+            customerEmail: m['customer']['email'].toString(),
+            customerPhone: m['customer']['phone'].toString(),
+            productIds: productIds,
+            serialNos: serialNos,
+            operatorId: m['user_id'].toString()));
+        _isOpen.add(false);
+      }
+    } catch (error) {
+      // read from on-device-orders
+      var box = await Hive.openBox('on-device-orders');
+      if (box.isNotEmpty) {
+        for (int i = 0; i < box.length; i++) {
+          Order order = box.getAt(i);
+          if (order.operatorId == operatorId) {
+            _orderList.add(order);
+            _isOpen.add(false);
+          }
+        }
+      }
+    }
+
+    _orderList.sort((a, b) => a.orderDate.compareTo(b.orderDate));
+
     setState(() {
       _loading = false;
     });
@@ -48,7 +93,7 @@ class _OrdersPageState extends State<OrdersPage> {
         }
       }
     }
-    return amount;
+    return int.tryParse((amount * 1.15).toStringAsFixed(0))!;
   }
 
   Product getProductFromId(int productId) {
