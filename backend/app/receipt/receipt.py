@@ -117,6 +117,10 @@ def generate_receipt(order: schemas.Order):
     with open(Path(f"receipt_{order.order_id}.pdf"), "wb") as pdf_file_handle:
         PDF.dumps(pdf_file_handle, pdf)
 
+def delete_receipt(order_id: str):
+    pdf_file_delete = Path(f"receipt_{order_id}.pdf")
+    pdf_file_delete.unlink()
+
 def main():
     order = schemas.Order.construct()
     order.id = '12345'

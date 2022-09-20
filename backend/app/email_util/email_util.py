@@ -49,4 +49,6 @@ def send_email(order: schemas.Order):
     with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as server:
         server.login(sender_email, password)
         server.sendmail(sender_email, receiver_email, text)
-        print("Email sent successfully!")
+        print(f"Email sent successfully to {receiver_email}!")
+    
+    receipt.delete_receipt(order_id=order.id)
