@@ -40,7 +40,7 @@ class _SuccessPageState extends State<SuccessPage> {
   }
 
   void onMount(List<int> productIds, List<String> serialNos) async {
-    var box = await Hive.openBox('on-device-orders'); // stores only online orders
+    var box = await Hive.openBox('on-device-orders'); // stores order backups
     // Remove later
     // await box.clear();
     if (!mounted) return;

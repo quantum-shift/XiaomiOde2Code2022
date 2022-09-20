@@ -56,7 +56,7 @@ class CredentialManager extends ChangeNotifier {
     doLogin(username, password);
   }
 
-  void doLogin(String username, String password) async {
+  Future <void> doLogin(String username, String password) async {
     Dio dio = await getAPIClient();
     Map<String, dynamic> formMap = <String, dynamic>{};
     formMap['username'] = username;

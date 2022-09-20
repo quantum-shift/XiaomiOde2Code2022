@@ -29,6 +29,22 @@ class _StorePageState extends State<StorePage> {
     });
   }
 
+  void handleRefresh() async {
+    try {
+      bool connected = await isConnected(context);
+      if (connected) {
+        if (!mounted) return;
+        await retrieveProductsFromAPI(context, mounted);
+        if (!mounted) return;
+        showSnackBar(context, "Products updated");
+      } else {
+        throw Exception();
+      }
+    } catch (error) {
+      showSnackBar(context, "Cannot connect to server");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     List<Product> currentProducts = context
@@ -42,19 +58,7 @@ class _StorePageState extends State<StorePage> {
         Scaffold(
             body: RefreshIndicator(
           onRefresh: () async {
-            try {
-              bool connected = await isConnected(context);
-              if (connected) {
-                if (!mounted) return;
-                await retrieveProductsFromAPI(context, mounted);
-                if (!mounted) return;
-                showSnackBar(context, "Products updated");
-              } else {
-                throw Exception();
-              }
-            } catch (error) {
-              showSnackBar(context, "Cannot connect to server");
-            }
+            handleRefresh();
           },
           child: CustomScrollView(slivers: [
             SliverAppBar(
@@ -65,6 +69,21 @@ class _StorePageState extends State<StorePage> {
               flexibleSpace: const FlexibleSpaceBar(
                 title: Text('Store'),
               ),
+              actions: [
+                (Platform.isIOS || Platform.isAndroid)
+                    ? Container()
+                    : IconButton(
+                        icon: const Icon(
+                          Icons.refresh,
+                          color: Colors.white,
+                          semanticLabel: 'Refresh',
+                        ),
+                        tooltip: 'Refresh',
+                        onPressed: () async {
+                          handleRefresh();
+                        },
+                      ),
+              ],
             ),
             SliverToBoxAdapter(
               child: Padding(

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dio/dio.dart';
@@ -120,6 +121,22 @@ class _CartPageState extends State<CartPage> {
     });
   }
 
+  void handlerefresh() async {
+    try {
+      bool connected = await isConnected(context);
+      if (connected) {
+        if (!mounted) return;
+        await retrieveProductsFromAPI(context, mounted);
+        if (!mounted) return;
+        showSnackBar(context, "Products updated");
+      } else {
+        throw Exception();
+      }
+    } catch (error) {
+      showSnackBar(context, "Cannot connect to server");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     List<Product> cartItems = [];
@@ -136,19 +153,7 @@ class _CartPageState extends State<CartPage> {
         Scaffold(
             body: RefreshIndicator(
           onRefresh: () async {
-            try {
-              bool connected = await isConnected(context);
-              if (connected) {
-                if (!mounted) return;
-                await retrieveProductsFromAPI(context, mounted);
-                if (!mounted) return;
-                showSnackBar(context, "Products updated");
-              } else {
-                throw Exception();
-              }
-            } catch (error) {
-              showSnackBar(context, "Cannot connect to server");
-            }
+            handlerefresh();
           },
           child: CustomScrollView(
             slivers: [
@@ -158,6 +163,19 @@ class _CartPageState extends State<CartPage> {
                 foregroundColor: Colors.white,
                 automaticallyImplyLeading: false,
                 actions: [
+                  (Platform.isIOS || Platform.isAndroid)
+                      ? Container()
+                      : IconButton(
+                          icon: const Icon(
+                            Icons.refresh,
+                            color: Colors.white,
+                            semanticLabel: 'Refresh',
+                          ),
+                          tooltip: 'Refresh',
+                          onPressed: () async {
+                            handlerefresh();
+                          },
+                        ),
                   IconButton(
                     icon: const Icon(
                       Icons.logout,
