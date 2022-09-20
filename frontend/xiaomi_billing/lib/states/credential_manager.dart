@@ -30,7 +30,7 @@ class CredentialManager extends ChangeNotifier {
     return _token;
   }
 
-  void setToken(String token) async {
+  Future<void> setToken(String token) async {
     final prefs = await SharedPreferences.getInstance();
     prefs.setString('token', token);
     retrieveToken();
@@ -56,7 +56,7 @@ class CredentialManager extends ChangeNotifier {
     doLogin(username, password);
   }
 
-  Future <void> doLogin(String username, String password) async {
+  Future<void> doLogin(String username, String password) async {
     Dio dio = await getAPIClient();
     Map<String, dynamic> formMap = <String, dynamic>{};
     formMap['username'] = username;
@@ -69,9 +69,10 @@ class CredentialManager extends ChangeNotifier {
     // dio.get('/token')
   }
 
-  void doLogout() async {
+  Future<void> doLogout() async {
     print("Logging out!");
-    setToken('');
+    await setToken('');
+    notifyListeners();
   }
 
   Future<void> syncAllOrders() async {

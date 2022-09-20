@@ -183,8 +183,8 @@ class _CartPageState extends State<CartPage> {
                       semanticLabel: 'Logout',
                     ),
                     tooltip: 'Logout',
-                    onPressed: () {
-                      context.read<CredentialManager>().doLogout();
+                    onPressed: () async {
+                      await context.read<CredentialManager>().doLogout();
                     },
                   ),
                 ],
