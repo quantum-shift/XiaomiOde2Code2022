@@ -44,7 +44,7 @@ class CredentialManager extends ChangeNotifier {
         return handler.next(options);
       }));
     }
-    _dio.options.baseUrl = baseUrl;
+    _dio.options.baseUrl = baseUrl!;
     return _dio;
   }
 
@@ -102,8 +102,7 @@ class CredentialManager extends ChangeNotifier {
           for (int i = 0; i < order.productIds.length; i++) {
             int id = order.productIds[i];
             String serial = order.serialNos[i];
-            for (Product product
-                in productList) {
+            for (Product product in productList) {
               if (product.productId == id) {
                 Map<String, String> m = {
                   'product_id': id.toString(),
@@ -117,7 +116,7 @@ class CredentialManager extends ChangeNotifier {
           await dio.post("/order/offline", data: {
             'amount': total,
             'currency': 'INR',
-            'user_id' : order.operatorId,
+            'user_id': order.operatorId,
             'phone': order.customerPhone,
             'items': l
           });

@@ -7,7 +7,7 @@ from auth.auth import authenticate_user
 from database import schemas
 from database.database import get_db
 from database.crud import user as user_crud
-from auth.auth import ACCESS_TOKEN_EXPIRE_MINUTES, authenticate_user, create_access_token
+from auth.auth import ACCESS_TOKEN_EXPIRE_DAYS, authenticate_user, create_access_token
 from datetime import timedelta
 
 router = APIRouter()
@@ -28,7 +28,7 @@ async def login_for_access_token(db: Session = Depends(get_db), form_data: OAuth
             detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token_expires = timedelta(days=ACCESS_TOKEN_EXPIRE_DAYS)
     access_token = create_access_token(
         data={"sub": user.mi_id}, expires_delta=access_token_expires
     )

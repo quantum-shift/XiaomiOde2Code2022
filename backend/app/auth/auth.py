@@ -14,7 +14,7 @@ from auth.util import verify_password
 # openssl rand -hex 32
 SECRET_KEY = "3ab87e463a2b76bc410b28e84c2a2467e727d4bd8d83c497818fc898854d2e22"
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+ACCESS_TOKEN_EXPIRE_DAYS = 30
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 

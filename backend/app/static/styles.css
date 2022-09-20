@@ -1,3 +1,13 @@
-h1 {
-    color: green;
+#rzp-button1{
+    background-color: #FF6801; /* Green */
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    left: 50%;
+    top: 45%;
+    position: fixed;
 }

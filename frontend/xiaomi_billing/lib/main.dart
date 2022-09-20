@@ -28,7 +28,7 @@ const Product dummyProduct = Product(
     productDetails: <String, dynamic>{});
 
 void main() async {
-  setBaseUrl();
+  // setBaseUrl();
   await Hive.initFlutter();
   Hive.registerAdapter(ProductAdapter());
   Hive.registerAdapter(OrderAdapter());
