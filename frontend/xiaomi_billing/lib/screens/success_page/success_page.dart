@@ -40,7 +40,7 @@ class _SuccessPageState extends State<SuccessPage> {
   }
 
   void onMount(List<int> productIds, List<String> serialNos) async {
-    var box = await Hive.openBox('on-device-orders');
+    var box = await Hive.openBox('on-device-orders'); // stores only online orders
     // Remove later
     // await box.clear();
     if (!mounted) return;
@@ -52,7 +52,10 @@ class _SuccessPageState extends State<SuccessPage> {
         productIds: productIds,
         serialNos: serialNos,
         operatorId: await readDataFromFile<String>('operatorId'));
-    box.add(order);
+
+    if(!widget.offlineOrder) {
+      box.add(order);
+    }
 
     if (!widget.offlineOrder) {
       try {
@@ -71,7 +74,7 @@ class _SuccessPageState extends State<SuccessPage> {
           l.add(m);
         }
         await dio.post("/order/${context.read<GlobalData>().orderId}/complete",
-            data: {'items': l});
+            data: {'user_id' : order.operatorId , 'items': l});
       } catch (error) {
         ;
       }

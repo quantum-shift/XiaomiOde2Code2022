@@ -116,6 +116,7 @@ class CredentialManager extends ChangeNotifier {
           await dio.post("/order/offline", data: {
             'amount': total,
             'currency': 'INR',
+            'user_id' : order.operatorId,
             'phone': order.customerPhone,
             'items': l
           });
