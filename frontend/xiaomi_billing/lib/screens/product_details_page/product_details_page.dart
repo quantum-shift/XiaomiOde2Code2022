@@ -74,8 +74,9 @@ class _ProductDetailsState extends State<ProductDetails> {
           ),
         ),
         SliverToBoxAdapter(
-          child: Padding(
+          child: Container(
             padding: const EdgeInsets.all(20.0),
+            height: 400,
             child: Hero(
               tag: product.productId,
               child: Image(

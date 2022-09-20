@@ -180,7 +180,7 @@ class _SuccessPageState extends State<SuccessPage> {
 Future<void> _createNativePDF(BuildContext context) async {
   await _createPDF(context);
   String? path;
-  path = (await getExternalStorageDirectory())?.path;
+  path = (await (Platform.isWindows ? getApplicationDocumentsDirectory() : getExternalStorageDirectory()))?.path;
   OpenFile.open('$path/Output.pdf');
 }
 
@@ -422,7 +422,7 @@ Future<File> _createPDF(BuildContext buildContext) async {
 Future<File> saveFile(List<int> bytes, String fileName) async {
   String? path;
 
-  path = (await ((kIsWeb || Platform.isIOS)
+  path = (await ((kIsWeb || Platform.isIOS || Platform.isWindows)
           ? getApplicationDocumentsDirectory()
           : getExternalStorageDirectory()))
       ?.path;
