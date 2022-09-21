@@ -6,7 +6,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:xiaomi_billing/screens/home_page/components/cart.dart';
+import 'package:xiaomi_billing/screens/home_page/components/cart_icon.dart';
 import 'package:xiaomi_billing/screens/product_details_page/product_details_page.dart';
 import 'package:xiaomi_billing/states/products_model.dart';
 

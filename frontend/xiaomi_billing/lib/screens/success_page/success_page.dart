@@ -33,6 +33,7 @@ class SuccessPage extends StatefulWidget {
 
 class _SuccessPageState extends State<SuccessPage> {
   bool _loading = true;
+  bool _generating = false;
 
   Future<void> clearCartFile() async {
     var box = await Hive.openBox('cart');
@@ -53,7 +54,7 @@ class _SuccessPageState extends State<SuccessPage> {
         serialNos: serialNos,
         operatorId: await readDataFromFile<String>('operatorId'));
 
-    if(!widget.offlineOrder) {
+    if (!widget.offlineOrder) {
       box.add(order);
     }
 
@@ -74,7 +75,7 @@ class _SuccessPageState extends State<SuccessPage> {
           l.add(m);
         }
         await dio.post("/order/${context.read<GlobalData>().orderId}/complete",
-            data: {'user_id' : order.operatorId , 'items': l});
+            data: {'user_id': order.operatorId, 'items': l});
       } catch (error) {
         ;
       }
@@ -116,10 +117,12 @@ class _SuccessPageState extends State<SuccessPage> {
                   child: _loading
                       ? Row(
                           mainAxisAlignment: MainAxisAlignment.center,
-                          children: const [Padding(
-                            padding: EdgeInsets.all(20.0),
-                            child: CircularProgressIndicator(),
-                          )])
+                          children: const [
+                              Padding(
+                                padding: EdgeInsets.all(20.0),
+                                child: CircularProgressIndicator(),
+                              )
+                            ])
                       : Column(
                           children: [
                             Container(
@@ -167,7 +170,22 @@ class _SuccessPageState extends State<SuccessPage> {
                                   ),
                                 ),
                               ],
-                            )
+                            ),
+                            _generating
+                                ? Padding(
+                                    padding: const EdgeInsets.all(10.0),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Container(
+                                            child:
+                                                const CircularProgressIndicator
+                                                    .adaptive()),
+                                      ],
+                                    ),
+                                  )
+                                : Container()
                           ],
                         )),
             ])),
@@ -175,260 +193,271 @@ class _SuccessPageState extends State<SuccessPage> {
           return false;
         });
   }
-}
 
-Future<void> _createNativePDF(BuildContext context) async {
-  await _createPDF(context);
-  String? path;
-  path = (await (Platform.isWindows ? getApplicationDocumentsDirectory() : getExternalStorageDirectory()))?.path;
-  OpenFile.open('$path/Output.pdf');
-}
-
-Future<File> _createPDF(BuildContext buildContext) async {
-  final pdf = pw.Document();
-
-  final iconImage =
-      (await rootBundle.load('assets/mi.svg.png')).buffer.asUint8List();
-
-  final tableHeaders = ['Description', 'Serial No', 'Amount'];
-
-  int total = 0;
-  final tableData = <List<dynamic>>[];
-  for (int i = 0;
-      i < buildContext.read<CartModel>().getProductIds().length;
-      i++) {
-    for (Product product in buildContext.read<ProductModel>().getProducts()) {
-      if (product.productId ==
-          buildContext.read<CartModel>().getProductIds()[i]) {
-        final itemInfo = [];
-        itemInfo.add(product.productName);
-        itemInfo.add(buildContext.read<CartModel>().getSerialNos()[i]);
-        itemInfo.add("INR ${product.price}");
-        total += product.price;
-        tableData.add(itemInfo);
-      }
-    }
+  Future<void> _createNativePDF(BuildContext context) async {
+    await _createPDF(context);
+    String? path;
+    path = (await (Platform.isWindows
+            ? getApplicationDocumentsDirectory()
+            : getExternalStorageDirectory()))
+        ?.path;
+    OpenFile.open('$path/Output.pdf');
   }
 
-  pdf.addPage(
-    pw.MultiPage(
-      build: (context) {
-        return [
-          pw.Row(
-            children: [
-              pw.Image(
-                pw.MemoryImage(iconImage),
-                height: 72,
-                width: 72,
-              ),
-              pw.SizedBox(width: 1 * PdfPageFormat.mm),
-              pw.Column(
-                mainAxisSize: pw.MainAxisSize.min,
-                crossAxisAlignment: pw.CrossAxisAlignment.start,
-                children: [
-                  pw.Text(
-                    'INVOICE',
-                    style: pw.TextStyle(
-                      fontSize: 17.0,
-                      fontWeight: pw.FontWeight.bold,
+  Future<File> _createPDF(BuildContext buildContext) async {
+    setState(() {
+      _generating = true;
+    });
+    final pdf = pw.Document();
+
+    final iconImage =
+        (await rootBundle.load('assets/mi.svg.png')).buffer.asUint8List();
+
+    final tableHeaders = ['Description', 'Serial No', 'Amount'];
+
+    int total = 0;
+    final tableData = <List<dynamic>>[];
+    for (int i = 0;
+        i < buildContext.read<CartModel>().getProductIds().length;
+        i++) {
+      for (Product product in buildContext.read<ProductModel>().getProducts()) {
+        if (product.productId ==
+            buildContext.read<CartModel>().getProductIds()[i]) {
+          final itemInfo = [];
+          itemInfo.add(product.productName);
+          itemInfo.add(buildContext.read<CartModel>().getSerialNos()[i]);
+          itemInfo.add("INR ${product.price}");
+          total += product.price;
+          tableData.add(itemInfo);
+        }
+      }
+    }
+
+    pdf.addPage(
+      pw.MultiPage(
+        build: (context) {
+          return [
+            pw.Row(
+              children: [
+                pw.Image(
+                  pw.MemoryImage(iconImage),
+                  height: 72,
+                  width: 72,
+                ),
+                pw.SizedBox(width: 1 * PdfPageFormat.mm),
+                pw.Column(
+                  mainAxisSize: pw.MainAxisSize.min,
+                  crossAxisAlignment: pw.CrossAxisAlignment.start,
+                  children: [
+                    pw.Text(
+                      'INVOICE',
+                      style: pw.TextStyle(
+                        fontSize: 17.0,
+                        fontWeight: pw.FontWeight.bold,
+                      ),
                     ),
-                  ),
-                  pw.Text(
-                    'Xiaomi Store',
-                    style: const pw.TextStyle(
-                      fontSize: 15.0,
-                      color: PdfColors.grey700,
+                    pw.Text(
+                      'Xiaomi Store',
+                      style: const pw.TextStyle(
+                        fontSize: 15.0,
+                        color: PdfColors.grey700,
+                      ),
+                    ),
+                  ],
+                ),
+                pw.Spacer(),
+                pw.Column(
+                  mainAxisSize: pw.MainAxisSize.min,
+                  crossAxisAlignment: pw.CrossAxisAlignment.start,
+                  children: [
+                    pw.Text(
+                      "${buildContext.read<GlobalData>().customerName}",
+                      style: pw.TextStyle(
+                        fontSize: 15.5,
+                        fontWeight: pw.FontWeight.bold,
+                      ),
+                    ),
+                    pw.Text(
+                      "${buildContext.read<GlobalData>().customerEmail}",
+                    ),
+                    pw.Text(
+                      DateTime.now().toString(),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            pw.SizedBox(height: 1 * PdfPageFormat.mm),
+            pw.Divider(),
+            pw.SizedBox(height: 1 * PdfPageFormat.mm),
+            pw.Text(
+              'Dear ${buildContext.read<GlobalData>().customerName},\n Thank you for your purchase at Xiaomi. Please find the attached receipt.',
+              textAlign: pw.TextAlign.justify,
+            ),
+            pw.SizedBox(height: 5 * PdfPageFormat.mm),
+
+            ///
+            /// PDF Table Create
+            ///
+            pw.Table.fromTextArray(
+              headers: tableHeaders,
+              data: tableData,
+              border: null,
+              headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+              headerDecoration:
+                  const pw.BoxDecoration(color: PdfColors.grey300),
+              cellHeight: 30.0,
+              cellAlignments: {
+                0: pw.Alignment.centerLeft,
+                1: pw.Alignment.centerRight,
+                2: pw.Alignment.centerRight,
+                3: pw.Alignment.centerRight,
+                4: pw.Alignment.centerRight,
+              },
+            ),
+            pw.Divider(),
+            pw.Container(
+              alignment: pw.Alignment.centerRight,
+              child: pw.Row(
+                children: [
+                  pw.Spacer(flex: 6),
+                  pw.Expanded(
+                    flex: 6,
+                    child: pw.Column(
+                      crossAxisAlignment: pw.CrossAxisAlignment.start,
+                      children: [
+                        pw.Row(
+                          children: [
+                            pw.Expanded(
+                              child: pw.Text(
+                                'Net total',
+                                style: pw.TextStyle(
+                                  fontWeight: pw.FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                            pw.Text(
+                              'INR ${total.toStringAsFixed(0)}',
+                              style: pw.TextStyle(
+                                fontWeight: pw.FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                        pw.Row(
+                          children: [
+                            pw.Expanded(
+                              child: pw.Text(
+                                'GST 15 %',
+                                style: pw.TextStyle(
+                                  fontWeight: pw.FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                            pw.Text(
+                              'INR ${(total * 0.15).toStringAsFixed(0)}',
+                              style: pw.TextStyle(
+                                fontWeight: pw.FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                        pw.Divider(),
+                        pw.Row(
+                          children: [
+                            pw.Expanded(
+                              child: pw.Text(
+                                'Total amount due',
+                                style: pw.TextStyle(
+                                  fontSize: 14.0,
+                                  fontWeight: pw.FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                            pw.Text(
+                              'INR ${(total * 1.15).toStringAsFixed(0)}',
+                              style: pw.TextStyle(
+                                fontWeight: pw.FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                        pw.SizedBox(height: 2 * PdfPageFormat.mm),
+                        pw.Container(height: 1, color: PdfColors.grey400),
+                        pw.SizedBox(height: 0.5 * PdfPageFormat.mm),
+                        pw.Container(height: 1, color: PdfColors.grey400),
+                      ],
                     ),
                   ),
                 ],
               ),
-              pw.Spacer(),
-              pw.Column(
-                mainAxisSize: pw.MainAxisSize.min,
-                crossAxisAlignment: pw.CrossAxisAlignment.start,
+            ),
+          ];
+        },
+        footer: (context) {
+          return pw.Column(
+            mainAxisSize: pw.MainAxisSize.min,
+            children: [
+              pw.Divider(),
+              pw.SizedBox(height: 2 * PdfPageFormat.mm),
+              pw.Text(
+                'Xiaomi',
+                style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+              ),
+              pw.SizedBox(height: 1 * PdfPageFormat.mm),
+              pw.Row(
+                mainAxisAlignment: pw.MainAxisAlignment.center,
                 children: [
                   pw.Text(
-                    "${buildContext.read<GlobalData>().customerName}",
-                    style: pw.TextStyle(
-                      fontSize: 15.5,
-                      fontWeight: pw.FontWeight.bold,
-                    ),
+                    'Address: ',
+                    style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
                   ),
                   pw.Text(
-                    "${buildContext.read<GlobalData>().customerEmail}",
+                    'Bangalore, Karnataka',
+                  ),
+                ],
+              ),
+              pw.SizedBox(height: 1 * PdfPageFormat.mm),
+              pw.Row(
+                mainAxisAlignment: pw.MainAxisAlignment.center,
+                children: [
+                  pw.Text(
+                    'Email: ',
+                    style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
                   ),
                   pw.Text(
-                    DateTime.now().toString(),
+                    'service.in@xiaomi.com',
                   ),
                 ],
               ),
             ],
-          ),
-          pw.SizedBox(height: 1 * PdfPageFormat.mm),
-          pw.Divider(),
-          pw.SizedBox(height: 1 * PdfPageFormat.mm),
-          pw.Text(
-            'Dear ${buildContext.read<GlobalData>().customerName},\n Thank you for your purchase at Xiaomi. Please find the attached receipt.',
-            textAlign: pw.TextAlign.justify,
-          ),
-          pw.SizedBox(height: 5 * PdfPageFormat.mm),
+          );
+        },
+      ),
+    );
 
-          ///
-          /// PDF Table Create
-          ///
-          pw.Table.fromTextArray(
-            headers: tableHeaders,
-            data: tableData,
-            border: null,
-            headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-            headerDecoration: const pw.BoxDecoration(color: PdfColors.grey300),
-            cellHeight: 30.0,
-            cellAlignments: {
-              0: pw.Alignment.centerLeft,
-              1: pw.Alignment.centerRight,
-              2: pw.Alignment.centerRight,
-              3: pw.Alignment.centerRight,
-              4: pw.Alignment.centerRight,
-            },
-          ),
-          pw.Divider(),
-          pw.Container(
-            alignment: pw.Alignment.centerRight,
-            child: pw.Row(
-              children: [
-                pw.Spacer(flex: 6),
-                pw.Expanded(
-                  flex: 6,
-                  child: pw.Column(
-                    crossAxisAlignment: pw.CrossAxisAlignment.start,
-                    children: [
-                      pw.Row(
-                        children: [
-                          pw.Expanded(
-                            child: pw.Text(
-                              'Net total',
-                              style: pw.TextStyle(
-                                fontWeight: pw.FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                          pw.Text(
-                            'INR ${total.toStringAsFixed(0)}',
-                            style: pw.TextStyle(
-                              fontWeight: pw.FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                      pw.Row(
-                        children: [
-                          pw.Expanded(
-                            child: pw.Text(
-                              'GST 15 %',
-                              style: pw.TextStyle(
-                                fontWeight: pw.FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                          pw.Text(
-                            'INR ${(total * 0.15).toStringAsFixed(0)}',
-                            style: pw.TextStyle(
-                              fontWeight: pw.FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                      pw.Divider(),
-                      pw.Row(
-                        children: [
-                          pw.Expanded(
-                            child: pw.Text(
-                              'Total amount due',
-                              style: pw.TextStyle(
-                                fontSize: 14.0,
-                                fontWeight: pw.FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                          pw.Text(
-                            'INR ${(total * 1.15).toStringAsFixed(0)}',
-                            style: pw.TextStyle(
-                              fontWeight: pw.FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                      pw.SizedBox(height: 2 * PdfPageFormat.mm),
-                      pw.Container(height: 1, color: PdfColors.grey400),
-                      pw.SizedBox(height: 0.5 * PdfPageFormat.mm),
-                      pw.Container(height: 1, color: PdfColors.grey400),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ];
-      },
-      footer: (context) {
-        return pw.Column(
-          mainAxisSize: pw.MainAxisSize.min,
-          children: [
-            pw.Divider(),
-            pw.SizedBox(height: 2 * PdfPageFormat.mm),
-            pw.Text(
-              'Xiaomi',
-              style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-            ),
-            pw.SizedBox(height: 1 * PdfPageFormat.mm),
-            pw.Row(
-              mainAxisAlignment: pw.MainAxisAlignment.center,
-              children: [
-                pw.Text(
-                  'Address: ',
-                  style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-                ),
-                pw.Text(
-                  'Bangalore, Karnataka',
-                ),
-              ],
-            ),
-            pw.SizedBox(height: 1 * PdfPageFormat.mm),
-            pw.Row(
-              mainAxisAlignment: pw.MainAxisAlignment.center,
-              children: [
-                pw.Text(
-                  'Email: ',
-                  style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-                ),
-                pw.Text(
-                  'service.in@xiaomi.com',
-                ),
-              ],
-            ),
-          ],
-        );
-      },
-    ),
-  );
+    final bytes = await pdf.save();
 
-  final bytes = await pdf.save();
+    File ret = await saveFile(bytes, 'Output.pdf');
 
-  File ret = await saveFile(bytes, 'Output.pdf');
+    setState(() {
+      _generating = false;
+    });
 
-  return ret;
-}
+    return ret;
+  }
 
-Future<File> saveFile(List<int> bytes, String fileName) async {
-  String? path;
+  Future<File> saveFile(List<int> bytes, String fileName) async {
+    String? path;
 
-  path = (await ((kIsWeb || Platform.isIOS || Platform.isWindows)
-          ? getApplicationDocumentsDirectory()
-          : getExternalStorageDirectory()))
-      ?.path;
+    path = (await ((kIsWeb || Platform.isIOS || Platform.isWindows)
+            ? getApplicationDocumentsDirectory()
+            : getExternalStorageDirectory()))
+        ?.path;
 
-  final file = File('$path/$fileName');
-  file.writeAsBytesSync(bytes, flush: true);
+    final file = File('$path/$fileName');
+    file.writeAsBytesSync(bytes, flush: true);
 
-  return file;
+    return file;
+  }
 }

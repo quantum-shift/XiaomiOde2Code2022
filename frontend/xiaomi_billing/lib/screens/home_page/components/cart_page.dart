@@ -7,8 +7,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:xiaomi_billing/constants.dart';
 import 'package:xiaomi_billing/screens/customer_info_page/customer_info.dart';
-import 'package:xiaomi_billing/screens/home_page/components/cart.dart';
+import 'package:xiaomi_billing/screens/home_page/components/cart_icon.dart';
 import 'package:xiaomi_billing/screens/home_page/components/empty_cart_card.dart';
+import 'package:xiaomi_billing/screens/login_page/login_page.dart';
 import 'package:xiaomi_billing/screens/store_page/store_page.dart';
 import 'package:xiaomi_billing/states/cart_model.dart';
 import 'package:xiaomi_billing/states/credential_manager.dart';
@@ -185,6 +186,8 @@ class _CartPageState extends State<CartPage> {
                     tooltip: 'Logout',
                     onPressed: () async {
                       await context.read<CredentialManager>().doLogout();
+                      Navigator.of(context).push(
+                          MaterialPageRoute(builder: (context) => LoginPage()));
                     },
                   ),
                 ],
@@ -269,7 +272,10 @@ class _CartPageState extends State<CartPage> {
                                                         cartItems[index]
                                                             .productImageUrl)),
                                             title: Text(
-                                                cartItems[index].productName),
+                                                cartItems[index].productName,
+                                                maxLines: 3,
+                                                overflow:
+                                                    TextOverflow.ellipsis),
                                             subtitle: Text(cartItems[index]
                                                 .productCategory),
                                             visualDensity: const VisualDensity(

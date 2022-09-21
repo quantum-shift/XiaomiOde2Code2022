@@ -76,7 +76,7 @@ class _MyAppState extends State<MyApp> {
           colorScheme: ColorScheme.fromSwatch(
             primarySwatch: miOrange,
           )),
-      home: context.watch<CredentialManager>().getToken() == ''
+      home: context.read<CredentialManager>().getToken() == ''
           ? LoginPage()
           : const HomePage(),
       // home: context.watch<CredentialManager>().getToken() == ''
