@@ -48,12 +48,12 @@ class CredentialManager extends ChangeNotifier {
     return _dio;
   }
 
-  void doRegister(String username, String password) async {
+  Future <void> doRegister(String username, String password) async {
     Dio dio = await getAPIClient();
     var response = await dio
         .post('/users', data: {'mi_id': username, 'password': password});
     print(response.data);
-    doLogin(username, password);
+    await doLogin(username, password);
   }
 
   Future<void> doLogin(String username, String password) async {
