@@ -2,6 +2,9 @@ on:
   push:
     branches:
       - main
+  pull_request:
+    branches:
+      - main
 
 name: Build and Release Apps
 jobs:
@@ -28,10 +31,13 @@ jobs:
           channel: 'stable'
           architecture: x64
       - name: Install pub Dependencies
+        working-directory: ./frontend/xiaomi_billing
         run: flutter pub get
       - name: Build Android App
+        working-directory: ./frontend/xiaomi_billing
         run: flutter build apk --release
       - name: Build iOS App
+        working-directory: ./frontend/xiaomi_billing
         run: |
           flutter build ios --no-codesign
           cd build/ios/iphoneos
