@@ -95,6 +95,7 @@ class RazorpayCheckoutState extends State<RazorpayCheckout> {
 
   void _handlePaymentError(PaymentFailureResponse response) {
     print('Error Response: $response');
+    print(response.message);
     showSnackBar(context, "Payment failed. Something went wrong");
     /* Fluttertoast.showToast(
         msg: "ERROR: " + response.code.toString() + " - " + response.message!,

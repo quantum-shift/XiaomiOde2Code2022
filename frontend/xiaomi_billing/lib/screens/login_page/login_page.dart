@@ -149,7 +149,7 @@ class _LoginPageState extends State<LoginPage> {
                           }
                         }
                         setState(() {
-                          _loading = true;
+                          _loading = false;
                         });
                       },
                       child: const Text('Login'),
