@@ -47,6 +47,7 @@ jobs:
           cd ..
           zip -r app.ipa Payload
       - name: Release Apps
+        working-directory: ./frontend/xiaomi_billing
         uses: ncipollo/release-action@v1
         with:
           tag: ${{ env.APP_VERSION }}
