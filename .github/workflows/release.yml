@@ -47,10 +47,9 @@ jobs:
           cd ..
           zip -r app.ipa Payload
       - name: Release Apps
-        working-directory: ./frontend/xiaomi_billing
         uses: ncipollo/release-action@v1
         with:
           tag: ${{ env.APP_VERSION }}
           name: ${{ env.APP_VERSION }}
           token: ${{ secrets.GITHUB_TOKEN }}
-          artifacts: 'build/app/outputs/apk/release/*.apk,build/ios/iphoneos/app.ipa'
+          artifacts: 'frontend/xiaomi_billing/build/app/outputs/apk/release/*.apk,frontend/xiaomi_billing/build/ios/iphoneos/app.ipa'
