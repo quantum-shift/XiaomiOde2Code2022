@@ -1,0 +1,51 @@
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+name: Build and Release ios App
+jobs:
+  build:
+    name: Build Apps
+    runs-on: macos-latest
+    steps:
+      - name: Export Release Timestamp
+        run: echo "APP_VERSION=v$(date +'%Y.%m.%d.%H.%M.%S')" >> $GITHUB_ENV
+      - name: Checkout repository
+        uses: actions/checkout@v1
+      - name: Create .env file
+        run: |
+          echo "API_KEY_ID=${{ secrets.API_KEY_ID }}" >> frontend/xiaomi_billing/.env
+          echo "BASE_URL=${{ secrets.BASE_URL }}" >> frontend/xiaomi_billing/.env
+      - name: Set up Java
+        uses: actions/setup-java@v2
+        with:
+          java-version: '18'
+          distribution: 'adopt'
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          architecture: x64
+      - name: Install pub Dependencies
+        working-directory: ./frontend/xiaomi_billing
+        run: flutter pub get
+      - name: Build iOS App
+        working-directory: ./frontend/xiaomi_billing
+        run: |
+          flutter build ios --no-codesign
+          cd build/ios/iphoneos
+          mkdir Payload
+          cd Payload
+          ln -s ../Runner.app
+          cd ..
+          zip -r app.ipa Payload
+      - name: Release Apps
+        uses: ncipollo/release-action@v1
+        with:
+          name: ${{ env.APP_VERSION }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          artifacts: 'frontend/xiaomi_billing/build/ios/iphoneos/app.ipa'

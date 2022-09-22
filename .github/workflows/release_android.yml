@@ -6,11 +6,11 @@ on:
     branches:
       - main
 
-name: Build and Release Apps
+name: Build and Release Android App
 jobs:
   build:
     name: Build Apps
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     steps:
       - name: Export Release Timestamp
         run: echo "APP_VERSION=v$(date +'%Y.%m.%d.%H.%M.%S')" >> $GITHUB_ENV
@@ -36,20 +36,9 @@ jobs:
       - name: Build Android App
         working-directory: ./frontend/xiaomi_billing
         run: flutter build apk --release
-      - name: Build iOS App
-        working-directory: ./frontend/xiaomi_billing
-        run: |
-          flutter build ios --no-codesign
-          cd build/ios/iphoneos
-          mkdir Payload
-          cd Payload
-          ln -s ../Runner.app
-          cd ..
-          zip -r app.ipa Payload
       - name: Release Apps
         uses: ncipollo/release-action@v1
         with:
-          tag: ${{ env.APP_VERSION }}
           name: ${{ env.APP_VERSION }}
           token: ${{ secrets.GITHUB_TOKEN }}
-          artifacts: 'frontend/xiaomi_billing/build/app/outputs/apk/release/*.apk,frontend/xiaomi_billing/build/ios/iphoneos/app.ipa'
+          artifacts: 'frontend/xiaomi_billing/build/app/outputs/apk/release/*.apk'
