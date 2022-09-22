@@ -43,3 +43,4 @@ jobs:
           name: ${{ env.APP_VERSION }}
           token: ${{ secrets.GITHUB_TOKEN }}
           artifacts: 'frontend/xiaomi_billing/build/app/outputs/apk/release/*.apk'
+          allowUpdates: true

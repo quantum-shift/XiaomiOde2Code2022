@@ -50,3 +50,4 @@ jobs:
           name: ${{ env.APP_VERSION }}
           token: ${{ secrets.GITHUB_TOKEN }}
           artifacts: 'frontend/xiaomi_billing/build/ios/iphoneos/app.ipa'
+          allowUpdates: true
