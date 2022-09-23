@@ -38,12 +38,12 @@ jobs:
         run: |
           flutter build windows --release
           cd build/windows/runner
-          Compress-Archive -Path Release -DestinationPath Release.zip
+          Compress-Archive -Path Release -DestinationPath windows_release.zip
       - name: Release Apps
         uses: ncipollo/release-action@v1
         with:
           tag: 1.0.0
           name: ${{ env.APP_VERSION }}
           token: ${{ secrets.GITHUB_TOKEN }}
-          artifacts: 'frontend/xiaomi_billing/build/windows/runner/Release.zip'
+          artifacts: 'frontend/xiaomi_billing/build/windows/runner/windows_release.zip'
           allowUpdates: true

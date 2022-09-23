@@ -35,7 +35,10 @@ jobs:
         run: flutter pub get
       - name: Build Android App
         working-directory: ./frontend/xiaomi_billing
-        run: flutter build apk --release
+        run: |
+          flutter build apk --release
+          cd build/app/outputs/apk/release
+          mv app-release.apk android_release.apk
       - name: Release Apps
         uses: ncipollo/release-action@v1
         with:
