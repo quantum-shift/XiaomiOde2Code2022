@@ -6,7 +6,7 @@ on:
     branches:
       - main
 
-name: Build and Release ios App
+name: Build and Release windows App
 jobs:
   build:
     name: Build Apps
@@ -38,7 +38,7 @@ jobs:
         run: |
           flutter build windows --release
           cd build/windows/runner
-          zip -r Release.zip Release
+          Compress-Archive -Path Release -DestinationPath Release.zip
       - name: Release Apps
         uses: ncipollo/release-action@v1
         with:
