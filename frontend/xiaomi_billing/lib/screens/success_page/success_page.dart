@@ -23,6 +23,7 @@ import 'package:xiaomi_billing/states/products_model.dart';
 
 import '../../constants.dart';
 
+/// Screen confirming a successful purchase
 class SuccessPage extends StatefulWidget {
   const SuccessPage({super.key, required this.offlineOrder});
   final bool offlineOrder;
@@ -33,8 +34,11 @@ class SuccessPage extends StatefulWidget {
 
 class _SuccessPageState extends State<SuccessPage> {
   bool _loading = true;
+
+  /// whether the receipt PDF is currently being generated
   bool _generating = false;
 
+  /// Clears cart information from *cart* device file
   Future<void> clearCartFile() async {
     var box = await Hive.openBox('cart');
     await box.clear();
@@ -42,8 +46,6 @@ class _SuccessPageState extends State<SuccessPage> {
 
   void onMount(List<int> productIds, List<String> serialNos) async {
     var box = await Hive.openBox('on-device-orders'); // stores order backups
-    // Remove later
-    // await box.clear();
     if (!mounted) return;
     Order order = Order(
         orderDate: DateTime.now(),
@@ -59,6 +61,7 @@ class _SuccessPageState extends State<SuccessPage> {
     }
 
     if (!widget.offlineOrder) {
+      // sync online order with backend
       try {
         if (!mounted) return;
         Dio dio = await context.read<CredentialManager>().getAPIClient();
@@ -80,9 +83,11 @@ class _SuccessPageState extends State<SuccessPage> {
         ;
       }
     } else {
+      // for offline order add order information to file
       var file = await Hive.openBox('offline-orders');
       file.add(order);
       try {
+        // then try to sync the info with the backend
         if (!mounted) return;
         context.read<CredentialManager>().syncAllOrders();
       } catch (error) {
@@ -127,7 +132,7 @@ class _SuccessPageState extends State<SuccessPage> {
                           children: [
                             Container(
                                 height: 550,
-                                child: Image.asset('assets/success.jpg')),
+                                child: Image.asset('assets/success.jpg')),  // Designed by stories / Freepik
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                               children: [
@@ -194,6 +199,7 @@ class _SuccessPageState extends State<SuccessPage> {
         });
   }
 
+  /// Creates receipt PDF and opens the file in Android and Windows
   Future<void> _createNativePDF(BuildContext context) async {
     await _createPDF(context);
     String? path;
@@ -204,6 +210,7 @@ class _SuccessPageState extends State<SuccessPage> {
     OpenFile.open('$path/Output.pdf');
   }
 
+  /// Creates the PDF receipt and stores it in a local device file
   Future<File> _createPDF(BuildContext buildContext) async {
     setState(() {
       _generating = true;
@@ -447,6 +454,7 @@ class _SuccessPageState extends State<SuccessPage> {
     return ret;
   }
 
+  /// Save file to local storage with given [fileName] and given file information([bytes])
   Future<File> saveFile(List<int> bytes, String fileName) async {
     String? path;
 

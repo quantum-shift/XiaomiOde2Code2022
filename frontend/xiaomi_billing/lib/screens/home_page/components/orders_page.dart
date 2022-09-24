@@ -11,6 +11,7 @@ import 'package:xiaomi_billing/states/products_model.dart';
 
 import '../../../constants.dart';
 
+/// Page showing all orders in the application
 class OrdersPage extends StatefulWidget {
   const OrdersPage({super.key});
 
@@ -20,11 +21,15 @@ class OrdersPage extends StatefulWidget {
 
 class _OrdersPageState extends State<OrdersPage> {
   bool _loading = true;
+
+  /// list of recent orders
   final List<Order> _orderList = [];
+
+  /// whether the accordion of the order has been expanded or not
   final List<bool> _isOpen = [];
 
   void onMount() async {
-    var box = await Hive.openBox('offline-orders');
+    var box = await Hive.openBox('offline-orders'); // first read orders not yet synced with the backend
     String operatorId = context.read<GlobalData>().operatorId;
     if (box.isNotEmpty) {
       for (int i = 0; i < box.length; i++) {
@@ -36,7 +41,7 @@ class _OrdersPageState extends State<OrdersPage> {
       }
     }
 
-    try {
+    try { // if internet connection is there retrieve orders from backend
       // query /orders
       Dio dio = await context.read<CredentialManager>().getAPIClient();
       Response response = await dio.get('/orders');
@@ -57,7 +62,7 @@ class _OrdersPageState extends State<OrdersPage> {
             operatorId: m['user_id'].toString()));
         _isOpen.add(false);
       }
-    } catch (error) {
+    } catch (error) { // without internet connection read order info from device file
       // read from on-device-orders
       var box = await Hive.openBox('on-device-orders');
       if (box.isNotEmpty) {
@@ -84,6 +89,7 @@ class _OrdersPageState extends State<OrdersPage> {
     onMount();
   }
 
+  /// Given a list of [productIds] returns the total cost associated (including tax)
   int cartAmount(List<int> productIds) {
     int amount = 0;
     for (int id in productIds) {
@@ -96,6 +102,7 @@ class _OrdersPageState extends State<OrdersPage> {
     return int.tryParse((amount * 1.15).toStringAsFixed(0))!;
   }
 
+  /// Returns the corresponding [Product] given the [productId]
   Product getProductFromId(int productId) {
     for (Product product in context.read<ProductModel>().getProducts()) {
       if (product.productId == productId) {

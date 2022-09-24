@@ -6,6 +6,7 @@ import 'package:xiaomi_billing/states/credential_manager.dart';
 
 import '../../states/global_data.dart';
 
+/// Application login page
 class LoginPage extends StatefulWidget {
   LoginPage({super.key});
 
@@ -20,12 +21,13 @@ class _LoginPageState extends State<LoginPage> {
 
   final TextEditingController _passwordController = TextEditingController();
 
-  String storeType = 'Mi Home';
+  String storeType = 'Mi Home';   // selected store type from dropdown
 
   final List<String> storeTypeOptions = ['Mi Home', 'Mi Store', 'Mi Support'];
 
   bool _loading = false;
 
+  /// Validation function for Mi ID and password
   String? formFieldValidator(String? value) {
     if (value == null || value.isEmpty) {
       return 'Fields cannot be empty';
@@ -107,9 +109,7 @@ class _LoginPageState extends State<LoginPage> {
                         focusColor: miOrange,
                         value: storeType,
                         onChanged: (String? value) {
-                          context
-                              .read<GlobalData>()
-                              .setStoreType(value!);
+                          context.read<GlobalData>().setStoreType(value!);
                           setState(() {
                             storeType = value;
                           });
