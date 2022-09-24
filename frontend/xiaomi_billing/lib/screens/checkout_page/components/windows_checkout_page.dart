@@ -10,11 +10,16 @@ import '../../../states/global_data.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 
+/// Button that handles Razorpay payment on Windows
 class WindowsCheckoutPage extends StatefulWidget {
   late final String name, phone;
   late final int amount;
   late final bool pressed;
+
+  /// Function to be invoked in the calling widget when the payment webpage gets visited
   late final Function() parentAction;
+
+  /// Function to be invoked when the order-id of the new order is received
   late final Function(String) parentOrderAction;
 
   WindowsCheckoutPage(
@@ -41,6 +46,10 @@ class WindowsCheckoutPageState extends State<WindowsCheckoutPage> {
             style: TextStyle(color: widget.pressed ? Colors.grey : miOrange)));
   }
 
+  /// Function called when user presses the button
+  /// 1. Creates a new order entry for the backend by calling */order/new*
+  /// 2. Recieves a token to complete the payment by calling */order/token*
+  /// 3. Navigates to a webpage at */order/windows/{token}* to complete the payment
   void onPayClick() async {
     if (!widget.pressed) {
       Dio dio = await context.read<CredentialManager>().getAPIClient();

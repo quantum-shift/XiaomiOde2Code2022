@@ -20,6 +20,10 @@ class _LoginPageState extends State<LoginPage> {
 
   final TextEditingController _passwordController = TextEditingController();
 
+  String storeType = 'Mi Home';
+
+  final List<String> storeTypeOptions = ['Mi Home', 'Mi Store', 'Mi Support'];
+
   bool _loading = false;
 
   String? formFieldValidator(String? value) {
@@ -85,6 +89,41 @@ class _LoginPageState extends State<LoginPage> {
                       labelText: 'Password'),
                   validator: formFieldValidator,
                   textInputAction: TextInputAction.done,
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.symmetric(
+                    vertical: 8, horizontal: size.width * 0.1),
+                child: FormField(
+                  builder: (FormFieldState<String> state) => InputDecorator(
+                    decoration: const InputDecoration(
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                        ),
+                        labelText: 'Communication Type'),
+                    child: DropdownButtonHideUnderline(
+                      child: DropdownButton<String>(
+                        isDense: true,
+                        focusColor: miOrange,
+                        value: storeType,
+                        onChanged: (String? value) {
+                          context
+                              .read<GlobalData>()
+                              .setStoreType(value!);
+                          setState(() {
+                            storeType = value;
+                          });
+                        },
+                        items: storeTypeOptions
+                            .map<DropdownMenuItem<String>>(
+                                (String value) => DropdownMenuItem<String>(
+                                      value: value,
+                                      child: Text(value),
+                                    ))
+                            .toList(),
+                      ),
+                    ),
+                  ),
                 ),
               ),
               Row(

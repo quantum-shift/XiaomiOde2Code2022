@@ -8,6 +8,7 @@ import 'package:xiaomi_billing/states/cart_model.dart';
 import '../../constants.dart';
 import '../../states/global_data.dart';
 
+/// Customer Information page in the application
 class CustomerInfo extends StatefulWidget {
   const CustomerInfo({super.key});
 

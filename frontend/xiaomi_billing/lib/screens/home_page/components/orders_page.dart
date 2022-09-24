@@ -197,15 +197,21 @@ class _OrdersPageState extends State<OrdersPage> {
                                       width: size.width * 0.45,
                                       child: Column(
                                         children: [
-                                          Text(orderItem.value.customerName, maxLines: 2, textAlign: TextAlign.center,
+                                          Text(orderItem.value.customerName,
+                                              maxLines: 2,
+                                              textAlign: TextAlign.center,
                                               style: const TextStyle(
                                                   fontSize: 15)),
-                                          Text(orderItem.value.customerPhone, maxLines: 2, textAlign: TextAlign.center,
+                                          Text(orderItem.value.customerPhone,
+                                              maxLines: 2,
+                                              textAlign: TextAlign.center,
                                               style: const TextStyle(
                                                   color: Color.fromARGB(
                                                       255, 127, 127, 127),
                                                   fontSize: 13)),
-                                          Text(orderItem.value.customerEmail, maxLines: 2, textAlign: TextAlign.center,
+                                          Text(orderItem.value.customerEmail,
+                                              maxLines: 2,
+                                              textAlign: TextAlign.center,
                                               style: const TextStyle(
                                                   color: Color.fromARGB(
                                                       255, 127, 127, 127),

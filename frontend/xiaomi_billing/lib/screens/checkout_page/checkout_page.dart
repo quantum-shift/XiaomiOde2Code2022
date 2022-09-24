@@ -14,6 +14,7 @@ import 'package:xiaomi_billing/states/global_data.dart';
 import '../../constants.dart';
 import '../../states/products_model.dart';
 
+/// Checkout page in the application
 class CheckoutPage extends StatefulWidget {
   const CheckoutPage({super.key});
 
@@ -22,13 +23,13 @@ class CheckoutPage extends StatefulWidget {
 }
 
 class _CheckoutState extends State<CheckoutPage> {
-  int _index = 0;
-  int amount = 0;
+  int _index = 0; // index in the stepper
+  int amount = 0; // total price of cart items
   List<String> paymentOptions = ['Offline', 'Razorpay'];
   late String? chosenPaymentOption;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   late TextEditingController paymentController;
-  bool _pressed = false;
+  bool _pressed = false;  // whether the checkout button has been pressed
   String orderId = '';
   bool _loading = false;
 
@@ -44,9 +45,12 @@ class _CheckoutState extends State<CheckoutPage> {
     });
   }
 
+  /// This function is invoked when the user presses the **Continue** button after payment completion.
+  /// It calls */order/{orderId}/status* multiple times to check the order status. 
+  /// Depending upon the order status it confirms a successful paymnet completion or prevents the user from proceeding further
   void handlePaymentWait() async {
-    int retries = 5;
-    int gap = 1;
+    int retries = 5;  // number of backend calls to make
+    int gap = 1;  // gap in seconds between successive backend calls
     bool success = false;
     try {
       for (int i = 1; i <= retries; i++) {

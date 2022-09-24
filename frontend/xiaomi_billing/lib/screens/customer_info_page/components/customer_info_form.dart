@@ -8,6 +8,7 @@ import 'package:xiaomi_billing/screens/checkout_page/checkout_page.dart';
 import 'package:xiaomi_billing/states/credential_manager.dart';
 import 'package:xiaomi_billing/states/global_data.dart';
 
+/// Form widget in the Customer Information page to fill out the customer details
 class CustomerInfoForm extends StatefulWidget {
   const CustomerInfoForm({super.key});
 
@@ -33,6 +34,7 @@ class _CustomerInfoFormState extends State<CustomerInfoForm> {
     _phoneController.text = "+91";
   }
 
+  /// Default text field validation function
   String? formFieldValidator(String? value) {
     if (value == null || value.isEmpty) {
       return 'Fields cannot be empty';
@@ -40,6 +42,7 @@ class _CustomerInfoFormState extends State<CustomerInfoForm> {
     return null;
   }
 
+  /// Calls */customer* at the backend to create a new customer / update existing customer
   Future<void> submitCustomerInfo() async {
     Dio dio = await context.read<CredentialManager>().getAPIClient();
     await dio.post('/customer', data: {
@@ -73,7 +76,7 @@ class _CustomerInfoFormState extends State<CustomerInfoForm> {
                 labelText: 'Phone Number',
               ),
               controller: _phoneController,
-              validator: (String? value) {
+              validator: (String? value) {  // Phone number should start with +91 and contain 10 decimal digits
                 if (value == null ||
                     value.length < 3 ||
                     value.substring(0, 3) != "+91") {
@@ -91,7 +94,7 @@ class _CustomerInfoFormState extends State<CustomerInfoForm> {
                 }
               },
               textInputAction: TextInputAction.next,
-              onFieldSubmitted: (String? value) async {
+              onFieldSubmitted: (String? value) async { // This function is called to try to get existing customer information and autofill
                 Dio dio =
                     await context.read<CredentialManager>().getAPIClient();
                 try {
@@ -129,7 +132,7 @@ class _CustomerInfoFormState extends State<CustomerInfoForm> {
                   ),
                   suffixIcon: Icon(Icons.email),
                   labelText: 'Email'),
-              validator: (String? value) {
+              validator: (String? value) {  // Function checks if the email address is valid or not
                 if (value == null || value.isEmpty) {
                   return "Fields cannot be empty";
                 } else {
