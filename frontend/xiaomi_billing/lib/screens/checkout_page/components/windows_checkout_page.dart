@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:xiaomi_billing/constants.dart';
 import 'package:xiaomi_billing/states/credential_manager.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'dart:developer' as developer;
 
 import '../../../states/global_data.dart';
 
@@ -70,6 +71,7 @@ class WindowsCheckoutPageState extends State<WindowsCheckoutPage> {
         launchUrl(Uri.parse('$baseUrl/order/windows/$token'));
         widget.parentAction();
       } on DioError catch (e) {
+        developer.log("Windows payment failed: $e");
         if (!mounted) return;
         showSnackBar(context, "Payment failed. Something went wrong");
         return;

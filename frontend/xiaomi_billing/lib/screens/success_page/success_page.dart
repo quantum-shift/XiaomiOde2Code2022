@@ -11,15 +11,14 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:open_file/open_file.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
-import 'package:xiaomi_billing/main.dart';
 import 'package:xiaomi_billing/screens/home_page/home_page.dart';
-import 'package:xiaomi_billing/screens/product_details_page/product_details_page.dart';
 import 'package:xiaomi_billing/screens/success_page/components/pdf_viewer_page.dart';
 import 'package:xiaomi_billing/states/cart_model.dart';
 import 'package:xiaomi_billing/states/credential_manager.dart';
 import 'package:xiaomi_billing/states/global_data.dart';
 import 'package:xiaomi_billing/states/order_model.dart';
 import 'package:xiaomi_billing/states/products_model.dart';
+import 'dart:developer' as developer;
 
 import '../../constants.dart';
 
@@ -79,8 +78,10 @@ class _SuccessPageState extends State<SuccessPage> {
         }
         await dio.post("/order/${context.read<GlobalData>().orderId}/complete",
             data: {'user_id': order.operatorId, 'items': l});
+        developer.log(
+            "Online Order Complete. User-id : ${order.operatorId} , items : $l");
       } catch (error) {
-        ;
+        developer.log("Online order sync failed : $error", level: 5);
       }
     } else {
       // for offline order add order information to file
@@ -91,7 +92,7 @@ class _SuccessPageState extends State<SuccessPage> {
         if (!mounted) return;
         context.read<CredentialManager>().syncAllOrders();
       } catch (error) {
-        ;
+        developer.log("Syncing offline orders later. Failed backend query.");
       }
     }
 
@@ -130,9 +131,10 @@ class _SuccessPageState extends State<SuccessPage> {
                             ])
                       : Column(
                           children: [
-                            Container(
+                            SizedBox(
                                 height: 550,
-                                child: Image.asset('assets/success.jpg')),  // Designed by stories / Freepik
+                                child: Image.asset(
+                                    'assets/success.jpg')), // Designed by stories / Freepik
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                               children: [
@@ -182,11 +184,8 @@ class _SuccessPageState extends State<SuccessPage> {
                                     child: Row(
                                       mainAxisAlignment:
                                           MainAxisAlignment.center,
-                                      children: [
-                                        Container(
-                                            child:
-                                                const CircularProgressIndicator
-                                                    .adaptive()),
+                                      children: const [
+                                        CircularProgressIndicator.adaptive(),
                                       ],
                                     ),
                                   )
@@ -224,6 +223,7 @@ class _SuccessPageState extends State<SuccessPage> {
 
     int total = 0;
     final tableData = <List<dynamic>>[];
+    if (!mounted) return File("Output.pdf");
     for (int i = 0;
         i < buildContext.read<CartModel>().getProductIds().length;
         i++) {
@@ -278,14 +278,14 @@ class _SuccessPageState extends State<SuccessPage> {
                   crossAxisAlignment: pw.CrossAxisAlignment.start,
                   children: [
                     pw.Text(
-                      "${buildContext.read<GlobalData>().customerName}",
+                      buildContext.read<GlobalData>().customerName,
                       style: pw.TextStyle(
                         fontSize: 15.5,
                         fontWeight: pw.FontWeight.bold,
                       ),
                     ),
                     pw.Text(
-                      "${buildContext.read<GlobalData>().customerEmail}",
+                      buildContext.read<GlobalData>().customerEmail,
                     ),
                     pw.Text(
                       DateTime.now().toString(),

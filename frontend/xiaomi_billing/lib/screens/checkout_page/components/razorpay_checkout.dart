@@ -8,6 +8,8 @@ import 'package:provider/provider.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:xiaomi_billing/states/global_data.dart';
 
+import 'dart:developer' as developer;
+
 /// Button that handles Razorpay payment on Android and iOS
 class RazorpayCheckout extends StatefulWidget {
   const RazorpayCheckout({super.key, required this.amount});
@@ -51,7 +53,8 @@ class RazorpayCheckoutState extends State<RazorpayCheckout> {
     try {
       response = await dio
           .post('/order/new', data: {'amount': amount, 'currency': 'INR'});
-    } on DioError catch (e) {
+    } on DioError catch (error) {
+      developer.log("Payment failed: $error", level: 5);
       if (!mounted) return;
       showSnackBar(context, "Please check your internet connection.");
       return;
@@ -76,24 +79,23 @@ class RazorpayCheckoutState extends State<RazorpayCheckout> {
     try {
       _razorpay.open(options);
     } catch (e) {
-      debugPrint('Error: e');
+      developer.log('Error: e', level: 5);
     }
   }
 
   void _handlePaymentSuccess(PaymentSuccessResponse response) async {
-    print('Success Response: $response');
+    developer.log('Success Response: $response');
     if (!mounted) return;
     Navigator.of(context).push(MaterialPageRoute(
         builder: (context) => const SuccessPage(offlineOrder: false)));
   }
 
   void _handlePaymentError(PaymentFailureResponse response) {
-    print('Error Response: $response');
-    print(response.message);
+    developer.log('Error Response: $response');
     showSnackBar(context, "Payment failed. Something went wrong");
   }
 
   void _handleExternalWallet(ExternalWalletResponse response) {
-    print('External SDK Response: $response');
+    developer.log('External SDK Response: $response');
   }
 }

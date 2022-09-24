@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:xiaomi_billing/screens/checkout_page/checkout_page.dart';
@@ -80,12 +79,12 @@ class _MyAppState extends State<MyApp> {
             primarySwatch: miOrange,
           )),
       home: context.read<CredentialManager>().getToken() == ''
-          ? LoginPage()
+          ? const LoginPage()
           : const HomePage(),
       routes: <String, WidgetBuilder>{
         'Home': (context) => const HomePage(),
         'Store': (context) => const StorePage(),
-        'ProductDetails': (context) => ProductDetails(
+        'ProductDetails': (context) => const ProductDetails(
               product: dummyProduct,
               serialNo: '',
             ),

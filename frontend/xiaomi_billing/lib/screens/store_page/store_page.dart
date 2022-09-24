@@ -1,9 +1,6 @@
-import 'dart:async';
 import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:xiaomi_billing/screens/home_page/components/cart_icon.dart';
@@ -91,7 +88,7 @@ class _StorePageState extends State<StorePage> {
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(0, 20, 0, 0),
                 child: Center(
-                  child: Container(
+                  child: SizedBox(
                     height: 60.0,
                     child: MediaQuery(
                       data: MediaQuery.of(context)

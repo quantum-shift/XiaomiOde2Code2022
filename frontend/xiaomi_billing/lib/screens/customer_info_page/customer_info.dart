@@ -69,14 +69,14 @@ class _CustomerInfoState extends State<CustomerInfo> {
                   children: [
                     Row(
                       children: [
-                        Container(
+                        SizedBox(
                           width: size.width * 0.45,
                           height: 100,
                           child: Center(
                               child: getFixedTextField(
                                   _operatorIdController, 'Operator ID')),
                         ),
-                        Container(
+                        SizedBox(
                           width: size.width * 0.45,
                           height: 100,
                           child: Center(

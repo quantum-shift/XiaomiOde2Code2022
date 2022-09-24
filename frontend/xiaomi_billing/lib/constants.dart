@@ -1,8 +1,6 @@
-import 'dart:io' show Platform;
 
 import 'package:flutter/material.dart';
 
-import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 final String? baseUrl = dotenv.env['BASE_URL'];

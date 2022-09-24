@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer' as developer;
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -76,7 +77,8 @@ class _CustomerInfoFormState extends State<CustomerInfoForm> {
                 labelText: 'Phone Number',
               ),
               controller: _phoneController,
-              validator: (String? value) {  // Phone number should start with +91 and contain 10 decimal digits
+              validator: (String? value) {
+                // Phone number should start with +91 and contain 10 decimal digits
                 if (value == null ||
                     value.length < 3 ||
                     value.substring(0, 3) != "+91") {
@@ -94,7 +96,8 @@ class _CustomerInfoFormState extends State<CustomerInfoForm> {
                 }
               },
               textInputAction: TextInputAction.next,
-              onFieldSubmitted: (String? value) async { // This function is called to try to get existing customer information and autofill
+              onFieldSubmitted: (String? value) async {
+                // This function is called to try to get existing customer information and autofill
                 Dio dio =
                     await context.read<CredentialManager>().getAPIClient();
                 try {
@@ -117,7 +120,7 @@ class _CustomerInfoFormState extends State<CustomerInfoForm> {
                         },
                       )));
                 } catch (error) {
-                  ;
+                  developer.log("Could not autofill");
                 }
               },
             ),
@@ -132,7 +135,8 @@ class _CustomerInfoFormState extends State<CustomerInfoForm> {
                   ),
                   suffixIcon: Icon(Icons.email),
                   labelText: 'Email'),
-              validator: (String? value) {  // Function checks if the email address is valid or not
+              validator: (String? value) {
+                // Function checks if the email address is valid or not
                 if (value == null || value.isEmpty) {
                   return "Fields cannot be empty";
                 } else {
@@ -226,6 +230,7 @@ class _CustomerInfoFormState extends State<CustomerInfoForm> {
                     try {
                       await submitCustomerInfo();
                     } catch (error) {
+                      developer.log("Could not create new customer");
                     } finally {
                       context
                           .read<GlobalData>()

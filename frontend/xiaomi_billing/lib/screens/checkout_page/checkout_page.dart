@@ -69,7 +69,6 @@ class _CheckoutState extends State<CheckoutPage> {
             builder: (context) => const SuccessPage(offlineOrder: false)));
       } else {
         setState(() {
-          print("Unset");
           _loading = false;
         });
         return showDialog<void>(
@@ -95,7 +94,6 @@ class _CheckoutState extends State<CheckoutPage> {
       showSnackBar(context, "Something went wrong. Please try after sometime.");
     } finally {
       setState(() {
-        print("Unset");
         _loading = false;
       });
     }
@@ -186,7 +184,6 @@ class _CheckoutState extends State<CheckoutPage> {
               } else {
                 handlePaymentWait();
                 setState(() {
-                  print("Set");
                   _loading = true;
                 });
               }
@@ -200,18 +197,18 @@ class _CheckoutState extends State<CheckoutPage> {
           steps: [
             Step(
                 title: const Text('Payable Amount'),
-                content: Container(
+                content: SizedBox(
                     width: size.width,
                     child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Row(
                             children: [
-                              Container(
+                              const SizedBox(
                                   width: 100,
-                                  child: const Text("Amount :",
+                                  child: Text("Amount :",
                                       style: TextStyle(fontSize: 16))),
-                              Container(
+                              SizedBox(
                                 width: 100,
                                 child: Text(
                                     "\u{20B9}${(amount * 1.0).toStringAsFixed(0)}",
@@ -221,11 +218,11 @@ class _CheckoutState extends State<CheckoutPage> {
                           ),
                           Row(
                             children: [
-                              Container(
+                              const SizedBox(
                                   width: 100,
-                                  child: const Text("Tax :",
+                                  child: Text("Tax :",
                                       style: TextStyle(fontSize: 16))),
-                              Container(
+                              SizedBox(
                                 width: 100,
                                 child: Text(
                                     "\u{20B9}${(amount * 0.15).toStringAsFixed(0)}",
@@ -235,11 +232,11 @@ class _CheckoutState extends State<CheckoutPage> {
                           ),
                           Row(
                             children: [
-                              Container(
+                              const SizedBox(
                                   width: 100,
-                                  child: const Text("Total :",
+                                  child: Text("Total :",
                                       style: TextStyle(fontSize: 16))),
-                              Container(
+                              SizedBox(
                                 width: 100,
                                 child: Text(
                                     "\u{20B9}${(amount * 1.15).toStringAsFixed(0)}",

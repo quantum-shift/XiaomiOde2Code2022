@@ -8,6 +8,7 @@ import 'package:xiaomi_billing/states/global_data.dart';
 import 'package:xiaomi_billing/states/order_model.dart';
 import 'package:intl/intl.dart';
 import 'package:xiaomi_billing/states/products_model.dart';
+import 'dart:developer' as developer;
 
 import '../../../constants.dart';
 
@@ -29,23 +30,29 @@ class _OrdersPageState extends State<OrdersPage> {
   final List<bool> _isOpen = [];
 
   void onMount() async {
-    var box = await Hive.openBox('offline-orders'); // first read orders not yet synced with the backend
+    var box = await Hive.openBox(
+        'offline-orders'); // first read orders not yet synced with the backend
+    if (!mounted) return;
     String operatorId = context.read<GlobalData>().operatorId;
     if (box.isNotEmpty) {
       for (int i = 0; i < box.length; i++) {
         Order order = box.getAt(i);
         if (order.operatorId == operatorId) {
+          developer.log("Offline on-device orders : $order");
           _orderList.add(order);
           _isOpen.add(false);
         }
       }
     }
 
-    try { // if internet connection is there retrieve orders from backend
+    try {
+      // if internet connection is there retrieve orders from backend
       // query /orders
+      if (!mounted) return;
       Dio dio = await context.read<CredentialManager>().getAPIClient();
       Response response = await dio.get('/orders');
       for (Map<String, dynamic> m in response.data) {
+        developer.log("Backend saved orders : $m");
         List<int> productIds = [];
         List<String> serialNos = [];
         for (Map<String, dynamic> itemMap in m['items']) {
@@ -62,12 +69,14 @@ class _OrdersPageState extends State<OrdersPage> {
             operatorId: m['user_id'].toString()));
         _isOpen.add(false);
       }
-    } catch (error) { // without internet connection read order info from device file
+    } catch (error) {
+      // without internet connection read order info from device file
       // read from on-device-orders
       var box = await Hive.openBox('on-device-orders');
       if (box.isNotEmpty) {
         for (int i = 0; i < box.length; i++) {
           Order order = box.getAt(i);
+          developer.log("Online on-device orders : $order");
           if (order.operatorId == operatorId) {
             _orderList.add(order);
             _isOpen.add(false);
@@ -151,7 +160,7 @@ class _OrdersPageState extends State<OrdersPage> {
                       .entries
                       .map((orderItem) => ExpansionPanel(
                           canTapOnHeader: true,
-                          headerBuilder: (context, isExpanded) => Container(
+                          headerBuilder: (context, isExpanded) => SizedBox(
                                 width: size.width * 0.8,
                                 child: Row(
                                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -231,7 +240,7 @@ class _OrdersPageState extends State<OrdersPage> {
                               ),
                           body: Column(children: [
                             const Divider(thickness: 2),
-                            Container(
+                            SizedBox(
                               width: size.width * 0.95,
                               child: DataTable(
                                 sortColumnIndex: 2,
@@ -263,9 +272,13 @@ class _OrdersPageState extends State<OrdersPage> {
                                               return null;
                                             }),
                                             cells: [
-                                              DataCell(Text(getProductFromId(
-                                                      productId.value)
-                                                  .productName)),
+                                              DataCell(Text(
+                                                getProductFromId(
+                                                        productId.value)
+                                                    .productName,
+                                                maxLines: 2,
+                                                overflow: TextOverflow.ellipsis,
+                                              )),
                                               DataCell(Text(orderItem.value
                                                   .serialNos[productId.key])),
                                               DataCell(Text(

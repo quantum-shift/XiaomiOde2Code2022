@@ -4,6 +4,7 @@ import 'package:hive/hive.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:xiaomi_billing/constants.dart';
 import 'package:xiaomi_billing/states/products_model.dart';
+import 'dart:developer' as developer;
 
 import 'order_model.dart';
 
@@ -25,7 +26,7 @@ class CredentialManager extends ChangeNotifier {
       _token = prefs.getString('token')!;
     }
     notifyListeners();
-    print("Updated token to: $_token");
+    developer.log("Updated token to: $_token");
   }
 
   String getToken() {
@@ -55,9 +56,7 @@ class CredentialManager extends ChangeNotifier {
   /// Registers new user to the backend. Throws [DioError].
   Future<void> doRegister(String username, String password) async {
     Dio dio = await getAPIClient();
-    var response = await dio
-        .post('/users', data: {'mi_id': username, 'password': password});
-    print(response.data);
+    await dio.post('/users', data: {'mi_id': username, 'password': password});
     await doLogin(username, password);
   }
 
@@ -69,15 +68,14 @@ class CredentialManager extends ChangeNotifier {
     formMap['password'] = password;
     FormData formData = FormData.fromMap(formMap);
     var response = await dio.post('/token', data: formData);
-    print(response.data);
-    print("Logging in!");
+    developer.log("Logging in!");
     setToken(response.data['access_token']);
     // dio.get('/token')
   }
 
   /// Logs out an already logged in user.
   Future<void> doLogout() async {
-    print("Logging out!");
+    developer.log("Logging out!");
     await setToken('');
     notifyListeners();
   }

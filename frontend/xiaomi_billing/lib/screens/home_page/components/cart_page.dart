@@ -114,7 +114,8 @@ class _CartPageState extends State<CartPage> {
   }
 
   void handleMount() async {
-    if (!context.read<GlobalData>().visitedCart) {  // run only once in app life cycle
+    if (!context.read<GlobalData>().visitedCart) {
+      // run only once in app life cycle
       try {
         await retrieveProductsFromAPI(context, mounted);
       } catch (error) {
@@ -195,8 +196,9 @@ class _CartPageState extends State<CartPage> {
                     tooltip: 'Logout',
                     onPressed: () async {
                       await context.read<CredentialManager>().doLogout();
+                      if (!mounted) return;
                       Navigator.of(context).push(
-                          MaterialPageRoute(builder: (context) => LoginPage()));
+                          MaterialPageRoute(builder: (context) => const LoginPage()));
                     },
                   ),
                 ],
@@ -240,10 +242,8 @@ class _CartPageState extends State<CartPage> {
                       padding: const EdgeInsets.symmetric(vertical: 40),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Container(
-                              child:
-                                  const CircularProgressIndicator.adaptive()),
+                        children: const [
+                          CircularProgressIndicator.adaptive(),
                         ],
                       ),
                     ))

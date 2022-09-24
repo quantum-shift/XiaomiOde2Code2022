@@ -35,7 +35,7 @@ class _ProductDetailsState extends State<ProductDetails> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   late TextEditingController _categoryController;
   late TextEditingController _priceController;
-  late List<TextEditingController> _detailControllers = [];
+  late final List<TextEditingController> _detailControllers = [];
   late List<Widget> greyFields = []; // list of unchangeable fields 
   late TextEditingController _serialNoController;
   bool _selected = false; // if the item is in cart or not

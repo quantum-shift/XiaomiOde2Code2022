@@ -8,7 +8,7 @@ import '../../states/global_data.dart';
 
 /// Application login page
 class LoginPage extends StatefulWidget {
-  LoginPage({super.key});
+  const LoginPage({super.key});
 
   @override
   State<LoginPage> createState() => _LoginPageState();
@@ -21,7 +21,7 @@ class _LoginPageState extends State<LoginPage> {
 
   final TextEditingController _passwordController = TextEditingController();
 
-  String storeType = 'Mi Home';   // selected store type from dropdown
+  String storeType = 'Mi Home'; // selected store type from dropdown
 
   final List<String> storeTypeOptions = ['Mi Home', 'Mi Store', 'Mi Support'];
 
@@ -102,7 +102,7 @@ class _LoginPageState extends State<LoginPage> {
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.all(Radius.circular(8.0)),
                         ),
-                        labelText: 'Communication Type'),
+                        labelText: 'Store Type'),
                     child: DropdownButtonHideUnderline(
                       child: DropdownButton<String>(
                         isDense: true,
@@ -148,6 +148,7 @@ class _LoginPageState extends State<LoginPage> {
                             await context.read<CredentialManager>().doRegister(
                                 _usernameController.text,
                                 _passwordController.text);
+                            if (!mounted) return;
                             Navigator.of(context).push(MaterialPageRoute(
                                 builder: (context) => const HomePage()));
                           } catch (error) {
@@ -180,6 +181,7 @@ class _LoginPageState extends State<LoginPage> {
                             await context.read<CredentialManager>().doLogin(
                                 _usernameController.text,
                                 _passwordController.text);
+                            if (!mounted) return;
                             Navigator.of(context).push(MaterialPageRoute(
                                 builder: ((context) => const HomePage())));
                           } catch (error) {
@@ -199,10 +201,8 @@ class _LoginPageState extends State<LoginPage> {
                           padding: const EdgeInsets.all(10.0),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Container(
-                                  child: const CircularProgressIndicator
-                                      .adaptive()),
+                            children: const [
+                              CircularProgressIndicator.adaptive(),
                             ],
                           ),
                         )
