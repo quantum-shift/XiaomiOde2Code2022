@@ -1,0 +1,49 @@
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+name: Build and Release Android App
+jobs:
+  build:
+    name: Build Apps
+    runs-on: ubuntu-latest
+    steps:
+      - name: Export Release Timestamp
+        run: echo "APP_VERSION=v$(date +'%Y.%m.%d.%H.%M.%S')" >> $GITHUB_ENV
+      - name: Checkout repository
+        uses: actions/checkout@v1
+      - name: Create .env file
+        run: |
+          echo "API_KEY_ID=${{ secrets.API_KEY_ID }}" >> frontend/xiaomi_billing/.env
+          echo "BASE_URL=${{ secrets.BASE_URL }}" >> frontend/xiaomi_billing/.env
+      - name: Set up Java
+        uses: actions/setup-java@v2
+        with:
+          java-version: '18'
+          distribution: 'adopt'
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          architecture: x64
+      - name: Install pub Dependencies
+        working-directory: ./frontend/xiaomi_billing
+        run: flutter pub get
+      - name: Build Android App
+        working-directory: ./frontend/xiaomi_billing
+        run: |
+          flutter build apk --release
+          cd build/app/outputs/apk/release
+          mv app-release.apk android_release.apk
+      - name: Release Apps
+        uses: ncipollo/release-action@v1
+        with:
+          tag: 1.0.0
+          name: ${{ env.APP_VERSION }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          artifacts: 'frontend/xiaomi_billing/build/app/outputs/apk/release/*.apk'
+          allowUpdates: true

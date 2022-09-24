@@ -2,8 +2,11 @@ on:
   push:
     branches:
       - main
+  pull_request:
+    branches:
+      - main
 
-name: Build and Release Apps
+name: Build and Release ios App
 jobs:
   build:
     name: Build Apps
@@ -28,10 +31,10 @@ jobs:
           channel: 'stable'
           architecture: x64
       - name: Install pub Dependencies
+        working-directory: ./frontend/xiaomi_billing
         run: flutter pub get
-      - name: Build Android App
-        run: flutter build apk --release
       - name: Build iOS App
+        working-directory: ./frontend/xiaomi_billing
         run: |
           flutter build ios --no-codesign
           cd build/ios/iphoneos
@@ -39,11 +42,12 @@ jobs:
           cd Payload
           ln -s ../Runner.app
           cd ..
-          zip -r app.ipa Payload
+          zip -r ios_release.ipa Payload
       - name: Release Apps
         uses: ncipollo/release-action@v1
         with:
-          tag: ${{ env.APP_VERSION }}
+          tag: 1.0.0
           name: ${{ env.APP_VERSION }}
           token: ${{ secrets.GITHUB_TOKEN }}
-          artifacts: 'build/app/outputs/apk/release/*.apk,build/ios/iphoneos/app.ipa'
+          artifacts: 'frontend/xiaomi_billing/build/ios/iphoneos/ios_release.ipa'
+          allowUpdates: true
