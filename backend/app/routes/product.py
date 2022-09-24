@@ -19,6 +19,4 @@ def products(user: schemas.User = Depends(get_current_user)):
     with open('assets/products.json') as f:
         db_product = json.load(f)
     
-    print(db_product)
-
     return db_product

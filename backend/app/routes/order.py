@@ -1,3 +1,4 @@
+import asyncio
 from base64 import decode
 from datetime import timedelta
 import json
@@ -26,10 +27,10 @@ logger = get_logger('order')
 
 router = APIRouter()
 templates = Jinja2Templates(directory="templates")
-# print(templates.)
 
 @router.post('/order/token')
 async def get_order_token(order_for_token: schemas.OrderForToken, user: schemas.User = Depends(get_current_user)):
+    """Create a secret token which will be used to access payment page for desktop app"""
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"Not authorised to create a new order!")
     token: str = create_access_token(order_for_token.dict(), expires_delta=timedelta(minutes=ORDER_TOKEN_EXPIRE_MINUTES))
@@ -37,6 +38,7 @@ async def get_order_token(order_for_token: schemas.OrderForToken, user: schemas.
 
 @router.get('/order/windows/{token}', response_class=HTMLResponse)
 async def read_html(request: Request, token: str, db = Depends(get_db)):
+    """Server side render html page for payment on windows"""
     payload = get_decoded_object(token=token)
     customer = customer_crud.get_customer_by_phone(db=db, phone=payload.get('phone'))
     payload['email'] = customer.email
@@ -44,6 +46,7 @@ async def read_html(request: Request, token: str, db = Depends(get_db)):
 
 @router.post('/order/new')
 def new_order(order_new: schemas.OrderNew, user: schemas.User = Depends(get_current_user)):
+    """Create a new order in Razorpay and get order_id"""
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"Not authorised to create a new order!")
     
@@ -53,6 +56,7 @@ def new_order(order_new: schemas.OrderNew, user: schemas.User = Depends(get_curr
 
 @router.post('/order/offline')
 def new_offline_order(order_offline: schemas.OrderOffline, user: schemas.User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Create a new order which was paid offline"""
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"Not authorised to create a new order!")
     
@@ -83,15 +87,15 @@ def new_offline_order(order_offline: schemas.OrderOffline, user: schemas.User = 
 
 @router.get('/orders', response_model=List[schemas.Order])
 def orders(user: schemas.User = Depends(get_current_user), db: Session = Depends(get_db)):
-
+    """Get all the orders made by a user"""
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"Not authorised to access orders!")
-    
+
     return user.orders
 
 @router.post('/order/paid')
 async def order_paid(request: Request, db: Session = Depends(get_db)):
-    print("Called order/paid.....")
+    """Confirm order payment (only called by through Razorpay webhook)"""
     body = await request.body()
     body = body.decode('utf-8')
     signature = request.headers.get('x-razorpay-signature')
@@ -101,8 +105,6 @@ async def order_paid(request: Request, db: Session = Depends(get_db)):
         print("Could not verify webhook!")
         return
     decoded_body = await request.json()
-    # print(decoded_body)
-    # print(decoded_body['order_id'])
     decoded_order = decoded_body['payload']['order']['entity']
     decoded_payment = decoded_body['payload']['payment']['entity']
 
@@ -143,6 +145,7 @@ async def order_paid(request: Request, db: Session = Depends(get_db)):
 
 @router.post('/order/{id}/status')
 def get_order_status(id: str, user: schemas.User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Get payment capture status of an order"""
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"Not authorised to access orders!")
     
@@ -155,6 +158,7 @@ def get_order_status(id: str, user: schemas.User = Depends(get_current_user), db
 
 @router.post('/order/{id}/complete', response_model=schemas.OrderSend)
 def update_order_to_completion(id: str, order_update: schemas.OrderUpdate, user: schemas.User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Update cart and user details for online orders"""
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"Not authorised to access orders!")
     
@@ -167,7 +171,7 @@ def update_order_to_completion(id: str, order_update: schemas.OrderUpdate, user:
 
 @router.get('/order/{id}', response_model=schemas.OrderSend)
 def order(id: str, user: schemas.User = Depends(get_current_user), db: Session = Depends(get_db)):
-    
+    """Get details of an order by order id"""
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"Not authorised to access orders!")
 

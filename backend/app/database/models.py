@@ -18,12 +18,8 @@ class Customer(Base):
     phone = Column(String, unique=True, index=True)
     name = Column(String)
     email = Column(String)
+    # uncomment if orders of a customer is used later for some functionality
     # orders = relationship("Order", back_populates="customer")
-
-# class Product(Base):
-#     __tablename__ = "product"
-#     id = Column(Integer, primary_key=True, index=True)
-#     category = Column(String)
 
 class Order(Base):
     __tablename__ = "order"

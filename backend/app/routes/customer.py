@@ -11,7 +11,7 @@ router = APIRouter()
 
 @router.get('/customer/{phone}', response_model=schemas.CustomerCreate)
 def customer(phone: str, user: schemas.User = Depends(get_current_user), db: Session = Depends(get_db)):
-    
+    """Get customer by phone"""
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"Not authorised to access products!")
     
@@ -24,7 +24,7 @@ def customer(phone: str, user: schemas.User = Depends(get_current_user), db: Ses
 
 @router.post('/customer', response_model=schemas.CustomerCreate)
 def create_customer(customer_create: schemas.CustomerCreate, user: schemas.User = Depends(get_current_user), db: Session = Depends(get_db)):
-    
+    """Create a new customer"""
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"Not authorised to access products!")
     

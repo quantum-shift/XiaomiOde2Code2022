@@ -19,14 +19,13 @@ class User(UserBase):
         orm_mode = True
 
 
-
 class Token(BaseModel):
     access_token: str
     token_type: str
 
-
 class TokenData(BaseModel):
     username: Union[str, None] = None
+
 
 class CustomerGet(BaseModel):
     phone: str
@@ -47,6 +46,7 @@ class Customer(BaseModel):
     orders: "List[Order]" = []
     class Config:
         orm_mode = True
+
 class Product(BaseModel):
     id: int
     category: str
@@ -58,6 +58,7 @@ class Product(BaseModel):
 class SoldProduct(BaseModel):
     product_id: str
     serial: str
+
 
 class OrderNew(BaseModel):
     amount: int

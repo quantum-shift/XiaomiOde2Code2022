@@ -10,14 +10,13 @@ from receipt import receipt
 import os
 
 def send_email(order: schemas.Order):
+    """Email order details to customer on completion of order"""
     customer = order.customer
-    print("ORDER SENT TO SEND_EMAIL: ", order.__str__())
     subject = f"Your order {order.order_id} at Xiaomi Store"
     body = f"Dear {customer.name},\n\nCongratulations on your purchase at Xiaomi. Please find attached the receipt.\n"
     
     sender_email = os.environ.get('EMAIL_ID')
     password = os.environ.get('EMAIL_PASSWORD')
-    print("Creds: ", sender_email, password)
 
     receiver_email = customer.email
 
@@ -49,6 +48,5 @@ def send_email(order: schemas.Order):
     with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as server:
         server.login(sender_email, password)
         server.sendmail(sender_email, receiver_email, text)
-        print(f"Email sent successfully to {receiver_email}!")
     
     receipt.delete_receipt(order_id=order.order_id)

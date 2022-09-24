@@ -14,6 +14,7 @@ router = APIRouter()
 
 @router.post('/users', response_model=schemas.User)
 def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
+    """Create a new user in the database"""
     db_user = user_crud.get_user_by_mi_id(db, mi_id=user.mi_id)
     if db_user:
         raise HTTPException(status_code=400, detail="mi_id already registered!")
@@ -21,6 +22,7 @@ def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
 
 @router.post("/token", response_model=schemas.Token)
 async def login_for_access_token(db: Session = Depends(get_db), form_data: OAuth2PasswordRequestForm = Depends()):
+    """Verify login credentials and return access token on successful login"""
     user = authenticate_user(db, form_data.username, form_data.password)
     if not user:
         raise HTTPException(

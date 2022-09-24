@@ -57,8 +57,6 @@ def _build_itemized_description_table(order: schemas.Order):
         )
     
 
-    # construct the Font object
-
     odd_color = HexColor("#ffc69e")  
     even_color = HexColor("FFFFFF")  
 
@@ -88,10 +86,8 @@ def _build_itemized_description_table(order: schemas.Order):
     return table_001
 
 def generate_receipt(order: schemas.Order):
-    # Create document
     pdf: Document = Document()
 
-    # Add page
     page = Page()
     pdf.add_page(page)
 

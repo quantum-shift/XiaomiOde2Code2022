@@ -5,12 +5,15 @@ from .. import schemas, models
 
 
 def get_order(db: Session, order_id: int):
+    """Get order from order id"""
     return db.query(models.Order).filter(models.Order.order_id == order_id).first()
 
 def get_orders(db: Session, offset: int = 0, limit: int = 100):
+    """Get orders in [offset, offset + limit)"""
     return db.query(models.Order).offset(offset).limit(limit).all()
 
 def create_order(db: Session, order: schemas.OrderCreate):
+    """Create an order"""
     db_order = models.Order(
         order_id=order.order_id, 
         payment_id=order.payment_id, 
@@ -28,6 +31,7 @@ def create_order(db: Session, order: schemas.OrderCreate):
     return db_order
 
 def update_order_cart(db: Session, order_id: str, items: List[schemas.SoldProduct], user_id: str):
+    """Update the user_id and items of an existing order"""
     existing_order: schemas.Order = get_order(db = db, order_id = order_id)
 
     if existing_order is None:
