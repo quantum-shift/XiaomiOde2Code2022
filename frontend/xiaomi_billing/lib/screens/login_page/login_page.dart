@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:xiaomi_billing/constants.dart';
+import 'package:xiaomi_billing/screens/home_page/components/cart_page.dart';
 import 'package:xiaomi_billing/screens/home_page/home_page.dart';
 import 'package:xiaomi_billing/states/credential_manager.dart';
 
@@ -144,15 +145,23 @@ class _LoginPageState extends State<LoginPage> {
                         saveDataToFile<String>(
                             'operatorId', _usernameController.text);
                         if (_formKey.currentState!.validate()) {
-                          try {
-                            await context.read<CredentialManager>().doRegister(
-                                _usernameController.text,
-                                _passwordController.text);
-                            if (!mounted) return;
-                            Navigator.of(context).push(MaterialPageRoute(
-                                builder: (context) => const HomePage()));
-                          } catch (error) {
-                            showSnackBar(context, "Username already exists");
+                          bool connected = await isConnected(context);
+                          if (!mounted) return;
+                          if (connected) {
+                            try {
+                              await context
+                                  .read<CredentialManager>()
+                                  .doRegister(_usernameController.text,
+                                      _passwordController.text);
+                              if (!mounted) return;
+                              Navigator.of(context).push(MaterialPageRoute(
+                                  builder: (context) => const HomePage()));
+                            } catch (error) {
+                              showSnackBar(context, "Username already exists");
+                            }
+                          } else {
+                            showSnackBar(context,
+                                "Please check your internet connection");
                           }
                         }
                         setState(() {
@@ -177,16 +186,23 @@ class _LoginPageState extends State<LoginPage> {
                         saveDataToFile<String>(
                             'operatorId', _usernameController.text);
                         if (_formKey.currentState!.validate()) {
-                          try {
-                            await context.read<CredentialManager>().doLogin(
-                                _usernameController.text,
-                                _passwordController.text);
-                            if (!mounted) return;
-                            Navigator.of(context).push(MaterialPageRoute(
-                                builder: ((context) => const HomePage())));
-                          } catch (error) {
-                            showSnackBar(
-                                context, "Improper usename or password");
+                          bool connected = await isConnected(context);
+                          if (!mounted) return;
+                          if (connected) {
+                            try {
+                              await context.read<CredentialManager>().doLogin(
+                                  _usernameController.text,
+                                  _passwordController.text);
+                              if (!mounted) return;
+                              Navigator.of(context).push(MaterialPageRoute(
+                                  builder: ((context) => const HomePage())));
+                            } catch (error) {
+                              showSnackBar(
+                                  context, "Improper usename or password");
+                            }
+                          } else {
+                            showSnackBar(context,
+                                "Please check your internet connection");
                           }
                         }
                         setState(() {
