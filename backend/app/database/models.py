@@ -37,6 +37,6 @@ class Order(Base):
     items = Column(PickleType)
     customer_id = Column(Integer, ForeignKey('customer.id'))
     customer = relationship("Customer") 
-    user_id = Column(Integer, ForeignKey('user.id'))
+    user_id = Column(Integer, ForeignKey('user.mi_id'))
     user = relationship("User", back_populates="orders")
 
