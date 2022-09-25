@@ -9,14 +9,18 @@ from database.database import get_db
 from database.crud import user as user_crud
 from auth.auth import ACCESS_TOKEN_EXPIRE_DAYS, authenticate_user, create_access_token
 from datetime import timedelta
+from log_util.log_util import get_logger
 
 router = APIRouter()
+logger = get_logger('user.py')
+
 
 @router.post('/users', response_model=schemas.User)
 def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
     """Create a new user in the database"""
     db_user = user_crud.get_user_by_mi_id(db, mi_id=user.mi_id)
     if db_user:
+        logger.error(f"Attempt to register with already registered MI ID")
         raise HTTPException(status_code=400, detail="mi_id already registered!")
     return user_crud.create_user(db=db, user=user)
 
@@ -34,4 +38,5 @@ async def login_for_access_token(db: Session = Depends(get_db), form_data: OAuth
     access_token = create_access_token(
         data={"sub": user.mi_id}, expires_delta=access_token_expires
     )
+    logger.error(f"Access token generated for user with MI ID: {user.mi_id}")
     return {"access_token": access_token, "token_type": "bearer"}

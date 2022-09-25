@@ -7,13 +7,16 @@ from email.mime.text import MIMEText
 
 from database import schemas
 from receipt import receipt
+from log_util.log_util import get_logger
 import os
+
+logger = get_logger('email_util.py')
 
 def send_email(order: schemas.Order):
     """Email order details to customer on completion of order"""
     customer = order.customer
     subject = f"Your order {order.order_id} at Xiaomi Store"
-    body = f"Dear {customer.name},\n\nCongratulations on your purchase at Xiaomi. Please find attached the receipt.\n"
+    body = f"Dear {customer.name},\n\nCongratulations on your purchase at Xiaomi. Please find the attached receipt.\n"
     
     sender_email = os.environ.get('EMAIL_ID')
     password = os.environ.get('EMAIL_PASSWORD')
@@ -48,5 +51,5 @@ def send_email(order: schemas.Order):
     with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as server:
         server.login(sender_email, password)
         server.sendmail(sender_email, receiver_email, text)
-    
+        logger.debug(f"Email sent to {sender_email}")
     receipt.delete_receipt(order_id=order.order_id)
