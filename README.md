@@ -67,7 +67,7 @@ Download and unzip the source code found in the releases of the repository. Then
 ## Demo
 
 * Windows Version: [YouTube link](https://youtu.be/XhN6hsNUc1U)
-* Android Version: [YouTube link](https://www.youtube.com/watch?v=Gnud3sqiEYY)
+* Android Version: [YouTube link](https://www.youtube.com/watch?v=eRFsNVai33M)
 
 ## Screenshots
 
