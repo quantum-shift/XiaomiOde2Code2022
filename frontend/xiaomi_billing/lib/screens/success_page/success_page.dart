@@ -11,18 +11,18 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:open_file/open_file.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
-import 'package:xiaomi_billing/main.dart';
 import 'package:xiaomi_billing/screens/home_page/home_page.dart';
-import 'package:xiaomi_billing/screens/product_details_page/product_details_page.dart';
 import 'package:xiaomi_billing/screens/success_page/components/pdf_viewer_page.dart';
 import 'package:xiaomi_billing/states/cart_model.dart';
 import 'package:xiaomi_billing/states/credential_manager.dart';
 import 'package:xiaomi_billing/states/global_data.dart';
 import 'package:xiaomi_billing/states/order_model.dart';
 import 'package:xiaomi_billing/states/products_model.dart';
+import 'dart:developer' as developer;
 
 import '../../constants.dart';
 
+/// Screen confirming a successful purchase
 class SuccessPage extends StatefulWidget {
   const SuccessPage({super.key, required this.offlineOrder});
   final bool offlineOrder;
@@ -33,8 +33,11 @@ class SuccessPage extends StatefulWidget {
 
 class _SuccessPageState extends State<SuccessPage> {
   bool _loading = true;
+
+  /// whether the receipt PDF is currently being generated
   bool _generating = false;
 
+  /// Clears cart information from *cart* device file
   Future<void> clearCartFile() async {
     var box = await Hive.openBox('cart');
     await box.clear();
@@ -42,8 +45,6 @@ class _SuccessPageState extends State<SuccessPage> {
 
   void onMount(List<int> productIds, List<String> serialNos) async {
     var box = await Hive.openBox('on-device-orders'); // stores order backups
-    // Remove later
-    // await box.clear();
     if (!mounted) return;
     Order order = Order(
         orderDate: DateTime.now(),
@@ -59,6 +60,7 @@ class _SuccessPageState extends State<SuccessPage> {
     }
 
     if (!widget.offlineOrder) {
+      // sync online order with backend
       try {
         if (!mounted) return;
         Dio dio = await context.read<CredentialManager>().getAPIClient();
@@ -76,17 +78,21 @@ class _SuccessPageState extends State<SuccessPage> {
         }
         await dio.post("/order/${context.read<GlobalData>().orderId}/complete",
             data: {'user_id': order.operatorId, 'items': l});
+        developer.log(
+            "Online Order Complete. User-id : ${order.operatorId} , items : $l");
       } catch (error) {
-        ;
+        developer.log("Online order sync failed : $error", level: 5);
       }
     } else {
+      // for offline order add order information to file
       var file = await Hive.openBox('offline-orders');
       file.add(order);
       try {
+        // then try to sync the info with the backend
         if (!mounted) return;
         context.read<CredentialManager>().syncAllOrders();
       } catch (error) {
-        ;
+        developer.log("Syncing offline orders later. Failed backend query.");
       }
     }
 
@@ -125,9 +131,10 @@ class _SuccessPageState extends State<SuccessPage> {
                             ])
                       : Column(
                           children: [
-                            Container(
+                            SizedBox(
                                 height: 550,
-                                child: Image.asset('assets/success.jpg')),
+                                child: Image.asset(
+                                    'assets/success.jpg')), // Designed by stories / Freepik
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                               children: [
@@ -177,11 +184,8 @@ class _SuccessPageState extends State<SuccessPage> {
                                     child: Row(
                                       mainAxisAlignment:
                                           MainAxisAlignment.center,
-                                      children: [
-                                        Container(
-                                            child:
-                                                const CircularProgressIndicator
-                                                    .adaptive()),
+                                      children: const [
+                                        CircularProgressIndicator.adaptive(),
                                       ],
                                     ),
                                   )
@@ -194,6 +198,7 @@ class _SuccessPageState extends State<SuccessPage> {
         });
   }
 
+  /// Creates receipt PDF and opens the file in Android and Windows
   Future<void> _createNativePDF(BuildContext context) async {
     await _createPDF(context);
     String? path;
@@ -204,6 +209,7 @@ class _SuccessPageState extends State<SuccessPage> {
     OpenFile.open('$path/Output.pdf');
   }
 
+  /// Creates the PDF receipt and stores it in a local device file
   Future<File> _createPDF(BuildContext buildContext) async {
     setState(() {
       _generating = true;
@@ -217,6 +223,7 @@ class _SuccessPageState extends State<SuccessPage> {
 
     int total = 0;
     final tableData = <List<dynamic>>[];
+    if (!mounted) return File("Output.pdf");
     for (int i = 0;
         i < buildContext.read<CartModel>().getProductIds().length;
         i++) {
@@ -271,14 +278,14 @@ class _SuccessPageState extends State<SuccessPage> {
                   crossAxisAlignment: pw.CrossAxisAlignment.start,
                   children: [
                     pw.Text(
-                      "${buildContext.read<GlobalData>().customerName}",
+                      buildContext.read<GlobalData>().customerName,
                       style: pw.TextStyle(
                         fontSize: 15.5,
                         fontWeight: pw.FontWeight.bold,
                       ),
                     ),
                     pw.Text(
-                      "${buildContext.read<GlobalData>().customerEmail}",
+                      buildContext.read<GlobalData>().customerEmail,
                     ),
                     pw.Text(
                       DateTime.now().toString(),
@@ -447,6 +454,7 @@ class _SuccessPageState extends State<SuccessPage> {
     return ret;
   }
 
+  /// Save file to local storage with given [fileName] and given file information([bytes])
   Future<File> saveFile(List<int> bytes, String fileName) async {
     String? path;
 

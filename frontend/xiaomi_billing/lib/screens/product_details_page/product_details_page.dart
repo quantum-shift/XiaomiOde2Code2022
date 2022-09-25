@@ -7,11 +7,15 @@ import 'package:xiaomi_billing/states/products_model.dart';
 
 import '../../constants.dart';
 
+/// Details page of associated product
 class ProductDetails extends StatefulWidget {
   const ProductDetails(
       {super.key, required this.product, required this.serialNo});
 
+  /// [Product] whose details are to be shown
   final Product product;
+
+  /// Pre-existing serial number
   final String serialNo;
 
   @override
@@ -21,16 +25,20 @@ class ProductDetails extends StatefulWidget {
 
 class _ProductDetailsState extends State<ProductDetails> {
   _ProductDetailsState({required this.product, required this.serialNo});
+
+  /// [Product] whose details are to be shown
   Product product;
+
+  /// Pre-existing serial number
   String serialNo;
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   late TextEditingController _categoryController;
   late TextEditingController _priceController;
-  late List<TextEditingController> _detailControllers = [];
-  late List<Widget> greyFields = [];
+  late final List<TextEditingController> _detailControllers = [];
+  late List<Widget> greyFields = []; // list of unchangeable fields 
   late TextEditingController _serialNoController;
-  bool _selected = false;
+  bool _selected = false; // if the item is in cart or not
 
   @override
   void initState() {
@@ -145,6 +153,7 @@ class _ProductDetailsState extends State<ProductDetails> {
   }
 }
 
+/// Returns a [TextField] widget which is not user-editable with the given [heading]
 Widget getFixedTextField(TextEditingController controller, String heading) {
   return Padding(
     padding: const EdgeInsets.all(10.0),

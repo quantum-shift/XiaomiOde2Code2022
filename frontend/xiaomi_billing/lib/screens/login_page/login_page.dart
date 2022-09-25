@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:xiaomi_billing/constants.dart';
+import 'package:xiaomi_billing/screens/home_page/components/cart_page.dart';
 import 'package:xiaomi_billing/screens/home_page/home_page.dart';
 import 'package:xiaomi_billing/states/credential_manager.dart';
 
 import '../../states/global_data.dart';
 
+/// Application login page
 class LoginPage extends StatefulWidget {
-  LoginPage({super.key});
+  const LoginPage({super.key});
 
   @override
   State<LoginPage> createState() => _LoginPageState();
@@ -20,8 +22,13 @@ class _LoginPageState extends State<LoginPage> {
 
   final TextEditingController _passwordController = TextEditingController();
 
+  String storeType = 'Mi Home'; // selected store type from dropdown
+
+  final List<String> storeTypeOptions = ['Mi Home', 'Mi Store', 'Mi Support'];
+
   bool _loading = false;
 
+  /// Validation function for Mi ID and password
   String? formFieldValidator(String? value) {
     if (value == null || value.isEmpty) {
       return 'Fields cannot be empty';
@@ -87,6 +94,39 @@ class _LoginPageState extends State<LoginPage> {
                   textInputAction: TextInputAction.done,
                 ),
               ),
+              Padding(
+                padding: EdgeInsets.symmetric(
+                    vertical: 8, horizontal: size.width * 0.1),
+                child: FormField(
+                  builder: (FormFieldState<String> state) => InputDecorator(
+                    decoration: const InputDecoration(
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                        ),
+                        labelText: 'Store Type'),
+                    child: DropdownButtonHideUnderline(
+                      child: DropdownButton<String>(
+                        isDense: true,
+                        focusColor: miOrange,
+                        value: storeType,
+                        onChanged: (String? value) {
+                          context.read<GlobalData>().setStoreType(value!);
+                          setState(() {
+                            storeType = value;
+                          });
+                        },
+                        items: storeTypeOptions
+                            .map<DropdownMenuItem<String>>(
+                                (String value) => DropdownMenuItem<String>(
+                                      value: value,
+                                      child: Text(value),
+                                    ))
+                            .toList(),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -105,14 +145,23 @@ class _LoginPageState extends State<LoginPage> {
                         saveDataToFile<String>(
                             'operatorId', _usernameController.text);
                         if (_formKey.currentState!.validate()) {
-                          try {
-                            await context.read<CredentialManager>().doRegister(
-                                _usernameController.text,
-                                _passwordController.text);
-                            Navigator.of(context).push(MaterialPageRoute(
-                                builder: (context) => const HomePage()));
-                          } catch (error) {
-                            showSnackBar(context, "Username already exists");
+                          bool connected = await isConnected(context);
+                          if (!mounted) return;
+                          if (connected) {
+                            try {
+                              await context
+                                  .read<CredentialManager>()
+                                  .doRegister(_usernameController.text,
+                                      _passwordController.text);
+                              if (!mounted) return;
+                              Navigator.of(context).push(MaterialPageRoute(
+                                  builder: (context) => const HomePage()));
+                            } catch (error) {
+                              showSnackBar(context, "Username already exists");
+                            }
+                          } else {
+                            showSnackBar(context,
+                                "Please check your internet connection");
                           }
                         }
                         setState(() {
@@ -137,15 +186,23 @@ class _LoginPageState extends State<LoginPage> {
                         saveDataToFile<String>(
                             'operatorId', _usernameController.text);
                         if (_formKey.currentState!.validate()) {
-                          try {
-                            await context.read<CredentialManager>().doLogin(
-                                _usernameController.text,
-                                _passwordController.text);
-                            Navigator.of(context).push(MaterialPageRoute(
-                                builder: ((context) => const HomePage())));
-                          } catch (error) {
-                            showSnackBar(
-                                context, "Improper usename or password");
+                          bool connected = await isConnected(context);
+                          if (!mounted) return;
+                          if (connected) {
+                            try {
+                              await context.read<CredentialManager>().doLogin(
+                                  _usernameController.text,
+                                  _passwordController.text);
+                              if (!mounted) return;
+                              Navigator.of(context).push(MaterialPageRoute(
+                                  builder: ((context) => const HomePage())));
+                            } catch (error) {
+                              showSnackBar(
+                                  context, "Improper usename or password");
+                            }
+                          } else {
+                            showSnackBar(context,
+                                "Please check your internet connection");
                           }
                         }
                         setState(() {
@@ -160,10 +217,8 @@ class _LoginPageState extends State<LoginPage> {
                           padding: const EdgeInsets.all(10.0),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Container(
-                                  child: const CircularProgressIndicator
-                                      .adaptive()),
+                            children: const [
+                              CircularProgressIndicator.adaptive(),
                             ],
                           ),
                         )

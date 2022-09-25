@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:xiaomi_billing/screens/checkout_page/checkout_page.dart';
@@ -27,6 +26,7 @@ const Product dummyProduct = Product(
     productImageUrl: 'a',
     productDetails: <String, dynamic>{});
 
+/// Function to clear local state files related to orders. Used during testing.
 Future<void> clearFiles() async {
   var box = await Hive.openBox('on-device-orders');
   await box.clear();
@@ -56,10 +56,12 @@ class MyApp extends StatefulWidget {
   State<MyApp> createState() => _MyAppState();
 }
 
+/// Root of the application
 class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
+    // Periodically run this function to sync order info with the backend
     Timer.periodic(const Duration(minutes: 1), (timer) async {
       await context.read<CredentialManager>().syncAllOrders();
     });
@@ -77,16 +79,12 @@ class _MyAppState extends State<MyApp> {
             primarySwatch: miOrange,
           )),
       home: context.read<CredentialManager>().getToken() == ''
-          ? LoginPage()
+          ? const LoginPage()
           : const HomePage(),
-      // home: context.watch<CredentialManager>().getToken() == ''
-      //     ? LoginPage()
-      //     : WindowsCheckoutPage(
-      //         name: "Arka", phone: "+911111122222", amount: 50000),
       routes: <String, WidgetBuilder>{
         'Home': (context) => const HomePage(),
         'Store': (context) => const StorePage(),
-        'ProductDetails': (context) => ProductDetails(
+        'ProductDetails': (context) => const ProductDetails(
               product: dummyProduct,
               serialNo: '',
             ),
@@ -94,15 +92,6 @@ class _MyAppState extends State<MyApp> {
         'Checkout': (context) => const CheckoutPage(),
         'Success': (context) => const SuccessPage(offlineOrder: true),
       },
-      // builder: (context, child) {
-      //   return Stack(
-      //     children: [
-      //       child!,
-      //       Positioned(
-      //           bottom: kBottomNavigationBarHeight, right: 5, child: Cart())
-      //     ],
-      //   );
-      // },
     );
   }
 }

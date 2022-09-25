@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:xiaomi_billing/states/cart_model.dart';
 import 'package:xiaomi_billing/states/credential_manager.dart';
 
+/// Cart Icon showing number of items in the cart
 class Cart extends StatelessWidget {
   const Cart({super.key});
 

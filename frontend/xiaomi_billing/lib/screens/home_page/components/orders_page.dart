@@ -8,9 +8,11 @@ import 'package:xiaomi_billing/states/global_data.dart';
 import 'package:xiaomi_billing/states/order_model.dart';
 import 'package:intl/intl.dart';
 import 'package:xiaomi_billing/states/products_model.dart';
+import 'dart:developer' as developer;
 
 import '../../../constants.dart';
 
+/// Page showing all orders in the application
 class OrdersPage extends StatefulWidget {
   const OrdersPage({super.key});
 
@@ -20,16 +22,23 @@ class OrdersPage extends StatefulWidget {
 
 class _OrdersPageState extends State<OrdersPage> {
   bool _loading = true;
+
+  /// list of recent orders
   final List<Order> _orderList = [];
+
+  /// whether the accordion of the order has been expanded or not
   final List<bool> _isOpen = [];
 
   void onMount() async {
-    var box = await Hive.openBox('offline-orders');
+    var box = await Hive.openBox(
+        'offline-orders'); // first read orders not yet synced with the backend
+    if (!mounted) return;
     String operatorId = context.read<GlobalData>().operatorId;
     if (box.isNotEmpty) {
       for (int i = 0; i < box.length; i++) {
         Order order = box.getAt(i);
         if (order.operatorId == operatorId) {
+          developer.log("Offline on-device orders : $order");
           _orderList.add(order);
           _isOpen.add(false);
         }
@@ -37,10 +46,13 @@ class _OrdersPageState extends State<OrdersPage> {
     }
 
     try {
+      // if internet connection is there retrieve orders from backend
       // query /orders
+      if (!mounted) return;
       Dio dio = await context.read<CredentialManager>().getAPIClient();
       Response response = await dio.get('/orders');
       for (Map<String, dynamic> m in response.data) {
+        developer.log("Backend saved orders : $m");
         List<int> productIds = [];
         List<String> serialNos = [];
         for (Map<String, dynamic> itemMap in m['items']) {
@@ -58,11 +70,13 @@ class _OrdersPageState extends State<OrdersPage> {
         _isOpen.add(false);
       }
     } catch (error) {
+      // without internet connection read order info from device file
       // read from on-device-orders
       var box = await Hive.openBox('on-device-orders');
       if (box.isNotEmpty) {
         for (int i = 0; i < box.length; i++) {
           Order order = box.getAt(i);
+          developer.log("Online on-device orders : $order");
           if (order.operatorId == operatorId) {
             _orderList.add(order);
             _isOpen.add(false);
@@ -84,6 +98,7 @@ class _OrdersPageState extends State<OrdersPage> {
     onMount();
   }
 
+  /// Given a list of [productIds] returns the total cost associated (including tax)
   int cartAmount(List<int> productIds) {
     int amount = 0;
     for (int id in productIds) {
@@ -96,6 +111,7 @@ class _OrdersPageState extends State<OrdersPage> {
     return int.tryParse((amount * 1.15).toStringAsFixed(0))!;
   }
 
+  /// Returns the corresponding [Product] given the [productId]
   Product getProductFromId(int productId) {
     for (Product product in context.read<ProductModel>().getProducts()) {
       if (product.productId == productId) {
@@ -144,7 +160,7 @@ class _OrdersPageState extends State<OrdersPage> {
                       .entries
                       .map((orderItem) => ExpansionPanel(
                           canTapOnHeader: true,
-                          headerBuilder: (context, isExpanded) => Container(
+                          headerBuilder: (context, isExpanded) => SizedBox(
                                 width: size.width * 0.8,
                                 child: Row(
                                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -197,15 +213,21 @@ class _OrdersPageState extends State<OrdersPage> {
                                       width: size.width * 0.45,
                                       child: Column(
                                         children: [
-                                          Text(orderItem.value.customerName, maxLines: 2, textAlign: TextAlign.center,
+                                          Text(orderItem.value.customerName,
+                                              maxLines: 2,
+                                              textAlign: TextAlign.center,
                                               style: const TextStyle(
                                                   fontSize: 15)),
-                                          Text(orderItem.value.customerPhone, maxLines: 2, textAlign: TextAlign.center,
+                                          Text(orderItem.value.customerPhone,
+                                              maxLines: 2,
+                                              textAlign: TextAlign.center,
                                               style: const TextStyle(
                                                   color: Color.fromARGB(
                                                       255, 127, 127, 127),
                                                   fontSize: 13)),
-                                          Text(orderItem.value.customerEmail, maxLines: 2, textAlign: TextAlign.center,
+                                          Text(orderItem.value.customerEmail,
+                                              maxLines: 2,
+                                              textAlign: TextAlign.center,
                                               style: const TextStyle(
                                                   color: Color.fromARGB(
                                                       255, 127, 127, 127),
@@ -218,7 +240,7 @@ class _OrdersPageState extends State<OrdersPage> {
                               ),
                           body: Column(children: [
                             const Divider(thickness: 2),
-                            Container(
+                            SizedBox(
                               width: size.width * 0.95,
                               child: DataTable(
                                 sortColumnIndex: 2,
@@ -250,9 +272,13 @@ class _OrdersPageState extends State<OrdersPage> {
                                               return null;
                                             }),
                                             cells: [
-                                              DataCell(Text(getProductFromId(
-                                                      productId.value)
-                                                  .productName)),
+                                              DataCell(Text(
+                                                getProductFromId(
+                                                        productId.value)
+                                                    .productName,
+                                                maxLines: 2,
+                                                overflow: TextOverflow.ellipsis,
+                                              )),
                                               DataCell(Text(orderItem.value
                                                   .serialNos[productId.key])),
                                               DataCell(Text(

@@ -18,6 +18,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:xiaomi_billing/states/global_data.dart';
 import '../../../states/products_model.dart';
 
+/// Saves cart information to *cart* device file
 void saveCartToFile(bool mounted, BuildContext context) async {
   if (!mounted) return;
   List<int> productIds = context.read<CartModel>().getProductIds();
@@ -28,6 +29,7 @@ void saveCartToFile(bool mounted, BuildContext context) async {
   box.put('serial', serialNos);
 }
 
+/// Determines if there is an internet connection by attempting to connect to the backend
 Future<bool> isConnected(BuildContext context) async {
   try {
     Dio dio = await context.read<CredentialManager>().getAPIClient();
@@ -38,6 +40,7 @@ Future<bool> isConnected(BuildContext context) async {
   }
 }
 
+/// Retreives all available products by reading *products* device file
 void retrieveProductsFromFile(BuildContext context, bool mounted) async {
   var box = await Hive.openBox('products');
   if (box.isEmpty) return;
@@ -49,6 +52,7 @@ void retrieveProductsFromFile(BuildContext context, bool mounted) async {
   context.read<ProductModel>().updateProductList(productsInFile);
 }
 
+/// Retrieves all available products by calling */products* at the backend
 Future<void> retrieveProductsFromAPI(BuildContext context, bool mounted) async {
   var dio = await context.read<CredentialManager>().getAPIClient();
   Response<String> response = await dio.get('/products');
@@ -59,6 +63,7 @@ Future<void> retrieveProductsFromAPI(BuildContext context, bool mounted) async {
   context.read<ProductModel>().updateProductList(retrievedProducts);
 }
 
+/// Cart Page in the application
 class CartPage extends StatefulWidget {
   const CartPage({super.key});
 
@@ -69,11 +74,13 @@ class CartPage extends StatefulWidget {
 class _CartPageState extends State<CartPage> {
   bool _loading = true;
 
+  /// Clears the *products* device file
   Future<void> clearFile() async {
     var box = await Hive.openBox('products');
     await box.clear();
   }
 
+  /// Writes product information stored in [ProductModel] to *products* device file
   void writeProductsToFile() async {
     await clearFile();
     var box = await Hive.openBox('products');
@@ -83,6 +90,7 @@ class _CartPageState extends State<CartPage> {
     }
   }
 
+  /// Reads cart information from *cart* device file
   Future<void> readCartFromFile() async {
     var box = await Hive.openBox('cart');
     if (box.isEmpty) return;
@@ -107,6 +115,7 @@ class _CartPageState extends State<CartPage> {
 
   void handleMount() async {
     if (!context.read<GlobalData>().visitedCart) {
+      // run only once in app life cycle
       try {
         await retrieveProductsFromAPI(context, mounted);
       } catch (error) {
@@ -122,6 +131,7 @@ class _CartPageState extends State<CartPage> {
     });
   }
 
+  /// Function invoked when the user refreshes the page by pulling down on mobile or by using the refresh button on Windows
   void handlerefresh() async {
     try {
       bool connected = await isConnected(context);
@@ -186,8 +196,9 @@ class _CartPageState extends State<CartPage> {
                     tooltip: 'Logout',
                     onPressed: () async {
                       await context.read<CredentialManager>().doLogout();
+                      if (!mounted) return;
                       Navigator.of(context).push(
-                          MaterialPageRoute(builder: (context) => LoginPage()));
+                          MaterialPageRoute(builder: (context) => const LoginPage()));
                     },
                   ),
                 ],
@@ -231,10 +242,8 @@ class _CartPageState extends State<CartPage> {
                       padding: const EdgeInsets.symmetric(vertical: 40),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Container(
-                              child:
-                                  const CircularProgressIndicator.adaptive()),
+                        children: const [
+                          CircularProgressIndicator.adaptive(),
                         ],
                       ),
                     ))

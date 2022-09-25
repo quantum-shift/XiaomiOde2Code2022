@@ -1,6 +1,7 @@
 
 import 'package:flutter/material.dart';
 
+/// Widget displaying an empty cart symbol with required [message] in a [Card] widget
 class EmptyCartCard extends StatelessWidget {
   const EmptyCartCard({
     super.key,

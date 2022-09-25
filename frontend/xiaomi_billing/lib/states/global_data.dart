@@ -1,14 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 
+/// Stores global app state info
 class GlobalData extends ChangeNotifier {
+  /// Whether the cart page has been loaded before
   bool visitedCart = false;
+  /// OperatorId of the operator of the app
   String operatorId = '';
-  String storeType = 'Mobile Store';
+  /// Store type
+  String storeType = 'Mi Home';
+  /// Customer name
   String customerName = '';
+  /// Customer email
   String customerEmail = '';
+  /// Phone no of customer
   String customerPhone = '';
+  /// Unique id associated with each order
   String orderId = '';
+  /// Communication preference of the customer : email / whatsapp
   String preferredCommunication = '';
 
   void setVisitedCart(bool visitedCart) {
@@ -52,11 +61,13 @@ class GlobalData extends ChangeNotifier {
   }
 }
 
+/// Saves a [key]-[value] pair to local file
 void saveDataToFile<T>(String key, T value) async {
   var box = await Hive.openBox('global');
   box.put(key, value);
 }
 
+/// Retrieve value for associated [key] from local file
 Future<T> readDataFromFile<T>(String key) async {
   var box = await Hive.openBox('global');
   return box.get(key);

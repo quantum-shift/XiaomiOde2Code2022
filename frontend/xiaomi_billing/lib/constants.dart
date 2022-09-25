@@ -1,12 +1,11 @@
-import 'dart:io' show Platform;
 
 import 'package:flutter/material.dart';
 
-import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 final String? baseUrl = dotenv.env['BASE_URL'];
 
+/// Returns MaterialColor Object from an input Color Object
 MaterialColor createMaterialColor(Color color) {
   List strengths = <double>[.05];
   Map<int, Color> swatch = {};
@@ -27,6 +26,7 @@ MaterialColor createMaterialColor(Color color) {
   return MaterialColor(color.value, swatch);
 }
 
+/// Default style of elevated button used throughout the app
 var getButtonStyle = (context) => ButtonStyle(
       backgroundColor: MaterialStateProperty.resolveWith<Color?>(
         (Set<MaterialState> states) {
@@ -44,6 +44,7 @@ var getButtonStyle = (context) => ButtonStyle(
 
 MaterialColor miOrange = createMaterialColor(const Color(0xffff6801));
 
+/// Default function to show snackbar with the input [message]
 void showSnackBar(BuildContext context, String message) {
   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       content: Text(message),
@@ -57,14 +58,3 @@ void showSnackBar(BuildContext context, String message) {
         onPressed: () {},
       )));
 }
-
-// void setBaseUrl() {
-//   if (!kIsWeb) {
-//     if (Platform.isAndroid) {
-//       baseUrl = 'http://10.0.2.2:8000';
-//     } else if (Platform.isMacOS) {
-//       baseUrl = 'http://pc01.local:8000';
-//       // print(baseUrl);
-//     }
-//   }
-// }

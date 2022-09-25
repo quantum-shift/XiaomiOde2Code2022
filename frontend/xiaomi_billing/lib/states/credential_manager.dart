@@ -4,9 +4,11 @@ import 'package:hive/hive.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:xiaomi_billing/constants.dart';
 import 'package:xiaomi_billing/states/products_model.dart';
+import 'dart:developer' as developer;
 
 import 'order_model.dart';
 
+/// Functions handling login / logout
 class CredentialManager extends ChangeNotifier {
   String _token = '';
   final Dio _dio = Dio();
@@ -15,6 +17,7 @@ class CredentialManager extends ChangeNotifier {
     retrieveToken();
   }
 
+  /// Retrieves JWT token stored locally
   void retrieveToken() async {
     final prefs = await SharedPreferences.getInstance();
     if (prefs.getString('token')?.isEmpty ?? true) {
@@ -23,19 +26,21 @@ class CredentialManager extends ChangeNotifier {
       _token = prefs.getString('token')!;
     }
     notifyListeners();
-    print("Updated token to: $_token");
+    developer.log("Updated token to: $_token");
   }
 
   String getToken() {
     return _token;
   }
 
+  /// Set new value of locally stored token
   Future<void> setToken(String token) async {
     final prefs = await SharedPreferences.getInstance();
     prefs.setString('token', token);
     retrieveToken();
   }
 
+  /// Returns a [Dio] client object with JWT token included in the header
   Future<Dio> getAPIClient() async {
     _dio.interceptors.clear();
     if (_token != '') {
@@ -48,14 +53,14 @@ class CredentialManager extends ChangeNotifier {
     return _dio;
   }
 
-  Future <void> doRegister(String username, String password) async {
+  /// Registers new user to the backend. Throws [DioError].
+  Future<void> doRegister(String username, String password) async {
     Dio dio = await getAPIClient();
-    var response = await dio
-        .post('/users', data: {'mi_id': username, 'password': password});
-    print(response.data);
+    await dio.post('/users', data: {'mi_id': username, 'password': password});
     await doLogin(username, password);
   }
 
+  /// Logs in an exisiting user. Throws [DioError].
   Future<void> doLogin(String username, String password) async {
     Dio dio = await getAPIClient();
     Map<String, dynamic> formMap = <String, dynamic>{};
@@ -63,21 +68,24 @@ class CredentialManager extends ChangeNotifier {
     formMap['password'] = password;
     FormData formData = FormData.fromMap(formMap);
     var response = await dio.post('/token', data: formData);
-    print(response.data);
-    print("Logging in!");
+    developer.log("Logging in!");
     setToken(response.data['access_token']);
     // dio.get('/token')
   }
 
+  /// Logs out an already logged in user.
   Future<void> doLogout() async {
-    print("Logging out!");
+    developer.log("Logging out!");
     await setToken('');
     notifyListeners();
   }
 
+  /// Syncs orders stored in *offline-orders* device file with the backend
   Future<void> syncAllOrders() async {
-    var box = await Hive.openBox('offline-orders');
-    var onDeviceBox = await Hive.openBox('on-device-orders');
+    var box = await Hive.openBox(
+        'offline-orders'); // orders that have not yet synced with the backend
+    var onDeviceBox =
+        await Hive.openBox('on-device-orders'); // orders that have been synced
     if (box.isNotEmpty) {
       List<Order> orderList = [];
       for (int i = 0; i < box.length; i++) {
@@ -85,9 +93,10 @@ class CredentialManager extends ChangeNotifier {
       }
       List<Product> productList = [];
       var productBox = await Hive.openBox('products');
-      if (productBox.isEmpty) return;
-      for (int i = 0; i < productBox.length; i++) {
-        productList.add(productBox.getAt(i));
+      if (productBox.isNotEmpty) {
+        for (int i = 0; i < productBox.length; i++) {
+          productList.add(productBox.getAt(i));
+        }
       }
       await box.clear();
       for (Order order in orderList) {

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:xiaomi_billing/screens/home_page/components/cart_page.dart';
 import 'package:xiaomi_billing/screens/home_page/components/orders_page.dart';
 
+/// Application Home Page template with bottom navigation
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
