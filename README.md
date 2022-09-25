@@ -8,11 +8,11 @@ This is the submission of Team BForBrute for Xiaomi Ode2Code 2.0 (2022).
 Download and install the APK file found in the releases of the repository.
 
 ### Windows
-Download and unzip the zip file found in the releases of the reposotory. The extracted folder contains the .exe application file.
+Download and unzip the zip file found in the releases of the repository. The extracted folder contains the .exe application file.
 
 ### iOS
 
-Todo
+Download and unzip the source code found in the releases of the repository. Then follow the instruction in this [article](https://medium.com/front-end-weekly/how-to-test-your-flutter-ios-app-on-your-ios-device-75924bfd75a8#:~:text=You%20need%20to%20go%20to,app%20on%20your%20local%20device) for installing the app on iOS.
 
 ## Build Instructions (on Linux)
 
@@ -36,7 +36,7 @@ Todo
     - Install plugins `$ flutter pub get`
     - Create a copy of `.env.sample` file in the same directory and name it `.env`
     - Put the Razorpay `API_KEY_ID` and the URL of the backend server `BASE_URL` in the `.env` file.
-    - Create and open an Android device with Google play from Android Studio virtual device manager.
+    - Create and open an Android device with Google play from Android Studio virtual device manager or an iOS device from the macOS Simulator app. For building on desktop, you do not need to open any additional device / simulator.
     - Run `flutter run` and the app should start in the emulator!
 
 ## Implementation:
@@ -63,3 +63,16 @@ Todo
   - Renders Windows payment page using `jinja2` template library.
   - Follows FastAPI recommended documentation and directory structure guidelines.
   - Uses `pydantic` library for validation of database model objects received in API calls or sent as responses.
+
+## Demo
+
+* Windows Version: [YouTube link](https://youtu.be/XhN6hsNUc1U)
+* Android Version: [YouTube link](https://www.youtube.com/watch?v=Gnud3sqiEYY)
+
+## Screenshots
+
+<div style="display:flex">
+<img src="./assets/cart.png" width=250px />
+<img src="./assets/payment.png" width=250px />
+<img src="./assets/orders.png" width=250px />
+</div>
