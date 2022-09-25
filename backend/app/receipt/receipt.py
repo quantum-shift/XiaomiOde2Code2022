@@ -13,8 +13,10 @@ from borb.pdf import Alignment
 from borb.pdf import TableCell
 from borb.pdf import HexColor, X11Color
 from database.crud.product import get_product
-
+from log_util.log_util import get_logger
 from database import schemas
+
+logger = get_logger('receipt.py')
 
 def _build_invoice_information(order: schemas.Order):
 
@@ -57,8 +59,6 @@ def _build_itemized_description_table(order: schemas.Order):
         )
     
 
-    # construct the Font object
-
     odd_color = HexColor("#ffc69e")  
     even_color = HexColor("FFFFFF")  
 
@@ -88,10 +88,8 @@ def _build_itemized_description_table(order: schemas.Order):
     return table_001
 
 def generate_receipt(order: schemas.Order):
-    # Create document
     pdf: Document = Document()
 
-    # Add page
     page = Page()
     pdf.add_page(page)
 
@@ -116,10 +114,13 @@ def generate_receipt(order: schemas.Order):
     
     with open(Path(f"receipt_{order.order_id}.pdf"), "wb") as pdf_file_handle:
         PDF.dumps(pdf_file_handle, pdf)
+    
+    logger.debug(f"Generated receipt for order id: {order.order_id}")
 
 def delete_receipt(order_id: str):
     pdf_file_delete = Path(f"receipt_{order_id}.pdf")
     pdf_file_delete.unlink()
+    logger.debug(f"Deleted generated receipt for order id: {order_id}")
 
 def main():
     order = schemas.Order.construct()
